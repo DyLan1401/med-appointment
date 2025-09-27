@@ -1,0 +1,43 @@
+services:
+  mysql:
+    image: mysql:8
+    container_name: mysql-container
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: med-appointment_db
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - med-appointment_net
+
+  backend:
+    build: ./med-appointment_b
+    container_name: med-appointment_b
+    restart: always
+    env_file:
+      - ./med-appointment_b/.env
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+    networks:
+      - med-appointment_net
+
+  frontend:
+    build: ./med-appointment_f
+    container_name: med-appointment_f
+    restart: always
+    ports:
+      - "80:80"   # chạy production qua nginx
+    depends_on:
+      - backend
+    networks:
+      - med-appointment_net
+
+volumes:
+  db_data:
+
+networks:
+  med-appointment_net:
+    driver: bridge

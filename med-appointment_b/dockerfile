@@ -1,0 +1,33 @@
+# Sử dụng image PHP chính thức có sẵn Composer và PHP extensions
+FROM php:8.2-fpm
+
+# Cài thêm dependencies cần thiết
+RUN apt-get update && apt-get install -y \
+    libpng-dev libjpeg-dev libfreetype6-dev \
+    zip unzip git curl \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo pdo_mysql gd
+
+# Cài Composer (nếu chưa có)
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+# Đặt thư mục làm việc
+WORKDIR /var/www/html
+
+# Copy toàn bộ source Laravel vào container
+COPY . .
+
+# Cài đặt dependencies Laravel
+RUN composer install --no-interaction --optimize-autoloader --no-dev
+
+# Copy .env (nếu muốn custom thì có thể mount volume ngoài)
+# COPY .env .env
+
+# Phân quyền storage & bootstrap/cache
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Mở port 8000 (Laravel serve)
+EXPOSE 8000
+
+# Chạy Laravel server
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
