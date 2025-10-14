@@ -4,62 +4,128 @@ namespace App\Http\Controllers;
 
 use App\Models\Service;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class ServiceController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Lấy danh sách tất cả service
      */
     public function index()
     {
-        //
+        $services = Service::all();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Danh sách dịch vụ',
+            'data' => $services
+        ]);
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
+     * Thêm service mới
      */
     public function store(Request $request)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric|min:0'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Dữ liệu không hợp lệ',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $service = Service::create($validator->validated());
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Thêm dịch vụ thành công',
+            'data' => $service
+        ], 201);
     }
 
     /**
-     * Display the specified resource.
+     * Lấy chi tiết service theo ID
      */
-    public function show(Service $service)
+    public function show($id)
     {
-        //
+        $service = Service::find($id);
+
+        if (!$service) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không tìm thấy dịch vụ'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $service
+        ]);
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Cập nhật service
      */
-    public function edit(Service $service)
+    public function update(Request $request, $id)
     {
-        //
+        $service = Service::find($id);
+
+        if (!$service) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không tìm thấy dịch vụ'
+            ], 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'sometimes|required|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'sometimes|required|numeric|min:0'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Dữ liệu không hợp lệ',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $service->update($validator->validated());
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Cập nhật dịch vụ thành công',
+            'data' => $service
+        ]);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Xóa service
      */
-    public function update(Request $request, Service $service)
+    public function destroy($id)
     {
-        //
-    }
+        $service = Service::find($id);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Service $service)
-    {
-        //
+        if (!$service) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không tìm thấy dịch vụ'
+            ], 404);
+        }
+
+        $service->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Xóa dịch vụ thành công'
+        ]);
     }
 }
