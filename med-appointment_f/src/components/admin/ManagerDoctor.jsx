@@ -1,170 +1,164 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import API from "../../api/axios";
+import LoadingOverlay from "../common/LoadingOverlay";
+import ConfirmModal from "../common/ConfirmModal";
+import Pagination from "../common/Pagination";
 
-import dt2 from "../../assets/dt2.jpg";
 export default function ManagerDoctor() {
+    const [doctors, setDoctors] = useState([]);
+    const [form, setForm] = useState({
+        id: null, name: "", email: "", password: "",
+        specialization: "", bio: "", phone: ""
+    });
+    const [isEditing, setIsEditing] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [deleteId, setDeleteId] = useState(null);
+    const [detailDoctor, setDetailDoctor] = useState(null);
+
+    // Phân trang
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+
+    // Fetch danh sách
+    useEffect(() => { fetchDoctors(); }, []);
+    const fetchDoctors = async () => {
+        setLoading(true);
+        try {
+            const res = await API.get("/doctors");
+            setDoctors(res.data);
+        } catch {
+            alert("Không thể tải danh sách bác sĩ!");
+        } finally { setLoading(false); }
+    };
+
+    // Thêm hoặc sửa
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        try {
+            if (isEditing) {
+                const res = await API.put(`/doctors/${form.id}`, form);
+                setDoctors(doctors.map(d => d.id === form.id ? res.data.doctor : d));
+                alert("Cập nhật thành công!");
+            } else {
+                const res = await API.post("/doctors", form);
+                setDoctors([...doctors, res.data.doctor]);
+                alert("Thêm thành công!");
+            }
+            resetForm();
+        } catch (err) {
+            console.error(err);
+            alert("Lỗi khi lưu bác sĩ!");
+        } finally { setLoading(false); }
+    };
+
+    const resetForm = () => {
+        setForm({ id: null, name: "", email: "", password: "", specialization: "", bio: "", phone: "" });
+        setIsEditing(false);
+    };
+
+    // Sửa / Xem / Xóa
+    const handleEdit = (d) => {
+        setForm({
+            id: d.id, name: d.user?.name, email: d.user?.email,
+            specialization: d.specialization, bio: d.bio, phone: d.user?.phone
+        });
+        setIsEditing(true);
+    };
+    const handleDelete = async () => {
+        setLoading(true);
+        try {
+            await API.delete(`/doctors/${deleteId}`);
+            setDoctors(doctors.filter(d => d.id !== deleteId));
+            alert("Đã xóa!");
+        } finally {
+            setLoading(false);
+            setDeleteId(null);
+        }
+    };
+    const openDetail = (d) => setDetailDoctor(d);
+
+    // Phân trang dữ liệu
+    const totalPages = Math.ceil(doctors.length / itemsPerPage);
+    const visibleDoctors = doctors.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     return (
-        <>
-            <div className='w-full h-screen '>
-                <div className="w-full h-full  flex flex-col p-3">
-                    <h1 className="text-blue-500 text-xl font-semibold py-5">Quản lí Bác sĩ</h1>
-                    <div className="py-5">Thêm, chỉnh sửa, xóa bác sĩ trong hệ thống</div>
-                    <div>
-                        <h2>Thông tin bác sĩ</h2>
-                        <form className="grid grid-cols-2 gap-4 mb-6">
-                            {/* Cột trái */}
-                            <div>
-                                <label className="block mb-1 text-gray-700">Tên bác sĩ</label>
-                                <input
-                                    type="text"
-                                    className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
-                                />
-                                <label className="block mt-4 mb-1 text-gray-700">Chọn Khoa</label>
-                                <select
-                                    className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
-                                >
-                                    <option value="">-- Chọn Khoa --</option>
-                                    <option value="Tim mạch">Tim mạch</option>
-                                    <option value="Tai mũi họng">Tai mũi họng</option>
+        <div className="p-6">
+            <LoadingOverlay show={loading} message="Đang xử lý..." />
 
-                                </select>
-                            </div>
+            <h1 className="text-blue-500 text-xl font-semibold mb-4">Quản lý Bác sĩ</h1>
 
-                            {/* Cột phải */}
-                            <div>
-                                <label className="block mb-1 text-gray-700">Email</label>
-                                <input
-                                    type="email"
-                                    className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
-                                />
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4 mb-6 bg-gray-50 p-4 rounded-lg shadow">
+                <input type="text" placeholder="Tên bác sĩ" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className="border p-2 rounded" required />
+                <input type="email" placeholder="Email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className="border p-2 rounded" required />
+                <input type="password" placeholder="Mật khẩu" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} className="border p-2 rounded" required={!isEditing} />
+                <input type="text" placeholder="Số điện thoại" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} className="border p-2 rounded" />
+                <input type="text" placeholder="Chuyên khoa" value={form.specialization} onChange={e => setForm({ ...form, specialization: e.target.value })} className="border p-2 rounded col-span-2" />
+                <textarea placeholder="Mô tả chuyên môn" value={form.bio} onChange={e => setForm({ ...form, bio: e.target.value })} className="border p-2 rounded col-span-2" />
+                <button className={`${isEditing ? "bg-green-500" : "bg-blue-500"} text-white px-4 py-2 rounded col-span-2`}>
+                    {isEditing ? "Cập nhật" : "Thêm bác sĩ"}
+                </button>
+            </form>
 
-                                <label className="block mt-4 mb-1 text-gray-700">Ghi chú</label>
-                                <label className="block mb-1 text-gray-700">Số điện thoại</label>
-                                <input
-                                    type="number"
-                                    className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
-                                />
+            {/* Danh sách */}
+            <table className="w-full border rounded-lg shadow">
+                <thead className="bg-blue-500 text-white">
+                    <tr>
+                        <th className="p-2">Tên</th>
+                        <th>Email</th>
+                        <th>Chuyên khoa</th>
+                        <th>Trạng thái</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {visibleDoctors.map((d) => (
+                        <tr key={d.id} className="border text-center">
+                            <td>{d.user?.name}</td>
+                            <td>{d.user?.email}</td>
+                            <td>{d.specialization}</td>
+                            <td>{d.status}</td>
+                            <td className="space-x-2">
+                                <button onClick={() => openDetail(d)} className="text-blue-600 hover:underline">Xem</button>
+                                <button onClick={() => handleEdit(d)} className="text-green-600 hover:underline">Sửa</button>
+                                <button onClick={() => setDeleteId(d.id)} className="text-red-600 hover:underline">Xóa</button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
 
-                            </div>
-                            <div className="col-span-2 py-2">
-                                <label htmlFor="">Mô tả chuyên môn</label>
-                                <textarea
-                                    className="w-full border border-gray-300 rounded-lg p-2 min-h-[80px] resize-none focus:ring-2 focus:ring-blue-400"
-                                />
-                                <label htmlFor="">Tiểu sử</label>
-                                <textarea
-                                    className="w-full border border-gray-300 rounded-lg p-2 min-h-[80px] resize-none focus:ring-2 focus:ring-blue-400"
-                                />
-                            </div>
-                            {/* Nút đặt lịch */}
-                            <div className=" flex justify-start items-center">
-                                <button
-                                    type="submit"
-                                    className="bg-blue-600 px-5  text-white  text-center py-3 justify-center rounded-lg flex items-center gap-2 font-semibold"
-                                >
-                                    Lưu bác sĩ
-                                </button>
-                            </div>
-                        </form>
+            <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+
+            {/* Modal Xác nhận xóa */}
+            <ConfirmModal
+                show={!!deleteId}
+                title="Xóa bác sĩ"
+                message={`Bạn có chắc muốn xóa bác sĩ #${deleteId}?`}
+                danger
+                confirmText="Xóa"
+                onConfirm={handleDelete}
+                onCancel={() => setDeleteId(null)}
+            />
+
+            {/* Modal Chi tiết bác sĩ */}
+            {detailDoctor && (
+                <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+                        <h2 className="text-lg font-bold text-blue-600 mb-2">Thông tin bác sĩ</h2>
+                        <p><b>Tên:</b> {detailDoctor.user?.name}</p>
+                        <p><b>Email:</b> {detailDoctor.user?.email}</p>
+                        <p><b>SĐT:</b> {detailDoctor.user?.phone}</p>
+                        <p><b>Chuyên khoa:</b> {detailDoctor.specialization}</p>
+                        <p><b>Mô tả:</b> {detailDoctor.bio}</p>
+                        <p><b>Trạng thái:</b> {detailDoctor.status}</p>
+                        <div className="text-right mt-4">
+                            <button onClick={() => setDetailDoctor(null)} className="bg-blue-500 text-white px-4 py-2 rounded">Đóng</button>
+                        </div>
                     </div>
-
-                    <div className="flex justify-between items-center py-2">
-                        <form class="max-w-md ">
-                            <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                                    <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
-                                    </svg>
-                                </div>
-                                <input type="search" id="default-search" class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-200" placeholder="Tìm kiếm Bác sĩ" />
-                            </div>
-                        </form>
-                        <button className="bg-green-500 py-2 px-4 rounded-lg">Thêm Bác sĩ</button>
-                    </div>
-
-                    <div class="relative  pb-5 shadow-md ">
-                        <table class="w-full text-sm text-gray-500">
-                            <thead class="uppercase text-white   bg-blue-500">
-                                <tr>
-                                    <th scope="col" class="px-6 py-3">
-                                        Ảnh
-                                    </th>
-                                    <th scope="col" class="px-6 py-3">
-                                        Tên Bác sĩ
-                                    </th>
-                                    <th scope="col" class="px-6 py-3">
-                                        Email
-                                    </th>
-                                    <th scope="col" class="px-6 py-3">
-                                        Chuyên khoa
-                                    </th>
-                                    <th scope="col" class="px-6 py-3">
-                                        Trạng thái
-                                    </th>
-                                    <th scope="col" class="px-6 py-3">
-                                        Thao tác
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200">
-                                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        <img
-                                            src={dt2}
-                                            alt="doctor"
-                                            className="w-24  h-24 bg-contain rounded-full bg-blue-100 p-2"
-                                        />
-                                    </th>
-                                    <td class="px-6 py-4">
-                                        Nguyễn Văn A
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        Nguyenvana@gmail.com
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        Tim mạch
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <button className=" px-2 bg-green-200 rounded-lg">online</button>
-                                    </td>
-                                    <td class="px-6 py-4 space-x-2">
-                                        <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Xem</a>
-                                        <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Sửa</a>
-                                        <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Xóa</a>
-                                    </td>
-                                </tr>
-                                <tr class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200">
-                                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        <img
-                                            src={dt2}
-                                            alt="doctor"
-                                            className="w-24  h-24 bg-contain rounded-full bg-blue-100 p-2"
-                                        />
-                                    </th>
-                                    <td class="px-6 py-4">
-                                        Nguyễn Văn B
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        Nguyenvanb@gmail.com
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        Tai mũi họng
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <button className=" px-2 bg-red-200 rounded-lg">offline</button>
-                                    </td>
-                                    <td class="px-6 py-4 space-x-2">
-                                        <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Xem</a>
-                                        <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Sửa</a>
-                                        <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Xóa</a>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                </div >
-            </div > </>
+                </div>
+            )}
+        </div>
     );
 }

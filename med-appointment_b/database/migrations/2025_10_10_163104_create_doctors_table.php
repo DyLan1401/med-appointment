@@ -8,10 +8,10 @@ return new class extends Migration {
     public function up(): void {
         Schema::create('doctors', function (Blueprint $table) {
             $table->unsignedBigInteger('id')->primary();
-            $table->unsignedBigInteger('department_id')->nullable();
             $table->text('specialization')->nullable();
             $table->enum('status', ['online', 'offline'])->default('offline');
             $table->text('bio')->nullable();
+            // $table->timestamps();
 
             $table->foreign('id')->references('id')->on('users')->onDelete('cascade');
         });
