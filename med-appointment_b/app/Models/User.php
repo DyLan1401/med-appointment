@@ -4,16 +4,47 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    use HasFactory;
+    use HasFactory, Notifiable;
 
     protected $fillable = [
-        'name', 'email', 'password', 'role',
-        'avatar_url', 'phone', 'insurance_info',
+        'name',
+        'email',
+        'password',
+        'role',
+        'avatar', // ✅ đổi lại cho khớp DB
+        'phone',
+        'insurance_info',
+        'email_verified_at'
     ];
 
+    protected $hidden = ['password', 'remember_token'];
+
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+    ];
+
+    // ✅ Accessor: tạo thuộc tính ảo "avatar_url"
+    public function getAvatarUrlAttribute()
+    {
+        // Nếu không có avatar -> ảnh mặc định
+        if (!$this->avatar) {
+            return asset('images/default-avatar.png');
+        }
+
+        // Nếu là URL đầy đủ
+        if (str_starts_with($this->avatar, 'http')) {
+            return $this->avatar;
+        }
+
+        // Nếu là file trong storage
+        return asset('storage/' . $this->avatar);
+    }
+
+    // Các quan hệ
     public function doctor()
     {
         return $this->hasOne(Doctor::class, 'id');
