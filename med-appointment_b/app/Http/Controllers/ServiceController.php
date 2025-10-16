@@ -11,16 +11,36 @@ class ServiceController extends Controller
     /**
      * Lấy danh sách tất cả service
      */
-    public function index()
+    // public function index()
+    // {
+    //     $services = Service::all();
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'message' => 'Danh sách dịch vụ',
+    //         'data' => $services
+    //     ]);
+    // }
+
+    public function index(Request $request)
     {
-        $services = Service::all();
+        $perPage = $request->get('per_page', 10); // mặc định 10 dòng mỗi trang
+        $services = Service::select('id', 'name', 'description', 'price', 'created_at', 'updated_at')
+            ->paginate($perPage);
 
         return response()->json([
             'success' => true,
-            'message' => 'Danh sách dịch vụ',
-            'data' => $services
+            'message' => 'Danh sách dịch vụ (phân trang)',
+            'data' => $services->items(),
+            'pagination' => [
+                'current_page' => $services->currentPage(),
+                'last_page' => $services->lastPage(),
+                'total' => $services->total(),
+                'per_page' => $services->perPage(),
+            ]
         ]);
     }
+
 
     /**
      * Thêm service mới
