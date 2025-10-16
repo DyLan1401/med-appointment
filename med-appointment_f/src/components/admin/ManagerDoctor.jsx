@@ -6,6 +6,11 @@ import Pagination from "../common/Pagination";
 
 export default function ManagerDoctor() {
     const [doctors, setDoctors] = useState([]);
+    const [search, setSearch] = useState({
+        name: "",
+        specialization: ""
+    });
+
     const [form, setForm] = useState({
         id: null, name: "", email: "", password: "",
         specialization: "", bio: "", phone: ""
@@ -24,11 +29,18 @@ export default function ManagerDoctor() {
     const fetchDoctors = async () => {
         setLoading(true);
         try {
-            const res = await API.get("/doctors");
+            const params = {};
+            if (search.name) params.name = search.name;
+            if (search.specialization) params.specialization = search.specialization;
+
+            const res = await API.get("/doctors", { params });
             setDoctors(res.data);
-        } catch {
+        } catch (err) {
+            console.error(err);
             alert("Không thể tải danh sách bác sĩ!");
-        } finally { setLoading(false); }
+        } finally {
+            setLoading(false);
+        }
     };
 
     // Thêm hoặc sửa
@@ -90,16 +102,77 @@ export default function ManagerDoctor() {
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4 mb-6 bg-gray-50 p-4 rounded-lg shadow">
-                <input type="text" placeholder="Tên bác sĩ" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className="border p-2 rounded" required />
-                <input type="email" placeholder="Email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className="border p-2 rounded" required />
-                <input type="password" placeholder="Mật khẩu" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} className="border p-2 rounded" required={!isEditing} />
-                <input type="text" placeholder="Số điện thoại" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} className="border p-2 rounded" />
-                <input type="text" placeholder="Chuyên khoa" value={form.specialization} onChange={e => setForm({ ...form, specialization: e.target.value })} className="border p-2 rounded col-span-2" />
-                <textarea placeholder="Mô tả chuyên môn" value={form.bio} onChange={e => setForm({ ...form, bio: e.target.value })} className="border p-2 rounded col-span-2" />
-                <button className={`${isEditing ? "bg-green-500" : "bg-blue-500"} text-white px-4 py-2 rounded col-span-2`}>
-                    {isEditing ? "Cập nhật" : "Thêm bác sĩ"}
-                </button>
+                <div className="col-span-1">
+                    <label className="block text-sm font-medium text-gray-700">Tên bác sĩ</label>
+                    <input type="text" value={form.name || ""} onChange={(e) => setForm({ ...form, name: e.target.value })}
+                        className="border p-2 rounded w-full" required />
+                </div>
+                <div className="col-span-1">
+                    <label className="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" value={form.email || ""} onChange={(e) => setForm({ ...form, email: e.target.value })}
+                        className="border p-2 rounded w-full" required />
+                </div>
+                {!isEditing && (
+                    <div className="col-span-1">
+                        <label className="block text-sm font-medium text-gray-700">Mật khẩu</label>
+                        <input type="password" value={form.password || ""} onChange={(e) => setForm({ ...form, password: e.target.value })}
+                            className="border p-2 rounded w-full" required />
+                    </div>
+                )}
+                <div className="col-span-1">
+                    <label className="block text-sm font-medium text-gray-700">Số điện thoại</label>
+                    <input type="text" value={form.phone || ""} onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                        className="border p-2 rounded w-full" />
+                </div>
+                <div className="col-span-2">
+                    <label className="block text-sm font-medium text-gray-700">Chuyên khoa</label>
+                    <input type="text" value={form.specialization || ""} onChange={(e) => setForm({ ...form, specialization: e.target.value })}
+                        className="border p-2 rounded w-full" />
+                </div>
+                <div className="col-span-2">
+                    <label className="block text-sm font-medium text-gray-700">Mô tả chuyên môn</label>
+                    <textarea value={form.bio || ""} onChange={(e) => setForm({ ...form, bio: e.target.value })}
+                        className="border p-2 rounded w-full" />
+                </div>
+                <div className="col-span-2 text-right">
+                    <button className={`${isEditing ? "bg-green-500" : "bg-blue-500"} text-white px-4 py-2 rounded`}>
+                        {isEditing ? "Cập nhật bác sĩ" : "Thêm bác sĩ mới"}
+                    </button>
+                </div>
             </form>
+
+            {/*Form tìm kiếm*/}
+            <div className="flex items-center gap-4 mb-4">
+                <input
+                    type="text"
+                    placeholder="Tìm theo tên bác sĩ..."
+                    value={search.name}
+                    onChange={(e) => setSearch({ ...search, name: e.target.value })}
+                    className="border p-2 rounded w-1/3"
+                />
+                <input
+                    type="text"
+                    placeholder="Tìm theo chuyên khoa..."
+                    value={search.specialization}
+                    onChange={(e) => setSearch({ ...search, specialization: e.target.value })}
+                    className="border p-2 rounded w-1/3"
+                />
+                <button
+                    onClick={fetchDoctors}
+                    className="bg-blue-500 text-white px-4 py-2 rounded"
+                >
+                    Tìm kiếm
+                </button>
+                <button
+                    onClick={() => {
+                        setSearch({ name: "", specialization: "" });
+                        fetchDoctors();
+                    }}
+                    className="bg-gray-400 text-white px-4 py-2 rounded"
+                >
+                    Làm mới
+                </button>
+            </div>
 
             {/* Danh sách */}
             <table className="w-full border rounded-lg shadow">

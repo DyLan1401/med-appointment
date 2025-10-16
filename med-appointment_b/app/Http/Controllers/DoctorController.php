@@ -12,10 +12,25 @@ class DoctorController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-       $doctors = Doctor::with('user')->get();
-        return response()->json($doctors);
+       $query = Doctor::with('user');
+
+    // Lọc theo tên
+    if ($request->has('name') && $request->name !== '') {
+        $query->whereHas('user', function ($q) use ($request) {
+            $q->where('name', 'like', '%' . $request->name . '%');
+        });
+    }
+
+    // Lọc theo chuyên khoa
+    if ($request->has('specialization') && $request->specialization !== '') {
+        $query->where('specialization', 'like', '%' . $request->specialization . '%');
+    }
+
+    $doctors = $query->orderBy('id', 'desc')->get();
+
+    return response()->json($doctors);
     }
 
     /**

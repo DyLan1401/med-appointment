@@ -7,25 +7,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class Doctor extends Model
 {
- 
     use HasFactory;
+
+    protected $fillable = [
+        'user_id', 'specialization', 'status', 'bio'
+    ];
 
     public $timestamps = false;
 
-    // 🔹 Khai báo khóa chính và kiểu dữ liệu
-    protected $primaryKey = 'id';
-    public $incrementing = false; // không tự tăng ID
-    protected $keyType = 'int';
-
-    // 🔹 Cho phép gán ID thủ công
-    protected $fillable = [
-        'id', 'specialization', 'status', 'bio'
-    ];
-
-    // 🔹 Quan hệ
     public function user()
     {
-        return $this->belongsTo(User::class, 'id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function certificates()
@@ -48,3 +40,4 @@ class Doctor extends Model
         return $this->hasMany(Feedback::class, 'doctor_id');
     }
 }
+
