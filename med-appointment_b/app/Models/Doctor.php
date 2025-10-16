@@ -10,12 +10,14 @@ class Doctor extends Model
     use HasFactory;
 
     protected $fillable = [
-        'department_id', 'specialization', 'status', 'bio'
+        'user_id', 'specialization', 'status', 'bio'
     ];
+
+    public $timestamps = false;
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function certificates()
@@ -38,3 +40,4 @@ class Doctor extends Model
         return $this->hasMany(Feedback::class, 'doctor_id');
     }
 }
+

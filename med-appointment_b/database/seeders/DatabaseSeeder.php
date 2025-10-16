@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'test@example.com',
         ]);
 
+<<<<<<< HEAD
 
         $this->call([
             PatientsSeeder::class,
@@ -33,6 +34,11 @@ class DatabaseSeeder extends Seeder
 
         $this->call(DepartmentSeeder::class);
 
+=======
+         $this->call([
+        DoctorSeeder::class,
+    ]);
+>>>>>>> NguyenThanhLan_QuanliBacsi
     }
 
 
