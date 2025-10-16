@@ -24,8 +24,8 @@ class DoctorController extends Controller
     }
 
     // Lọc theo chuyên khoa
-    if ($request->has('specialization') && $request->specialization !== '') {
-        $query->where('specialization', 'like', '%' . $request->specialization . '%');
+    if ($request->has('specialization_id') && $request->specialization_id !== '') {
+        $query->where('specialization_id', 'like', '%' . $request->specialization_id . '%');
     }
 
     $doctors = $query->orderBy('id', 'desc')->get();
@@ -52,7 +52,7 @@ class DoctorController extends Controller
         'name' => 'required|string|max:100',
         'email' => 'required|email|unique:users',
         'password' => 'required|min:6',
-        'specialization' => 'nullable|string',
+    'specialization_id' => 'required|integer|exists:departments,id', // ✅ chuẩn
         'bio' => 'nullable|string',
         'phone' => 'nullable|string'
     ]);
@@ -70,8 +70,8 @@ class DoctorController extends Controller
         // dd('user_created', $user->id);
 
         $doctor = \App\Models\Doctor::create([
-            'id' => $user->id,
-            'specialization' => $request->specialization,
+            'user_id' => $user->id,
+    'specialization_id' => $request->specialization_id, // ✅ đổi từ specialization -> specialization_id
             'status' => 'offline',
             'bio' => $request->bio,
         ]);
@@ -114,7 +114,7 @@ class DoctorController extends Controller
     $request->validate([
         'name' => 'required|string|max:100',
         'email' => 'required|email|unique:users,email,' . $user->id,
-        'specialization' => 'nullable|string',
+        'specialization_id' => 'nullable|integer|exists:departments,id', // ✅ đúng field
         'bio' => 'nullable|string',
         'phone' => 'nullable|string',
     ]);
@@ -126,7 +126,7 @@ class DoctorController extends Controller
     ]);
 
     $doctor->update([
-        'specialization' => $request->specialization,
+        'specialization_id' => $request->specialization_id, // ✅ đúng field
         'bio' => $request->bio,
         'status' => $request->status ?? $doctor->status,
     ]);

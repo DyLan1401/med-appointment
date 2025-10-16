@@ -14,7 +14,7 @@ export default function ManagerDoctor() {
 
     const [form, setForm] = useState({
         id: null, name: "", email: "", password: "",
-        specialization: "", bio: "", phone: ""
+        specialization_id: "", bio: "", phone: ""
     });
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -32,13 +32,15 @@ export default function ManagerDoctor() {
     }, []);
     const fetchSpecializations = async () => {
         try {
-            const res = await API.get("/specializations");
-            setSpecializations(res.data);
+            const res = await API.get("/departments");
+            console.log("Dữ liệu chuyên khoa:", res.data);
+            setSpecializations(res.data.data);
         } catch (err) {
             console.error(err);
             alert("Không thể tải danh sách chuyên khoa!");
         }
     };
+
 
     const fetchDoctors = async () => {
         setLoading(true);
@@ -79,16 +81,21 @@ export default function ManagerDoctor() {
     };
 
     const resetForm = () => {
-        setForm({ id: null, name: "", email: "", password: "", specialization: "", bio: "", phone: "" });
+        setForm({ id: null, name: "", email: "", password: "", specialization_id: "", bio: "", phone: "" });
         setIsEditing(false);
     };
 
     // Sửa / Xem / Xóa
     const handleEdit = (d) => {
         setForm({
-            id: d.id, name: d.user?.name, email: d.user?.email,
-            specialization: d.specialization, bio: d.bio, phone: d.user?.phone
+            id: d.id,
+            name: d.user?.name,
+            email: d.user?.email,
+            specialization_id: d.specialization_id, // ✅ đúng
+            bio: d.bio,
+            phone: d.user?.phone
         });
+
         setIsEditing(true);
     };
     const handleDelete = async () => {
@@ -141,19 +148,16 @@ export default function ManagerDoctor() {
                 <div className="col-span-2">
                     <label className="block text-sm font-medium text-gray-700">Chuyên khoa</label>
                     <select
-                        value={form.specialization || ""}
-                        onChange={(e) => setForm({ ...form, specialization: e.target.value })}
+                        value={form.specialization_id || ""}
+                        onChange={(e) => setForm({ ...form, specialization_id: e.target.value })}
                         className="border p-2 rounded w-full"
                         required
                     >
                         <option value="">-- Chọn chuyên khoa --</option>
                         {specializations.map((sp) => (
-                            <option key={sp.id} value={sp.name}>
-                                {sp.name}
-                            </option>
+                            <option key={sp.id} value={sp.id}>{sp.name}</option>
                         ))}
                     </select>
-
                 </div>
                 <div className="col-span-2">
                     <label className="block text-sm font-medium text-gray-700">Mô tả chuyên môn</label>

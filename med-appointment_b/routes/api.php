@@ -19,11 +19,8 @@ Route::get('/test', function () {
 });
 
 
-<<<<<<< HEAD
-// Quản lý bệnh nhân (CRUD)
 Route::apiResource('patients', PatientController::class);
 
-// CRUD User
 Route::apiResource('users', UserController::class);
 
 
@@ -31,9 +28,8 @@ Route::get('/departments', [DepartmentController::class, 'index']);
 Route::get('/departments/search', [DepartmentController::class, 'search']);
 Route::apiResource('departments', DepartmentController::class);
 
-=======
+
 Route::get('/doctors', [DoctorController::class, 'index']);
 Route::post('/doctors', [DoctorController::class, 'store']);
 Route::put('/doctors/{id}', [DoctorController::class, 'update']);
 Route::delete('/doctors/{id}', [DoctorController::class, 'destroy']);
->>>>>>> NguyenThanhLan_QuanliBacsi

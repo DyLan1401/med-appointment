@@ -10,7 +10,7 @@ class Doctor extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'specialization', 'status', 'bio'
+        'user_id', 'specialization_id', 'status', 'bio'
     ];
 
     public $timestamps = false;
