@@ -9,6 +9,8 @@ export default function ManagerChuyenKhoa() {
   const [message, setMessage] = useState(null);
   const [formData, setFormData] = useState({ id: null, name: "", description: "" });
   const [deleteId, setDeleteId] = useState(null);
+  const [loading, setLoading] = useState(false);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [pagination, setPagination] = useState({
     current_page: 1,
@@ -64,6 +66,8 @@ export default function ManagerChuyenKhoa() {
   // 🟡 Gửi dữ liệu thêm/sửa
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return; // chặn spam
+  setLoading(true);
     try {
       let res;
       if (isEdit) {
@@ -83,7 +87,9 @@ export default function ManagerChuyenKhoa() {
     } catch (err) {
       console.error("Lỗi khi lưu:", err);
       setMessage({ type: "error", text: err.response?.data?.message || "Đã xảy ra lỗi." });
-    }
+    }finally {
+    setLoading(false);
+  }
   };
 
   // 🔴 Xóa chuyên khoa
