@@ -4,148 +4,213 @@ namespace App\Http\Controllers;
 
 use App\Models\Service;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Log;
 
 class ServiceController extends Controller
 {
     /**
-     * Lấy danh sách tất cả service
+     * Index - trả về phân trang.
+     * Hỗ trợ query params:
+     *  - page (mặc định 1)
+     *  - per_page (mặc định 10)
+     *  - with (optional) => tên quan hệ cần eager load, ví dụ: with=appointments,bookings
+     *  - search (optional) => tìm theo tên (partial)
      */
-    // public function index()
-    // {
-    //     $services = Service::all();
-
-    //     return response()->json([
-    //         'success' => true,
-    //         'message' => 'Danh sách dịch vụ',
-    //         'data' => $services
-    //     ]);
-    // }
-
     public function index(Request $request)
     {
-        $perPage = $request->get('per_page', 10); // mặc định 10 dòng mỗi trang
-        $services = Service::select('id', 'name', 'description', 'price', 'created_at', 'updated_at')
-            ->paginate($perPage);
+        try {
+            $perPage = (int) $request->get('per_page', 10);
+            $page = (int) $request->get('page', 1);
+            $with = $request->get('with'); // ví dụ: "appointments,bookings"
+            $search = $request->get('search');
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Danh sách dịch vụ (phân trang)',
-            'data' => $services->items(),
-            'pagination' => [
-                'current_page' => $services->currentPage(),
-                'last_page' => $services->lastPage(),
-                'total' => $services->total(),
-                'per_page' => $services->perPage(),
-            ]
-        ]);
+            $query = Service::withBasicInfo();
+
+            // Eager load nếu có yêu cầu
+            if (!empty($with)) {
+                // lọc input để tránh injection tên không hợp lệ
+                $relations = array_filter(array_map('trim', explode(',', $with)));
+                if (!empty($relations)) {
+                    $query = $query->with($relations);
+                }
+            }
+
+            // Search theo tên nếu có
+            if (!empty($search)) {
+                $query->where('name', 'like', '%' . $search . '%');
+            }
+
+            $services = $query->paginate($perPage, ['*'], 'page', $page);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Danh sách dịch vụ (phân trang)',
+                'data' => $services->items(),
+                'pagination' => [
+                    'current_page' => $services->currentPage(),
+                    'last_page' => $services->lastPage(),
+                    'total' => $services->total(),
+                    'per_page' => $services->perPage(),
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('ServiceController@index error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi khi lấy danh sách dịch vụ',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
+    /**
+     * Show - trả về 1 service chi tiết (kèm quan hệ nếu yêu cầu)
+     * Route: GET /api/services/{id}
+     * Query param optional: with=appointments,...
+     */
+    public function show(Request $request, $id)
+    {
+        try {
+            $with = $request->get('with');
+            $query = Service::query();
+
+            if (!empty($with)) {
+                $relations = array_filter(array_map('trim', explode(',', $with)));
+                if (!empty($relations)) {
+                    $query = $query->with($relations);
+                }
+            }
+
+            $service = $query->find($id);
+
+            if (!$service) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không tìm thấy dịch vụ',
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Chi tiết dịch vụ',
+                'data' => $service,
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('ServiceController@show error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi khi lấy chi tiết dịch vụ',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 
     /**
-     * Thêm service mới
+     * Store - tạo dịch vụ mới
+     * Route: POST /api/services
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'price' => 'required|numeric|min:0'
-        ]);
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'price' => 'required|numeric|min:0',
+            ]);
 
-        if ($validator->fails()) {
+            $service = Service::create($validated);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Thêm dịch vụ thành công',
+                'data' => $service,
+            ]);
+        } catch (ValidationException $ve) {
             return response()->json([
                 'success' => false,
                 'message' => 'Dữ liệu không hợp lệ',
-                'errors' => $validator->errors()
+                'errors' => $ve->errors(),
             ], 422);
-        }
-
-        $service = Service::create($validator->validated());
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Thêm dịch vụ thành công',
-            'data' => $service
-        ], 201);
-    }
-
-    /**
-     * Lấy chi tiết service theo ID
-     */
-    public function show($id)
-    {
-        $service = Service::find($id);
-
-        if (!$service) {
+        } catch (\Throwable $e) {
+            \Log::error('ServiceController@store error: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Không tìm thấy dịch vụ'
-            ], 404);
+                'message' => 'Lỗi khi thêm dịch vụ',
+                'error' => $e->getMessage(),
+            ], 500);
         }
-
-        return response()->json([
-            'success' => true,
-            'data' => $service
-        ]);
     }
 
     /**
-     * Cập nhật service
+     * Update - cập nhật dịch vụ
+     * Route: PUT /api/services/{id}
      */
     public function update(Request $request, $id)
     {
-        $service = Service::find($id);
+        try {
+            $service = Service::find($id);
+            if (!$service) {
+                return response()->json(['success' => false, 'message' => 'Không tìm thấy dịch vụ'], 404);
+            }
 
-        if (!$service) {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'price' => 'required|numeric|min:0',
+            ]);
+
+            $service->update($validated);
+
             return response()->json([
-                'success' => false,
-                'message' => 'Không tìm thấy dịch vụ'
-            ], 404);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'name' => 'sometimes|required|string|max:255',
-            'description' => 'nullable|string',
-            'price' => 'sometimes|required|numeric|min:0'
-        ]);
-
-        if ($validator->fails()) {
+                'success' => true,
+                'message' => 'Cập nhật dịch vụ thành công',
+                'data' => $service,
+            ]);
+        } catch (ValidationException $ve) {
             return response()->json([
                 'success' => false,
                 'message' => 'Dữ liệu không hợp lệ',
-                'errors' => $validator->errors()
+                'errors' => $ve->errors(),
             ], 422);
+        } catch (\Throwable $e) {
+            \Log::error('ServiceController@update error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi khi cập nhật dịch vụ',
+                'error' => $e->getMessage(),
+            ], 500);
         }
-
-        $service->update($validator->validated());
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Cập nhật dịch vụ thành công',
-            'data' => $service
-        ]);
     }
 
     /**
-     * Xóa service
+     * Destroy - xóa dịch vụ
+     * Route: DELETE /api/services/{id}
      */
     public function destroy($id)
     {
-        $service = Service::find($id);
+        try {
+            $service = Service::find($id);
+            if (!$service) {
+                return response()->json(['success' => false, 'message' => 'Không tìm thấy dịch vụ'], 404);
+            }
 
-        if (!$service) {
+            // Nếu bạn cần kiểm tra ràng buộc (ví dụ có appointments) -> xử lý ở đây
+            // if ($service->appointments()->exists()) { ... }
+
+            $service->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Xóa dịch vụ thành công',
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('ServiceController@destroy error: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Không tìm thấy dịch vụ'
-            ], 404);
+                'message' => 'Lỗi khi xóa dịch vụ',
+                'error' => $e->getMessage(),
+            ], 500);
         }
-
-        $service->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Xóa dịch vụ thành công'
-        ]);
     }
 }
