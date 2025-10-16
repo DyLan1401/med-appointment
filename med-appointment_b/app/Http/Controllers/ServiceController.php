@@ -36,9 +36,12 @@ class ServiceController extends Controller
                 }
             }
 
-            // Search theo tên nếu có
+            // 🟢 Bộ lọc tìm kiếm
             if (!empty($search)) {
-                $query->where('name', 'like', '%' . $search . '%');
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('description', 'like', '%' . $search . '%');
+                });
             }
 
             $services = $query->paginate($perPage, ['*'], 'page', $page);
