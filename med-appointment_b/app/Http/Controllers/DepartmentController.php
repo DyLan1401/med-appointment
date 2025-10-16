@@ -7,11 +7,49 @@ use Illuminate\Http\Request;
 
 class DepartmentController extends Controller
 {
-    // Lấy danh sách tất cả departments
-    public function index()
+   // 🟢 Lấy danh sách departments (có phân trang)
+    public function index(Request $request)
     {
-        return response()->json(Department::all());
+        $limit = $request->get('limit', 10); // Số bản ghi mỗi trang
+        $departments = Department::paginate($limit);
+
+        return response()->json([
+            'data' => $departments->items(),
+            'pagination' => [
+                'current_page' => $departments->currentPage(),
+                'last_page' => $departments->lastPage(),
+                'total' => $departments->total(),
+            ],
+        ]);
     }
+
+    // 🟣 Tìm kiếm departments (có phân trang, query rỗng => tất cả)
+    public function search(Request $request)
+    {
+        $query = trim($request->get('query', ''));
+        $limit = $request->get('limit', 10);
+
+        if ($query === '') {
+            $departments = Department::paginate($limit);
+        } else {
+            $departments = Department::where('name', 'like', "%{$query}%")
+                ->orWhere('description', 'like', "%{$query}%")
+                ->paginate($limit);
+        }
+
+        return response()->json([
+            'message' => $query === '' 
+                ? 'Danh sách tất cả chuyên khoa.' 
+                : "Kết quả tìm kiếm cho: {$query}",
+            'data' => $departments->items(),
+            'pagination' => [
+                'current_page' => $departments->currentPage(),
+                'last_page' => $departments->lastPage(),
+                'total' => $departments->total(),
+            ],
+        ]);
+    }
+
 
     // Tạo mới department
     public function store(Request $request)
@@ -81,4 +119,6 @@ class DepartmentController extends Controller
 
         return response()->json(['message' => 'Department deleted successfully']);
     }
+
+    
 }

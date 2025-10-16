@@ -9,5 +9,6 @@ Route::get('/test', function () {
 });
 
 
-
+Route::get('/departments', [DepartmentController::class, 'index']);
+Route::get('/departments/search', [DepartmentController::class, 'search']);
 Route::apiResource('departments', DepartmentController::class);
