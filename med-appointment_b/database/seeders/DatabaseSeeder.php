@@ -16,27 +16,23 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
 
-        // User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
-        $this->call(DepartmentSeeder::class);
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
 
-<<<<<<< HEAD
+
         $this->call([
             PatientsSeeder::class,
         ]);
-=======
-       \App\Models\User::factory(10)->create();
+
 
         $this->call([
         UserSeeder::class,
     ]);
->>>>>>> origin/DangThanhPhong-QuanLyUser
+
+        $this->call(DepartmentSeeder::class);
+
     }
 
 
