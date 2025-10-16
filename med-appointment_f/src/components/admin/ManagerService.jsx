@@ -2,38 +2,54 @@ import React, { useState, useEffect } from "react";
 import API from "../../api/axios"; // dùng axios instance có token & baseURL
 
 export default function ManagerService() {
-  const [services, setServices] = useState([]);
+   const [services, setServices] = useState([]);
+  const [pagination, setPagination] = useState({
+    current_page: 1,
+    last_page: 1,
+    total: 0,
+    per_page: 10,
+  });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debounceTimeout, setDebounceTimeout] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [message, setMessage] = useState(null);
-  const [formData, setFormData] = useState({
-    id: null,
-    name: "",
-    description: "",
-    price: "",
-  });
+  const [formData, setFormData] = useState({ id: null, name: "", description: "", price: "" });
   const [deleteId, setDeleteId] = useState(null);
+  
 
-  // ✅ Dùng API_URL thay vì /services
   const API_URL = "/services";
 
-// 🟢 Lấy danh sách dịch vụ
-const fetchServices = async () => {
+// Tìm kiếm realtime
+useEffect(() => {
+  if (debounceTimeout) {
+    clearTimeout(debounceTimeout);
+  }
+
+  const newTimeout = setTimeout(() => {
+    fetchServices(1, searchTerm);
+  }, 500); // 500ms sau khi người dùng dừng gõ
+
+  setDebounceTimeout(newTimeout);
+
+  // cleanup khi unmount hoặc searchTerm thay đổi
+  return () => clearTimeout(newTimeout);
+}, [searchTerm]);
+
+  // 🟢 Lấy danh sách có phân trang
+const fetchServices = async (page = 1, search = "") => {
   try {
-    console.log("Gọi API:", API.defaults.baseURL + API_URL);
-    const res = await API.get(API_URL);
-    console.log("Dữ liệu trả về:", res.data.data); // kiểm tra
-    // ✅ lấy đúng mảng data
-    setServices(res.data.data || []);
-  } catch (err) {
-    console.error("Lỗi khi tải danh sách:", err);
-    setMessage({ type: "error", text: "Không thể tải danh sách dịch vụ." });
+    const res = await API.get(`/services?page=${page}&per_page=10&search=${encodeURIComponent(search)}`);
+    setServices(res.data.data);
+    setPagination(res.data.pagination);
+  } catch (error) {
+    console.error("Lỗi khi tải danh sách:", error);
   }
 };
 
   useEffect(() => {
-    fetchServices();
+    fetchServices(1);
   }, []);
 
   // 🟢 Mở modal thêm/sửa
@@ -44,7 +60,6 @@ const fetchServices = async () => {
     setShowModal(true);
   };
 
-  // 🔴 Đóng modal
   const handleCloseModal = () => setShowModal(false);
 
   // 🟡 Gửi dữ liệu thêm/sửa
@@ -53,21 +68,13 @@ const fetchServices = async () => {
     try {
       let res;
       if (isEdit) {
-        res = await API.put(`${API_URL}/${formData.id}`, {
-          name: formData.name,
-          description: formData.description,
-          price: formData.price,
-        });
+        res = await API.put(`${API_URL}/${formData.id}`, formData);
       } else {
-        res = await API.post(API_URL, {
-          name: formData.name,
-          description: formData.description,
-          price: formData.price,
-        });
+        res = await API.post(API_URL, formData);
       }
       setMessage({ type: "success", text: res.data.message });
-      await fetchServices();
       setShowModal(false);
+      fetchServices(pagination.current_page);
     } catch (err) {
       console.error("Lỗi khi lưu:", err);
       setMessage({
@@ -82,8 +89,8 @@ const fetchServices = async () => {
     try {
       const res = await API.delete(`${API_URL}/${deleteId}`);
       setMessage({ type: "success", text: res.data.message });
-      await fetchServices();
       setShowDeleteModal(false);
+      fetchServices(pagination.current_page);
     } catch (err) {
       console.error("Lỗi khi xóa:", err);
       setMessage({
@@ -97,9 +104,7 @@ const fetchServices = async () => {
     <div className="w-full h-screen">
       <div className="w-full h-full flex flex-col p-3">
         <h1 className="text-blue-500 text-xl font-semibold py-5">Quản lí Dịch vụ</h1>
-        <div className="py-3 text-gray-600">Danh sách Dịch vụ trong hệ thống.</div>
 
-        {/* Thông báo */}
         {message && (
           <div
             className={`p-3 mb-3 rounded-lg text-white ${
@@ -111,35 +116,39 @@ const fetchServices = async () => {
         )}
 
         <div className="flex justify-between items-center py-2">
-          <div className="relative max-w-md">
-            <input
-              type="search"
-              placeholder="Tìm kiếm Dịch vụ"
-              className="block w-full p-3 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-200"
-            />
-            <svg
-              className="w-4 h-4 text-gray-500 absolute top-3 left-3"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 20 20"
-            >
-              <path
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-              />
-            </svg>
-          </div>
+  {/* Ô tìm kiếm */}
+  <div className="relative max-w-md w-full">
+    <input
+      type="search"
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+      placeholder="Tìm kiếm dịch vụ..."
+      className="block w-full p-3 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-200 focus:ring-2 focus:ring-blue-400 outline-none"
+    />
+    <svg
+      className="w-4 h-4 text-gray-500 absolute top-3 left-3"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 20 20"
+    >
+      <path
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+      />
+    </svg>
+  </div>
 
-          <button
-            onClick={() => handleOpenModal(false)}
-            className="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600"
-          >
-            Thêm Dịch vụ
-          </button>
-        </div>
+  {/* Nút thêm dịch vụ */}
+  <button
+    onClick={() => handleOpenModal(false)}
+    className="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition-colors"
+  >
+    Thêm Dịch vụ
+  </button>
+</div>
 
         {/* Bảng danh sách */}
         <div className="relative overflow-x-auto shadow-md mt-4">
@@ -158,7 +167,7 @@ const fetchServices = async () => {
                   <tr key={item.id} className="odd:bg-white even:bg-gray-50 border-b">
                     <td className="px-6 py-4 font-medium text-gray-900">{item.name}</td>
                     <td className="px-6 py-4">{item.description}</td>
-                    <td className="px-6 py-4">{item.price?.toLocaleString()} VND</td>
+                    <td className="px-6 py-4">{Number(item.price).toLocaleString()} VND</td>
                     <td className="px-6 py-4 space-x-2">
                       <button
                         onClick={() => handleOpenModal(true, item)}
@@ -188,6 +197,31 @@ const fetchServices = async () => {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination */}
+        {pagination.total > pagination.per_page && (
+          <div className="flex justify-center items-center mt-4 space-x-3">
+            <button
+              disabled={pagination.current_page === 1}
+              onClick={() => fetchServices(pagination.current_page - 1, searchTerm)}
+              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+            >
+              ← Trước
+            </button>
+
+            <span>
+              Trang {pagination.current_page} / {pagination.last_page}
+            </span>
+
+            <button
+                disabled={pagination.current_page === pagination.last_page}
+                onClick={() => fetchServices(pagination.current_page + 1, searchTerm)}
+              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+            >
+              Sau →
+            </button>
+          </div>
+        )}
 
         {/* Modal thêm/sửa */}
         {showModal && (
