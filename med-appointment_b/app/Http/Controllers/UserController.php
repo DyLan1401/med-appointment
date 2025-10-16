@@ -4,62 +4,157 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * ✅ Lấy danh sách user (phân trang + tìm kiếm)
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $search = $request->query('search');
+        $query = User::query();
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        $users = $query->orderBy('id', 'asc')->paginate(5);
+
+        // Thêm URL đầy đủ cho avatar
+        $users->getCollection()->transform(function ($user) {
+            $user->avatar_url = $this->getAvatarUrl($user->avatar);
+            return $user;
+        });
+
+        return response()->json($users);
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
+     * ✅ Thêm user mới
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'name' => 'required|string|max:100',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|string|min:6',
+            'role' => 'required|in:user,doctor,admin',
+            'phone' => 'nullable|string|max:20',
+            'insurance_info' => 'nullable|string',
+            'avatar' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+        // 🖼️ Lưu ảnh nếu có
+        if ($request->hasFile('avatar')) {
+            $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
+        }
+
+        // 🔒 Mã hóa mật khẩu
+        $data['password'] = bcrypt($data['password']);
+
+        $user = User::create($data);
+        $user->avatar_url = $this->getAvatarUrl($user->avatar);
+
+        return response()->json($user, 201);
     }
 
     /**
-     * Display the specified resource.
+     * ✅ Lấy chi tiết user theo ID
      */
-    public function show(User $user)
+    public function show($id)
     {
-        //
+        $user = User::findOrFail($id);
+        $user->avatar_url = $this->getAvatarUrl($user->avatar);
+
+        return response()->json($user);
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * ✅ Cập nhật user theo ID
      */
-    public function edit(User $user)
+    public function update(Request $request, $id)
     {
-        //
+        $user = User::findOrFail($id);
+
+        $data = $request->validate([
+            'name' => 'required|string|max:100',
+            'email' => "required|email|unique:users,email,{$user->id}",
+            'role' => 'required|in:user,doctor,admin',
+            'phone' => 'nullable|string|max:20',
+            'insurance_info' => 'nullable|string',
+            'avatar' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+        // 🖼️ Nếu có upload avatar mới
+        if ($request->hasFile('avatar')) {
+            if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+
+            $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
+        }
+
+        $user->update($data);
+        $user->avatar_url = $this->getAvatarUrl($user->avatar);
+
+        return response()->json($user);
     }
 
     /**
-     * Update the specified resource in storage.
+     * ✅ Xóa user theo ID
      */
-    public function update(Request $request, User $user)
+    public function destroy($id)
     {
-        //
+        $user = User::findOrFail($id);
+
+        if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
+            Storage::disk('public')->delete($user->avatar);
+        }
+
+        $user->delete();
+
+        return response()->json(['message' => 'Xóa thành công']);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * 🧩 Hàm helper xử lý URL ảnh
      */
-    public function destroy(User $user)
+    private function getAvatarUrl($path)
+{
+    // Nếu không có ảnh -> trả về ảnh mặc định (không thêm 'storage/')
+    if (!$path) {
+        return asset('images/default-avatar.png');
+    }
+
+    // Nếu là URL đầy đủ thì trả nguyên
+    if ($this->isFullUrl($path)) {
+        return $path;
+    }
+
+    // Nếu ảnh nằm trong thư mục storage (được lưu bằng store('avatars', 'public'))
+    if (str_starts_with($path, 'avatars/')) {
+        return asset('storage/' . $path);
+    }
+
+    // Nếu ảnh nằm trong thư mục images (như ảnh mặc định)
+    if (str_starts_with($path, 'images/')) {
+        return asset($path);
+    }
+
+    // Trường hợp khác
+    return asset('storage/' . ltrim($path, '/'));
+}
+
+    /**
+     * 🧩 Kiểm tra chuỗi có phải URL đầy đủ hay không
+     */
+    private function isFullUrl($path)
     {
-        //
+        return filter_var($path, FILTER_VALIDATE_URL) !== false;
     }
 }

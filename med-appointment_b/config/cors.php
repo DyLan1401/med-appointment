@@ -18,4 +18,8 @@ return [
 
     'supports_credentials' => true,
 
+<<<<<<< HEAD
 ];
+=======
+];
+>>>>>>> origin/DangThanhPhong-QuanLyUser

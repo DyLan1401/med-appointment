@@ -20,8 +20,16 @@ class DatabaseSeeder extends Seeder
             'email' => 'test@example.com',
         ]);
 
+<<<<<<< HEAD
         $this->call([
             PatientsSeeder::class,
         ]);
+=======
+       \App\Models\User::factory(10)->create();
+
+        $this->call([
+        UserSeeder::class,
+    ]);
+>>>>>>> origin/DangThanhPhong-QuanLyUser
     }
 }
