@@ -12,15 +12,22 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-             $table->bigIncrements('id');
+            $table->bigIncrements('id');
             $table->string('name', 100);
             $table->string('email', 150)->unique();
+
+            // ✅ THÊM DÒNG NÀY — để tránh lỗi Seeder: Unknown column 'email_verified_at'
+            $table->timestamp('email_verified_at')->nullable(); 
+            // (Giúp Laravel lưu thời điểm email được xác thực, cần thiết cho UserFactory mặc định)
+
             $table->string('password', 255);
             $table->enum('role', ['user', 'doctor', 'admin'])->default('user');
             $table->string('avatar_url', 255)->nullable();
             $table->string('phone', 20)->nullable();
             $table->text('insurance_info')->nullable();
-            $table->timestamps();
+
+            $table->rememberToken(); // ✅ THÊM DÒNG NÀY — để lưu token “Remember me” (Laravel auth mặc định)
+            $table->timestamps(); // thời gian tạo & cập nhật
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
@@ -44,8 +51,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+        Schema::dropIfExists('password_reset_tokens');
+        Schema::dropIfExists('users');
     }
 };
