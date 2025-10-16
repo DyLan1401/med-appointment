@@ -5,6 +5,7 @@ import ConfirmModal from "../common/ConfirmModal";
 import Pagination from "../common/Pagination";
 
 export default function ManagerDoctor() {
+    const [specializations, setSpecializations] = useState([]);
     const [doctors, setDoctors] = useState([]);
     const [search, setSearch] = useState({
         name: "",
@@ -25,7 +26,20 @@ export default function ManagerDoctor() {
     const itemsPerPage = 10;
 
     // Fetch danh sách
-    useEffect(() => { fetchDoctors(); }, []);
+    useEffect(() => {
+        fetchDoctors();
+        fetchSpecializations();
+    }, []);
+    const fetchSpecializations = async () => {
+        try {
+            const res = await API.get("/specializations");
+            setSpecializations(res.data);
+        } catch (err) {
+            console.error(err);
+            alert("Không thể tải danh sách chuyên khoa!");
+        }
+    };
+
     const fetchDoctors = async () => {
         setLoading(true);
         try {
@@ -126,8 +140,20 @@ export default function ManagerDoctor() {
                 </div>
                 <div className="col-span-2">
                     <label className="block text-sm font-medium text-gray-700">Chuyên khoa</label>
-                    <input type="text" value={form.specialization || ""} onChange={(e) => setForm({ ...form, specialization: e.target.value })}
-                        className="border p-2 rounded w-full" />
+                    <select
+                        value={form.specialization || ""}
+                        onChange={(e) => setForm({ ...form, specialization: e.target.value })}
+                        className="border p-2 rounded w-full"
+                        required
+                    >
+                        <option value="">-- Chọn chuyên khoa --</option>
+                        {specializations.map((sp) => (
+                            <option key={sp.id} value={sp.name}>
+                                {sp.name}
+                            </option>
+                        ))}
+                    </select>
+
                 </div>
                 <div className="col-span-2">
                     <label className="block text-sm font-medium text-gray-700">Mô tả chuyên môn</label>
