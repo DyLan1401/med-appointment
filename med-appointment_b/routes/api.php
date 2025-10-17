@@ -12,6 +12,11 @@ use App\Http\Controllers\UserController;
 // Route test
 
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\CategoryPostController;
+use App\Http\Controllers\PostController;
+
+Route::apiResource('categories', CategoryPostController::class);
+Route::apiResource('posts', PostController::class);
 
 
 Route::get('/test', function () {
