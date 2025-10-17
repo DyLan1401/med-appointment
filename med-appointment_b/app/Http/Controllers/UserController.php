@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
@@ -144,5 +143,14 @@ class UserController extends Controller
 
         $user->delete();
         return response()->json(['message' => 'Xóa user thành công!']);
+    }
+
+    // 🧩 THÊM MỚI: xử lý lỗi xác thực / token
+    public function unauthorized()
+    {
+        return response()->json([
+            'success' => false,
+            'message' => 'Bạn chưa đăng nhập hoặc token không hợp lệ!',
+        ], 401);
     }
 }

@@ -17,3 +17,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile', [UserController::class, 'profile']);
     Route::post('/logout', [UserController::class, 'logout']);
 });
+
+// chức năng đăng nhập
+Route::post('/login', [UserController::class, 'login']);
