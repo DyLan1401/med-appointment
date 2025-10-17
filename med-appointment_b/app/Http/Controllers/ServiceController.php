@@ -122,6 +122,15 @@ class ServiceController extends Controller
                 'price' => 'required|numeric|min:0',
             ]);
 
+            // Kiểm tra trùng tên
+            $exists = Service::whereRaw('LOWER(name) = ?', [strtolower($validated['name'])])->exists();
+            if ($exists) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tên dịch vụ đã tồn tại, vui lòng nhập tên khác!',
+                ], 409);
+            }
+
             $service = Service::create($validated);
 
             return response()->json([
@@ -163,6 +172,16 @@ class ServiceController extends Controller
                 'price' => 'required|numeric|min:0',
             ]);
 
+            $exists = Service::whereRaw('LOWER(name) = ?', [strtolower($validated['name'])])
+                ->where('id', '<>', $id)
+                ->exists();
+            if ($exists) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tên dịch vụ đã tồn tại, vui lòng chọn tên khác!',
+                ], 409);
+            }
+
             $service->update($validated);
 
             return response()->json([
@@ -200,6 +219,12 @@ class ServiceController extends Controller
 
             // Nếu bạn cần kiểm tra ràng buộc (ví dụ có appointments) -> xử lý ở đây
             // if ($service->appointments()->exists()) { ... }
+            if ($service->appointments()->exists()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không thể xóa dịch vụ vì đang có lịch hẹn liên quan!',
+                ], 409);
+            }
 
             $service->delete();
 

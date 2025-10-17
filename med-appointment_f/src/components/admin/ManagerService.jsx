@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import API from "../../api/axios"; // dùng axios instance có token & baseURL
 
 export default function ManagerService() {
-   const [services, setServices] = useState([]);
+  const [services, setServices] = useState([]);
   const [pagination, setPagination] = useState({
     current_page: 1,
     last_page: 1,
@@ -11,42 +11,47 @@ export default function ManagerService() {
   });
   const [searchTerm, setSearchTerm] = useState("");
   const [debounceTimeout, setDebounceTimeout] = useState(null);
+
   const [showModal, setShowModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [message, setMessage] = useState(null);
-  const [formData, setFormData] = useState({ id: null, name: "", description: "", price: "" });
+
+  const [formData, setFormData] = useState({
+    id: null,
+    name: "",
+    description: "",
+    price: "",
+  });
   const [deleteId, setDeleteId] = useState(null);
-  
+
+  // tách state riêng
+  const [isAdding, setIsAdding] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const API_URL = "/services";
 
-// Tìm kiếm realtime
-useEffect(() => {
-  if (debounceTimeout) {
-    clearTimeout(debounceTimeout);
-  }
-
-  const newTimeout = setTimeout(() => {
-    fetchServices(1, searchTerm);
-  }, 500); // 500ms sau khi người dùng dừng gõ
-
-  setDebounceTimeout(newTimeout);
-
-  // cleanup khi unmount hoặc searchTerm thay đổi
-  return () => clearTimeout(newTimeout);
-}, [searchTerm]);
+  // 🔍 Tìm kiếm realtime
+  useEffect(() => {
+    if (debounceTimeout) clearTimeout(debounceTimeout);
+    const newTimeout = setTimeout(() => fetchServices(1, searchTerm), 500);
+    setDebounceTimeout(newTimeout);
+    return () => clearTimeout(newTimeout);
+  }, [searchTerm]);
 
   // 🟢 Lấy danh sách có phân trang
-const fetchServices = async (page = 1, search = "") => {
-  try {
-    const res = await API.get(`/services?page=${page}&per_page=10&search=${encodeURIComponent(search)}`);
-    setServices(res.data.data);
-    setPagination(res.data.pagination);
-  } catch (error) {
-    console.error("Lỗi khi tải danh sách:", error);
-  }
-};
+  const fetchServices = async (page = 1, search = "") => {
+    try {
+      const res = await API.get(
+        `/services?page=${page}&per_page=10&search=${encodeURIComponent(search)}`
+      );
+      setServices(res.data.data);
+      setPagination(res.data.pagination);
+    } catch (error) {
+      console.error("Lỗi khi tải danh sách:", error);
+    }
+  };
 
   useEffect(() => {
     fetchServices(1);
@@ -65,13 +70,16 @@ const fetchServices = async (page = 1, search = "") => {
   // 🟡 Gửi dữ liệu thêm/sửa
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isAdding || isUpdating) return;
+
+    const action = isEdit ? "update" : "add";
+    isEdit ? setIsUpdating(true) : setIsAdding(true);
+
     try {
       let res;
-      if (isEdit) {
-        res = await API.put(`${API_URL}/${formData.id}`, formData);
-      } else {
-        res = await API.post(API_URL, formData);
-      }
+      if (isEdit) res = await API.put(`${API_URL}/${formData.id}`, formData);
+      else res = await API.post(API_URL, formData);
+
       setMessage({ type: "success", text: res.data.message });
       setShowModal(false);
       fetchServices(pagination.current_page);
@@ -81,11 +89,18 @@ const fetchServices = async (page = 1, search = "") => {
         type: "error",
         text: err.response?.data?.message || "Đã xảy ra lỗi khi lưu.",
       });
+    } finally {
+      setIsAdding(false);
+      setIsUpdating(false);
     }
   };
 
   // 🔴 Xóa dịch vụ
-  const handleDelete = async () => {
+  const handleDelete = async (e) => {
+    e.preventDefault();
+    if (isDeleting) return;
+    setIsDeleting(true);
+
     try {
       const res = await API.delete(`${API_URL}/${deleteId}`);
       setMessage({ type: "success", text: res.data.message });
@@ -97,13 +112,17 @@ const fetchServices = async (page = 1, search = "") => {
         type: "error",
         text: err.response?.data?.message || "Không thể xóa dịch vụ.",
       });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
   return (
     <div className="w-full h-screen">
       <div className="w-full h-full flex flex-col p-3">
-        <h1 className="text-blue-500 text-xl font-semibold py-5">Quản lí Dịch vụ</h1>
+        <h1 className="text-blue-500 text-xl font-semibold py-5">
+          Quản lí Dịch vụ
+        </h1>
 
         {message && (
           <div
@@ -115,40 +134,44 @@ const fetchServices = async (page = 1, search = "") => {
           </div>
         )}
 
+        {/* Thanh công cụ: tìm kiếm + thêm */}
         <div className="flex justify-between items-center py-2">
-  {/* Ô tìm kiếm */}
-  <div className="relative max-w-md w-full">
-    <input
-      type="search"
-      value={searchTerm}
-      onChange={(e) => setSearchTerm(e.target.value)}
-      placeholder="Tìm kiếm dịch vụ..."
-      className="block w-full p-3 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-200 focus:ring-2 focus:ring-blue-400 outline-none"
-    />
-    <svg
-      className="w-4 h-4 text-gray-500 absolute top-3 left-3"
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 20 20"
-    >
-      <path
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="2"
-        d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-      />
-    </svg>
-  </div>
+          <div className="relative max-w-md w-full">
+            <input
+              type="search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Tìm kiếm dịch vụ..."
+              className="block w-full p-3 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-200 focus:ring-2 focus:ring-blue-400 outline-none"
+            />
+            <svg
+              className="w-4 h-4 text-gray-500 absolute top-3 left-3"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 20 20"
+            >
+              <path
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+              />
+            </svg>
+          </div>
 
-  {/* Nút thêm dịch vụ */}
-  <button
-    onClick={() => handleOpenModal(false)}
-    className="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition-colors"
-  >
-    Thêm Dịch vụ
-  </button>
-</div>
+          <button
+            onClick={() => handleOpenModal(false)}
+            disabled={isAdding || isUpdating}
+            className={`py-2 px-4 rounded-lg transition-colors ${
+              isAdding || isUpdating
+                ? "bg-green-300 cursor-not-allowed"
+                : "bg-green-500 hover:bg-green-600 text-white"
+            }`}
+          >
+            {isAdding ? "Đang thêm..." : "Thêm Dịch vụ"}
+          </button>
+        </div>
 
         {/* Bảng danh sách */}
         <div className="relative overflow-x-auto shadow-md mt-4">
@@ -165,24 +188,42 @@ const fetchServices = async (page = 1, search = "") => {
               {services.length > 0 ? (
                 services.map((item) => (
                   <tr key={item.id} className="odd:bg-white even:bg-gray-50 border-b">
-                    <td className="px-6 py-4 font-medium text-gray-900">{item.name}</td>
+                    <td className="px-6 py-4 font-medium text-gray-900">
+                      {item.name}
+                    </td>
                     <td className="px-6 py-4">{item.description}</td>
-                    <td className="px-6 py-4">{Number(item.price).toLocaleString()} VND</td>
+                    <td className="px-6 py-4">
+                      {Number(item.price).toLocaleString()} VND
+                    </td>
                     <td className="px-6 py-4 space-x-2">
                       <button
                         onClick={() => handleOpenModal(true, item)}
-                        className="text-blue-600 hover:underline"
+                        disabled={isUpdating || isAdding}
+                        className={`${
+                          isUpdating
+                            ? "text-blue-300 cursor-not-allowed"
+                            : "text-blue-600 hover:underline"
+                        }`}
                       >
-                        Sửa
+                        {isUpdating && formData.id === item.id
+                          ? "Đang sửa..."
+                          : "Sửa"}
                       </button>
                       <button
                         onClick={() => {
                           setDeleteId(item.id);
                           setShowDeleteModal(true);
                         }}
-                        className="text-red-600 hover:underline"
+                        disabled={isDeleting}
+                        className={`${
+                          isDeleting
+                            ? "text-red-300 cursor-not-allowed"
+                            : "text-red-600 hover:underline"
+                        }`}
                       >
-                        Xóa
+                        {isDeleting && deleteId === item.id
+                          ? "Đang xóa..."
+                          : "Xóa"}
                       </button>
                     </td>
                   </tr>
@@ -198,24 +239,26 @@ const fetchServices = async (page = 1, search = "") => {
           </table>
         </div>
 
-        {/* Pagination */}
+        {/* Phân trang */}
         {pagination.total > pagination.per_page && (
           <div className="flex justify-center items-center mt-4 space-x-3">
             <button
               disabled={pagination.current_page === 1}
-              onClick={() => fetchServices(pagination.current_page - 1, searchTerm)}
+              onClick={() =>
+                fetchServices(pagination.current_page - 1, searchTerm)
+              }
               className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
             >
               ← Trước
             </button>
-
             <span>
               Trang {pagination.current_page} / {pagination.last_page}
             </span>
-
             <button
-                disabled={pagination.current_page === pagination.last_page}
-                onClick={() => fetchServices(pagination.current_page + 1, searchTerm)}
+              disabled={pagination.current_page === pagination.last_page}
+              onClick={() =>
+                fetchServices(pagination.current_page + 1, searchTerm)
+              }
               className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
             >
               Sau →
@@ -232,11 +275,15 @@ const fetchServices = async (page = 1, search = "") => {
               </h2>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Tên Dịch vụ</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Tên Dịch vụ
+                  </label>
                   <input
                     type="text"
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
                     className="w-full border border-gray-300 rounded-lg px-3 py-2"
                     required
                   />
@@ -253,7 +300,9 @@ const fetchServices = async (page = 1, search = "") => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Giá (VND)</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Giá (VND)
+                  </label>
                   <input
                     type="number"
                     value={formData.price}
@@ -274,9 +323,20 @@ const fetchServices = async (page = 1, search = "") => {
                   </button>
                   <button
                     type="submit"
-                    className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                    disabled={isAdding || isUpdating}
+                    className={`px-4 py-2 rounded-lg text-white ${
+                      isAdding || isUpdating
+                        ? "bg-blue-300 cursor-not-allowed"
+                        : "bg-blue-500 hover:bg-blue-600"
+                    }`}
                   >
-                    {isEdit ? "Cập nhật" : "Thêm"}
+                    {isEdit
+                      ? isUpdating
+                        ? "Đang cập nhật..."
+                        : "Cập nhật"
+                      : isAdding
+                      ? "Đang thêm..."
+                      : "Thêm"}
                   </button>
                 </div>
               </form>
@@ -288,7 +348,9 @@ const fetchServices = async (page = 1, search = "") => {
         {showDeleteModal && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
             <div className="bg-white rounded-lg shadow-lg w-80 p-6">
-              <h2 className="text-lg font-semibold mb-3 text-red-600">Xác nhận xóa</h2>
+              <h2 className="text-lg font-semibold mb-3 text-red-600">
+                Xác nhận xóa
+              </h2>
               <p className="mb-4 text-gray-700">
                 Bạn có chắc muốn xóa dịch vụ này không?
               </p>
@@ -301,9 +363,14 @@ const fetchServices = async (page = 1, search = "") => {
                 </button>
                 <button
                   onClick={handleDelete}
-                  className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+                  disabled={isDeleting}
+                  className={`px-4 py-2 rounded-lg text-white ${
+                    isDeleting
+                      ? "bg-red-300 cursor-not-allowed"
+                      : "bg-red-500 hover:bg-red-600"
+                  }`}
                 >
-                  Xóa
+                  {isDeleting ? "Đang xóa..." : "Xóa"}
                 </button>
               </div>
             </div>
