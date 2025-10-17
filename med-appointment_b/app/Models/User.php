@@ -15,56 +15,76 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
-        'avatar', // ✅ đổi lại cho khớp DB
+        'avatar', // ảnh đại diện
         'phone',
         'insurance_info',
-        'email_verified_at'
     ];
 
-    protected $hidden = ['password', 'remember_token'];
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
 
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
 
-    // ✅ Accessor: tạo thuộc tính ảo "avatar_url"
+    /**
+     * ✅ Accessor: Trả về URL đầy đủ của avatar
+     */
     public function getAvatarUrlAttribute()
     {
-        // Nếu không có avatar -> ảnh mặc định
-        if (!$this->avatar) {
+        // Nếu chưa có avatar -> dùng ảnh mặc định
+        if (empty($this->avatar)) {
             return asset('images/default-avatar.png');
         }
 
-        // Nếu là URL đầy đủ
+        // Nếu avatar là một URL đầy đủ (ví dụ link từ mạng ngoài)
         if (str_starts_with($this->avatar, 'http')) {
             return $this->avatar;
         }
 
-        // Nếu là file trong storage
+        // Nếu ảnh nằm trong thư mục storage
         return asset('storage/' . $this->avatar);
     }
 
-    // Các quan hệ
+    /**
+     * ✅ Quan hệ với Doctor (1-1)
+     */
     public function doctor()
     {
-        return $this->hasOne(Doctor::class, 'id');
+        // user.id -> doctors.user_id
+        return $this->hasOne(Doctor::class, 'user_id');
     }
 
+    /**
+     * ✅ Quan hệ với Patient (1-1)
+     */
     public function patient()
     {
-        return $this->hasOne(Patient::class, 'id');
+        // user.id -> patients.user_id
+        return $this->hasOne(Patient::class, 'user_id');
     }
 
+    /**
+     * Quan hệ với Notification
+     */
     public function notifications()
     {
         return $this->hasMany(Notification::class, 'user_id');
     }
 
+    /**
+     * Quan hệ với Post
+     */
     public function posts()
     {
         return $this->hasMany(Post::class, 'author_id');
     }
 
+    /**
+     * Quan hệ với ActivityLog
+     */
     public function activityLogs()
     {
         return $this->hasMany(ActivityLog::class, 'user_id');
