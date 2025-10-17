@@ -26,7 +26,9 @@ export default function Posts() {
 
     const loadPosts = async () => {
         const res = await API.get(`/posts?search=${search}`);
-        setPosts(res.data);
+        console.log("Kết quả API posts:", res.data);
+
+        setPosts(res.data.data);
     };
 
     const loadCategories = async () => {
