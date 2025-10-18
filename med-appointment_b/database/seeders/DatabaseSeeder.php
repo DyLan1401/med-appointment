@@ -32,12 +32,15 @@ class DatabaseSeeder extends Seeder
         UserSeeder::class,
     ]);
 
-        $this->call(DepartmentSeeder::class);
+      
+    $this->call([
+            DepartmentSeeder::class,
+            ServicesSeeder::class,
+            DoctorSeeder::class,
+            AppointmentSeeder::class,
+        ]);
 
-
-         $this->call([
-        DoctorSeeder::class,
-    ]);
+     
 
     $this->call([
         ScheduleSeeder::class,
