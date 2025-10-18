@@ -18,5 +18,9 @@ return [
 
     'supports_credentials' => true,
 
+<<<<<<< HEAD
 ];
 
+=======
+];
+>>>>>>> DinhThanhToan-DangNhap
