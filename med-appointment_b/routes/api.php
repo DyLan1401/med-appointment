@@ -7,6 +7,11 @@ use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\CategoryPostController;
+use App\Http\Controllers\PostController;
+
+Route::apiResource('categories', CategoryPostController::class);
+Route::apiResource('posts', PostController::class);
 
 Route::get('/test', fn() => response()->json(['message' => 'API đang hoạt động! ✅']));
 

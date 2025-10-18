@@ -22,6 +22,7 @@ import ManagerChuyenKhoa from "./components/admin/ManagerChuyenKhoa";
 import ManagerPainet from "./components/admin/ManagerPainet";
 import ManagerUser from "./components/admin/ManagerUsers";
 import ManagerService from "./components/admin/ManagerService";
+import ManagerCategoriesPost from "./components/admin/ManagerCategoriesPost"
 import ManagerPosts from "./components/admin/ManagerPosts";
 import ManagerHoaDon from "./components/admin/ManagerHoaDon";
 import ManagerFeedBack from "./components/admin/ManagerFeedBack";
@@ -142,6 +143,7 @@ export default function App() {
         <Route path="painets" element={<ManagerPainet />} />
         <Route path="users" element={<ManagerUser />} />
         <Route path="services" element={<ManagerService />} />
+        <Route path="categories" element={<ManagerCategoriesPost />} />
         <Route path="posts" element={<ManagerPosts />} />
         <Route path="invoices" element={<ManagerHoaDon />} />
         <Route path="feedbacks" element={<ManagerFeedBack />} />
