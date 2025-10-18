@@ -24,7 +24,7 @@ class PatientsSeeder extends Seeder
 
             // Tạo bệnh nhân tương ứng
             Patient::create([
-                'id' => $user->id,
+                'user_id' => $user->id,
                 'date_of_birth' => $faker->date('Y-m-d', '2005-01-01'),
                 'gender' => $faker->randomElement(['male', 'female', 'other']),
                 'address' => $faker->address(),
