@@ -8,6 +8,11 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\CategoryPostController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\Api\Auth\SocialAuthController;
+
+// đăng nhập với google
+Route::get('/auth/google/redirect', [SocialAuthController::class, 'redirectToGoogle']);
+Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
 
 Route::apiResource('categories', CategoryPostController::class);
 Route::apiResource('posts', PostController::class);

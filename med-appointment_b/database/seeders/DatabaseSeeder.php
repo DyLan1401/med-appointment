@@ -39,7 +39,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call([
-            $this->call(ServiceSeeder::class),
+            $this->call(ServiceSeeder::class),`
         ]);
     
     }
