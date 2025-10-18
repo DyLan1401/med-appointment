@@ -15,4 +15,9 @@ class Service extends Model
     {
         return $this->hasMany(Appointment::class, 'service_id');
     }
+
+    public function scopeWithBasicInfo($query)
+    {
+        return $query->select('id', 'name', 'description', 'price', 'created_at', 'updated_at');
+    }
 }

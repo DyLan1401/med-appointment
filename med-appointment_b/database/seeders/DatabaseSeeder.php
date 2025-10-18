@@ -14,40 +14,33 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // User::factory(10)->create();
-
-
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
 
-<<<<<<< HEAD
-
-=======
->>>>>>> NguyenThanhLan-QuanliPosts
         $this->call([
             PatientsSeeder::class,
         ]);
 
-
         $this->call([
-        UserSeeder::class,
-    ]);
+            UserSeeder::class,
+        ]);
 
     //     $this->call(DepartmentSeeder::class);
 
-<<<<<<< HEAD
-=======
     //      $this->call([
     //     DoctorSeeder::class,
     // ]);
 
-      $this->call([
-            CategoryPostSeeder::class,
-            PostSeeder::class,
+        $this->call([
+                CategoryPostSeeder::class,
+                PostSeeder::class,
         ]);
->>>>>>> NguyenThanhLan-QuanliPosts
+
+        $this->call([
+            $this->call(ServiceSeeder::class),
+        ]);
+    
     }
-
-
 }

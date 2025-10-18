@@ -2,23 +2,12 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/master
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DepartmentController;
-<<<<<<< HEAD
-=======
-use App\Http\Controllers\UserController;
->>>>>>> DinhThanhToan-DangNhap
-=======
 use App\Http\Controllers\CategoryPostController;
 use App\Http\Controllers\PostController;
->>>>>>> origin/master
 
 Route::apiResource('categories', CategoryPostController::class);
 Route::apiResource('posts', PostController::class);
@@ -47,13 +36,11 @@ Route::prefix('doctors')->group(function () {
     Route::delete('/certificates/{id}', [DoctorController::class, 'deleteCertificate']);        
 });
 
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 
 Route::apiResource('patients', PatientController::class);
-=======
+
 //   USERS (CRUD + PROFILE + CERTIFICATES)
->>>>>>> origin/master
 
 Route::apiResource('users', UserController::class);
 
@@ -68,12 +55,10 @@ Route::delete('/users/certificates/{id}', [UserController::class, 'deleteCertifi
 
 //   PATIENTS (CRUD)
 
-<<<<<<< HEAD
 Route::get('/doctors', [DoctorController::class, 'index']);
 Route::post('/doctors', [DoctorController::class, 'store']);
 Route::put('/doctors/{id}', [DoctorController::class, 'update']);
 Route::delete('/doctors/{id}', [DoctorController::class, 'destroy']);
-=======
 // Chức Năng Đăng kÝ
 Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
@@ -85,12 +70,19 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // chức năng đăng nhập
 Route::post('/login', [UserController::class, 'login']);
->>>>>>> DinhThanhToan-DangNhap
-=======
 Route::apiResource('patients', PatientController::class);
 
 //   DEPARTMENTS (CRUD + SEARCH)
 
 Route::get('/departments/search', [DepartmentController::class, 'search']);   // GET /api/departments/search
 Route::apiResource('departments', DepartmentController::class);
->>>>>>> origin/master
+
+use App\Http\Controllers\ServiceController;
+
+
+Route::get('/test', function () {
+    return response()->json(['message' => 'Hello API']);
+});
+
+// Định tuyến cho ServiceController
+Route::apiResource('services', ServiceController::class);
