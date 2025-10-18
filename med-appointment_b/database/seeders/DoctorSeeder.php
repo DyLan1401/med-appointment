@@ -31,7 +31,7 @@ class DoctorSeeder extends Seeder
             // 2️⃣ Tạo doctor liên kết user_id
             DB::table('doctors')->insert([
                 'user_id' => $userId,
-                'specialization_id' => $faker->randomElement(['Nhi', 'Tim mạch', 'Da liễu', 'Răng Hàm Mặt']),
+                'specialization_id' => $faker->randomElement([1, 2, 3, 4, 5]),
                 'status' => 'active',
                 'bio' => $faker->sentence(8),
                 'created_at' => now(),

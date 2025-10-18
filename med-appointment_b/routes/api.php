@@ -12,7 +12,7 @@ use App\Http\Controllers\UserController;
 // Route test
 
 use App\Http\Controllers\DepartmentController;
-
+use App\Http\Controllers\ScheduleController;
 
 Route::get('/test', function () {
     return response()->json(['message' => 'Hello API']);
@@ -27,6 +27,8 @@ Route::apiResource('users', UserController::class);
 Route::get('/departments', [DepartmentController::class, 'index']);
 Route::get('/departments/search', [DepartmentController::class, 'search']);
 Route::apiResource('departments', DepartmentController::class);
+
+Route::apiResource('schedules', ScheduleController::class);
 
 
 Route::get('/doctors', [DoctorController::class, 'index']);
