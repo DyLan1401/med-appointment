@@ -2,7 +2,7 @@ import React from "react";
 import { Routes, Route } from "react-router-dom";
 
 /* ---------------------------------------------
- 🧩 Components - Common (trước là home/)
+ 🧩 Components - Common
 ----------------------------------------------*/
 import Navbar from "./components/common/Navbar";
 import Header1 from "./components/common/Header1";
@@ -14,7 +14,7 @@ import Footer from "./components/common/Footer";
 import FormService from "./components/common/FormService";
 
 /* ---------------------------------------------
- 🧩 Components - Admin (trước là manager/)
+ 🧩 Components - Admin
 ----------------------------------------------*/
 import ManagerDoctor from "./components/admin/ManagerDoctor";
 import ManagerLichHen from "./components/admin/ManagerLichHen";
@@ -22,6 +22,7 @@ import ManagerChuyenKhoa from "./components/admin/ManagerChuyenKhoa";
 import ManagerPainet from "./components/admin/ManagerPainet";
 import ManagerUser from "./components/admin/ManagerUsers";
 import ManagerService from "./components/admin/ManagerService";
+import ManagerCategoriesPost from "./components/admin/ManagerCategoriesPost"
 import ManagerPosts from "./components/admin/ManagerPosts";
 import ManagerHoaDon from "./components/admin/ManagerHoaDon";
 import ManagerFeedBack from "./components/admin/ManagerFeedBack";
@@ -36,6 +37,7 @@ import BHYTStatistics from "./components/admin/BHYTStatistics";
 ----------------------------------------------*/
 import TopDoctors from "./components/doctor/TopDoctors";
 import DoctorDetail from "./components/doctor/DoctorDetail";
+import DoctorProfile from "./components/doctor/DoctorProfile";
 
 /* ---------------------------------------------
  🧩 Components - Patient
@@ -73,67 +75,66 @@ import PageDoctorSchedule from "./pages/doctor/PageDoctorSchedule";
 import Dashboard from "./pages/admin/Dashboard";
 
 /* ---------------------------------------------
- 🌍 Pages - General (public pages)
+ 🌍 Pages - General
 ----------------------------------------------*/
 import PageContact from "./pages/general/PageContact";
 import PagePosts from "./pages/general/PagePosts";
 import PostDetail from "./pages/general/PostDetail";
-//
+
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={
-        <div className="w-full h-full px-1 space-y-8">
-          <div className="w-full h-14">
-            <Navbar />
-          </div>
-          <div className="w-full h-full ">
+      {/* 🌍 Trang chủ */}
+      <Route
+        path="/"
+        element={
+          <div className="w-full h-full px-1 space-y-8">
+            <div className="w-full h-14">
+              <Navbar />
+            </div>
             <Header1 />
-          </div>  <div className="w-full h-full">
             <Header2 />
-          </div>
-
-          <div className="w-full h-full">
             <Section1 />
-          </div>
-
-          <div className="w-full h-full px-5">
-            <Section2 />
-          </div>
-
-          <div className="w-full h-full">
+            <div className="w-full h-full px-5">
+              <Section2 />
+            </div>
             <MiniMap />
-          </div>
-
-          <div className="w-full">
             <Footer />
           </div>
-        </div>
-      } />
+        }
+      />
 
-
+      {/* 👩‍⚕️ Doctor pages */}
+      <Route path="/doctor" element={<PageDoctorTeam />} />
       <Route path="/doctor/:name" element={<DoctorDetail />} />
+      <Route path="/doctorprofile" element={<PageDoctorProfile />} />
+      <Route path="/doctorschedule" element={<PageDoctorSchedule />} />
+
+      {/* ✅ Route động: hiển thị profile bác sĩ */}
+      <Route path="/doctor/:id/profile" element={<DoctorProfile />} />
+
+      {/* 🧍 Patient pages */}
       <Route path="/deposit" element={<DepositConfirmation />} />
       <Route path="/invoice" element={<InvoicePayment />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/forgetPassword" element={<PageForgetPassword />} />
-      <Route path="/register" element={<PageRegister />} />
       <Route path="/selectschedule" element={<PageSelectSchedule />} />
       <Route path="/datlichkhamnhanh" element={<PageDatLichKhamNhanh />} />
       <Route path="/datlichkham" element={<PageDatLichKham />} />
       <Route path="/selectservice" element={<FormService />} />
-      <Route path="/doctor" element={<PageDoctorTeam />} />
       <Route path="/favoritedoctors" element={<PageFavoriteDoctors />} />
-      <Route path="/doctorprofile" element={<PageDoctorProfile />} />
-      <Route path="/doctorschedule" element={<PageDoctorSchedule />} />
       <Route path="/patientprofile" element={<PagePatientProfile />} />
       <Route path="/patienthistory" element={<PagePatientHistory />} />
+
+      {/* 🔐 Auth pages */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/forgetPassword" element={<PageForgetPassword />} />
+      <Route path="/register" element={<PageRegister />} />
+
+      {/* 📞 Public pages */}
       <Route path="/contact" element={<PageContact />} />
       <Route path="/blog" element={<PagePosts />} />
       <Route path="/blog/:id" element={<PostDetail />} />
 
-
-      {/* Dashboard layout + các route con */}
+      {/* 🧭 Dashboard (Admin) */}
       <Route path="/dashboard" element={<Dashboard />}>
         <Route index element={<FormDashboard />} />
         <Route path="doctors" element={<ManagerDoctor />} />
@@ -142,6 +143,7 @@ export default function App() {
         <Route path="painets" element={<ManagerPainet />} />
         <Route path="users" element={<ManagerUser />} />
         <Route path="services" element={<ManagerService />} />
+        <Route path="categories" element={<ManagerCategoriesPost />} />
         <Route path="posts" element={<ManagerPosts />} />
         <Route path="invoices" element={<ManagerHoaDon />} />
         <Route path="feedbacks" element={<ManagerFeedBack />} />
@@ -151,9 +153,6 @@ export default function App() {
         <Route path="BHYTStatistics" element={<BHYTStatistics />} />
         <Route path="TopDoctors" element={<TopDoctors />} />
       </Route>
-
-
     </Routes>
-
-  )
-};
+  );
+}

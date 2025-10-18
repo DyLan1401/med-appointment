@@ -27,13 +27,19 @@ class User extends Authenticatable
         'password',
         'role',
 <<<<<<< HEAD
+<<<<<<< HEAD
         'avatar', // ✅ đổi lại cho khớp DB
+=======
+        'avatar', // ảnh đại diện
+>>>>>>> origin/master
         'phone',
         'insurance_info',
-        'email_verified_at'
     ];
 
-    protected $hidden = ['password', 'remember_token'];
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
 
 =======
         'avatar_url',
@@ -58,23 +64,30 @@ class User extends Authenticatable
     ];
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     // ✅ Accessor: tạo thuộc tính ảo "avatar_url"
+=======
+    /**
+     * ✅ Accessor: Trả về URL đầy đủ của avatar
+     */
+>>>>>>> origin/master
     public function getAvatarUrlAttribute()
     {
-        // Nếu không có avatar -> ảnh mặc định
-        if (!$this->avatar) {
+        // Nếu chưa có avatar -> dùng ảnh mặc định
+        if (empty($this->avatar)) {
             return asset('images/default-avatar.png');
         }
 
-        // Nếu là URL đầy đủ
+        // Nếu avatar là một URL đầy đủ (ví dụ link từ mạng ngoài)
         if (str_starts_with($this->avatar, 'http')) {
             return $this->avatar;
         }
 
-        // Nếu là file trong storage
+        // Nếu ảnh nằm trong thư mục storage
         return asset('storage/' . $this->avatar);
     }
 
+<<<<<<< HEAD
     // Các quan hệ
 =======
     /**
@@ -83,19 +96,39 @@ class User extends Authenticatable
 >>>>>>> DinhThanhToan-DangNhap
     public function doctor()
     {
+=======
+    /**
+     * ✅ Quan hệ với Doctor (1-1)
+     */
+    public function doctor()
+    {
+        // user.id -> doctors.user_id
+>>>>>>> origin/master
         return $this->hasOne(Doctor::class, 'user_id');
     }
 
     /**
+<<<<<<< HEAD
      * Quan hệ 1-1 với bảng patients
      */
     public function patient()
     {
+=======
+     * ✅ Quan hệ với Patient (1-1)
+     */
+    public function patient()
+    {
+        // user.id -> patients.user_id
+>>>>>>> origin/master
         return $this->hasOne(Patient::class, 'user_id');
     }
 
     /**
+<<<<<<< HEAD
      * Quan hệ 1-n với bảng notifications
+=======
+     * Quan hệ với Notification
+>>>>>>> origin/master
      */
     public function notifications()
     {
@@ -103,7 +136,11 @@ class User extends Authenticatable
     }
 
     /**
+<<<<<<< HEAD
      * Quan hệ 1-n với bảng posts
+=======
+     * Quan hệ với Post
+>>>>>>> origin/master
      */
     public function posts()
     {
@@ -111,7 +148,11 @@ class User extends Authenticatable
     }
 
     /**
+<<<<<<< HEAD
      * Quan hệ 1-n với bảng activity_logs
+=======
+     * Quan hệ với ActivityLog
+>>>>>>> origin/master
      */
     public function activityLogs()
     {

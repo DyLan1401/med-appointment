@@ -12,9 +12,15 @@ return new class extends Migration {
             $table->string('certificate_name', 255)->nullable();
             $table->string('certificate_type', 100)->nullable();
             $table->string('image', 255)->nullable();
-            $table->timestamp('created_at')->useCurrent();
 
-            $table->foreign('doctor_id')->references('id')->on('doctors')->onDelete('cascade');
+            // ✅ Thêm timestamps chuẩn Laravel
+            $table->timestamps(); // Tự động tạo created_at & updated_at
+
+            // ✅ Khóa ngoại liên kết với bảng doctors
+            $table->foreign('doctor_id')
+                ->references('id')
+                ->on('doctors')
+                ->onDelete('cascade');
         });
     }
 

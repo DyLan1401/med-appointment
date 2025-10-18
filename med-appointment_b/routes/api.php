@@ -3,37 +3,72 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/master
 use App\Http\Controllers\DoctorController;
-
 use App\Http\Controllers\PatientController;
-
 use App\Http\Controllers\UserController;
-
-
-// Route test
-
 use App\Http\Controllers\DepartmentController;
+<<<<<<< HEAD
 =======
 use App\Http\Controllers\UserController;
 >>>>>>> DinhThanhToan-DangNhap
+=======
+use App\Http\Controllers\CategoryPostController;
+use App\Http\Controllers\PostController;
+>>>>>>> origin/master
 
+Route::apiResource('categories', CategoryPostController::class);
+Route::apiResource('posts', PostController::class);
 
-Route::get('/test', function () {
-    return response()->json(['message' => 'Hello API']);
+Route::get('/test', fn() => response()->json(['message' => 'API đang hoạt động! ✅']));
+
+//   DOCTORS (CRUD + PROFILE + AVATAR + CERTIFICATES)
+Route::prefix('doctors')->group(function () {
+
+    // ---- CRUD ----
+    Route::get('/', [DoctorController::class, 'index']);            
+    Route::post('/', [DoctorController::class, 'store']);            
+    Route::put('/{id}', [DoctorController::class, 'update']);        
+    Route::delete('/{id}', [DoctorController::class, 'destroy']);    
+
+    // ---- Hồ sơ bác sĩ ----
+    Route::get('/{doctor_id}/profile', [DoctorController::class, 'showProfile']);    
+    Route::post('/{doctor_id}/profile', [DoctorController::class, 'updateProfile']); 
+
+    // ---- Upload ảnh đại diện ----
+    Route::post('/{doctor_id}/avatar', [DoctorController::class, 'uploadAvatar']);   
+
+    // ---- Upload & quản lý chứng chỉ ----
+    Route::get('/{doctor_id}/certificates', [DoctorController::class, 'getCertificates']);     
+    Route::post('/{doctor_id}/certificates', [DoctorController::class, 'uploadCertificate']);  
+    Route::delete('/certificates/{id}', [DoctorController::class, 'deleteCertificate']);        
 });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 Route::apiResource('patients', PatientController::class);
+=======
+//   USERS (CRUD + PROFILE + CERTIFICATES)
+>>>>>>> origin/master
 
 Route::apiResource('users', UserController::class);
 
+// Hồ sơ người dùng
+Route::get('/users/{id}/profile', [UserController::class, 'showProfile']);     
+Route::post('/users/{id}/profile', [UserController::class, 'updateProfile']);  
 
-Route::get('/departments', [DepartmentController::class, 'index']);
-Route::get('/departments/search', [DepartmentController::class, 'search']);
-Route::apiResource('departments', DepartmentController::class);
+// Upload & quản lý chứng chỉ cho user (nếu có)
+Route::get('/users/{id}/certificates', [UserController::class, 'getCertificates']);    
+Route::post('/users/{id}/certificates', [UserController::class, 'uploadCertificate']); 
+Route::delete('/users/certificates/{id}', [UserController::class, 'deleteCertificate']); 
 
+//   PATIENTS (CRUD)
 
+<<<<<<< HEAD
 Route::get('/doctors', [DoctorController::class, 'index']);
 Route::post('/doctors', [DoctorController::class, 'store']);
 Route::put('/doctors/{id}', [DoctorController::class, 'update']);
@@ -51,3 +86,11 @@ Route::middleware('auth:sanctum')->group(function () {
 // chức năng đăng nhập
 Route::post('/login', [UserController::class, 'login']);
 >>>>>>> DinhThanhToan-DangNhap
+=======
+Route::apiResource('patients', PatientController::class);
+
+//   DEPARTMENTS (CRUD + SEARCH)
+
+Route::get('/departments/search', [DepartmentController::class, 'search']);   // GET /api/departments/search
+Route::apiResource('departments', DepartmentController::class);
+>>>>>>> origin/master
