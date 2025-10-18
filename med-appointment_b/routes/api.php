@@ -5,13 +5,11 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\UserController;
-<<<<<<< HEAD
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\CategoryPostController;
 use App\Http\Controllers\PostController;
-=======
 use App\Http\Controllers\Api\ChangePasswordController;
->>>>>>> DinhThanhToan-QuenMatKhau
+use App\Http\Controllers\ContactController;
 
 Route::apiResource('categories', CategoryPostController::class);
 Route::apiResource('posts', PostController::class);
@@ -74,7 +72,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // chức năng đăng nhập
 Route::post('/login', [UserController::class, 'login']);
-<<<<<<< HEAD
 Route::apiResource('patients', PatientController::class);
 
 //   DEPARTMENTS (CRUD + SEARCH)
@@ -91,8 +88,9 @@ Route::get('/test', function () {
 
 // Định tuyến cho ServiceController
 Route::apiResource('services', ServiceController::class);
-=======
 
 // chức năng đổi mật khẩu        
 Route::middleware('auth:sanctum')->post('/change-password', [UserController::class, 'changePassword']);
->>>>>>> DinhThanhToan-QuenMatKhau
+
+//CRUD Quản lí Contact 
+Route::apiResource('contacts', ContactController::class);

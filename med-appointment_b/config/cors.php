@@ -19,16 +19,9 @@ return [
     'exposed_headers' => [],
 
     'max_age' => 0,
-<<<<<<< HEAD
+
 
     'supports_credentials' => true,
 
-<<<<<<< HEAD
-];
 
-=======
 ];
->>>>>>> DinhThanhToan-DangNhap
-=======
-];
->>>>>>> origin/master

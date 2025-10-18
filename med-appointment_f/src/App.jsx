@@ -117,13 +117,12 @@ export default function App() {
       {/* 🧍 Patient pages */}
       <Route path="/deposit" element={<DepositConfirmation />} />
       <Route path="/invoice" element={<InvoicePayment />} />
-<<<<<<< HEAD
-=======
+ 
+
       <Route path="/login" element={<Login />} />
       <Route path="/forgetPassword" element={<PageForgetPassword />} />
       <Route path="/changepassword" element={<PageChangePassword />} />
       <Route path="/register" element={<PageRegister />} />
->>>>>>> DinhThanhToan-QuenMatKhau
       <Route path="/selectschedule" element={<PageSelectSchedule />} />
       <Route path="/datlichkhamnhanh" element={<PageDatLichKhamNhanh />} />
       <Route path="/datlichkham" element={<PageDatLichKham />} />

@@ -131,7 +131,7 @@ class UserController extends Controller
         return asset('images/default-avatar.png');
     }
 
-<<<<<<< HEAD
+ 
     // Nếu là URL đầy đủ thì trả nguyên
     if ($this->isFullUrl($path)) {
         return $path;
@@ -149,12 +149,15 @@ class UserController extends Controller
 
     // Trường hợp khác
     return asset('storage/' . ltrim($path, '/'));
-=======
+
         /**
      * 🟢 API Đổi mật khẩu người dùng
      * Yêu cầu: người dùng phải đăng nhập (có token Sanctum)
      */
-    public function changePassword(Request $request)
+   
+}
+
+ public function changePassword(Request $request)
     {
         try {
             // Xác thực dữ liệu đầu vào
@@ -196,14 +199,14 @@ class UserController extends Controller
         }
     }
 
->>>>>>> DinhThanhToan-QuenMatKhau
-}
 
-    /**
+
+/**
      * 🧩 Kiểm tra chuỗi có phải URL đầy đủ hay không
      */
     private function isFullUrl($path)
     {
         return filter_var($path, FILTER_VALIDATE_URL) !== false;
     }
+    
 }
