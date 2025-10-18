@@ -49,6 +49,7 @@ import DepositConfirmation from "./components/patient/DepositConfirmation";
 import Login from "./pages/auth/Login";
 import PageRegister from "./pages/auth/PageRegister";
 import PageForgetPassword from "./pages/auth/PageForgetPassword";
+import PageChangePassword from "./pages/auth/PageChangepPassword";
 
 /* ---------------------------------------------
  🌍 Pages - Patient
@@ -117,6 +118,7 @@ export default function App() {
       <Route path="/invoice" element={<InvoicePayment />} />
       <Route path="/login" element={<Login />} />
       <Route path="/forgetPassword" element={<PageForgetPassword />} />
+      <Route path="/changepassword" element={<PageChangePassword />} />
       <Route path="/register" element={<PageRegister />} />
       <Route path="/selectschedule" element={<PageSelectSchedule />} />
       <Route path="/datlichkhamnhanh" element={<PageDatLichKhamNhanh />} />

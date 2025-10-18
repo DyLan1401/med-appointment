@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\Api\ChangePasswordController;
 
 
 Route::get('/test', function () {
@@ -20,3 +21,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // chức năng đăng nhập
 Route::post('/login', [UserController::class, 'login']);
+
+// chức năng đổi mật khẩu        
+Route::middleware('auth:sanctum')->post('/change-password', [UserController::class, 'changePassword']);

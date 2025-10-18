@@ -152,7 +152,7 @@ export default function Navbar() {
                             {openUser && (
                                 <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-lg border border-gray-200">
                                     {/* Role = patient */}
-                                    {user.role === "patient" && (
+                                    {user.role === "user" && (
                                         <>
                                             <button
                                                 onClick={() => { navigate("/patientprofile") }}
@@ -164,6 +164,12 @@ export default function Navbar() {
 
                                                 className="block w-full px-4 py-2 hover:bg-gray-100 text-left">
                                                 Lịch sử khám bệnh
+                                            </button>
+                                             <button
+                                                onClick={() => { navigate("/changepassword") }}
+
+                                                className="block w-full px-4 py-2 hover:bg-gray-100 text-left">
+                                                Đổi Mật Khẩu 
                                             </button>
                                         </>
                                     )}
