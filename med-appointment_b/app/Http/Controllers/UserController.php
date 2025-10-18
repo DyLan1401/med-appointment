@@ -131,6 +131,7 @@ class UserController extends Controller
         return asset('images/default-avatar.png');
     }
 
+<<<<<<< HEAD
     // Nếu là URL đầy đủ thì trả nguyên
     if ($this->isFullUrl($path)) {
         return $path;
@@ -148,6 +149,54 @@ class UserController extends Controller
 
     // Trường hợp khác
     return asset('storage/' . ltrim($path, '/'));
+=======
+        /**
+     * 🟢 API Đổi mật khẩu người dùng
+     * Yêu cầu: người dùng phải đăng nhập (có token Sanctum)
+     */
+    public function changePassword(Request $request)
+    {
+        try {
+            // Xác thực dữ liệu đầu vào
+            $request->validate([
+                'current_password' => 'required|string|min:6',
+                'new_password' => 'required|string|min:6|confirmed', // cần có field new_password_confirmation
+            ]);
+
+            $user = $request->user(); // Lấy user hiện tại từ token
+
+            // Kiểm tra mật khẩu hiện tại có đúng không
+            if (!Hash::check($request->current_password, $user->password)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Mật khẩu hiện tại không chính xác!',
+                ], 400);
+            }
+
+            // Cập nhật mật khẩu mới
+            $user->password = Hash::make($request->new_password);
+            $user->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Đổi mật khẩu thành công!',
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Dữ liệu không hợp lệ!',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Đổi mật khẩu thất bại!',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+>>>>>>> DinhThanhToan-QuenMatKhau
 }
 
     /**
