@@ -13,8 +13,17 @@ class Schedule extends Model
         'doctor_id', 'date', 'start_time', 'end_time', 'status'
     ];
 
-    public function doctor()
-    {
-        return $this->belongsTo(Doctor::class, 'doctor_id');
-    }
+ public function doctor()
+{
+    return $this->belongsTo(Doctor::class);
+}
+
+public function service()
+{
+    return $this->belongsTo(Service::class);
+}
+
+    protected $casts = [
+        'date' => 'date',
+    ];
 }

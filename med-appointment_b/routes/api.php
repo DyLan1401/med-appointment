@@ -6,6 +6,8 @@ use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\AppointmentController;
+
 use App\Http\Controllers\CategoryPostController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\Api\ChangePasswordController;
@@ -75,11 +77,12 @@ Route::post('/login', [UserController::class, 'login']);
 Route::apiResource('patients', PatientController::class);
 
 //   DEPARTMENTS (CRUD + SEARCH)
-
+Route::get('/departments', [DepartmentController::class, 'index']);
 Route::get('/departments/search', [DepartmentController::class, 'search']);   // GET /api/departments/search
 Route::apiResource('departments', DepartmentController::class);
 
 use App\Http\Controllers\ServiceController;
+
 
 
 Route::get('/test', function () {
@@ -92,5 +95,15 @@ Route::apiResource('services', ServiceController::class);
 // chức năng đổi mật khẩu        
 Route::middleware('auth:sanctum')->post('/change-password', [UserController::class, 'changePassword']);
 
+
 //CRUD Quản lí Contact 
 Route::apiResource('contacts', ContactController::class);
+
+Route::apiResource('users', UserController::class);
+
+//Quản lý Appointment
+Route::apiResource('appointments', AppointmentController::class);
+
+
+
+

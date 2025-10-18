@@ -4,62 +4,50 @@ namespace App\Http\Controllers;
 
 use App\Models\Schedule;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class ScheduleController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Quy tắc validate dữ liệu Schedule
      */
-    public function index()
+    protected function getValidationRules(): array
     {
-        //
+    }
+
+public function index()
+{
+   
+}
+
+
+    /**
+     * Hiển thị chi tiết một lịch làm việc (theo ID)
+     * (GET /api/schedules/{id})
+     */
+    public function show($id)
+    {
+      
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Schedule $schedule)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Schedule $schedule)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
+     * Cập nhật lịch làm việc.
+     * (PUT /api/schedules/{id})
      */
     public function update(Request $request, Schedule $schedule)
     {
-        //
+        
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Xóa lịch làm việc.
+     * (DELETE /api/schedules/{id})
      */
     public function destroy(Schedule $schedule)
     {
-        //
+       
     }
 }

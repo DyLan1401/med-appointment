@@ -14,7 +14,7 @@ class Patient extends Model
 
     // ✅ 2. Khai báo các cột có thể gán hàng loạt
     protected $fillable = [
-        'id',
+        'user_id',
         'date_of_birth',
         'gender',
         'address',
@@ -29,7 +29,7 @@ class Patient extends Model
     // ✅ 4. Khai báo quan hệ với bảng users
     public function user()
     {
-        return $this->belongsTo(User::class, 'id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     // ✅ 5. Quan hệ với bảng appointments
