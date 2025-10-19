@@ -22,7 +22,7 @@ import ManagerChuyenKhoa from "./components/admin/ManagerChuyenKhoa";
 import ManagerPainet from "./components/admin/ManagerPainet";
 import ManagerUser from "./components/admin/ManagerUsers";
 import ManagerService from "./components/admin/ManagerService";
-import ManagerCategoriesPost from "./components/admin/ManagerCategoriesPost"
+import ManagerCategoriesPost from "./components/admin/ManagerCategoriesPost";
 import ManagerPosts from "./components/admin/ManagerPosts";
 import ManagerHoaDon from "./components/admin/ManagerHoaDon";
 import ManagerFeedBack from "./components/admin/ManagerFeedBack";
@@ -82,6 +82,11 @@ import PageContact from "./pages/general/PageContact";
 import PagePosts from "./pages/general/PagePosts";
 import PostDetail from "./pages/general/PostDetail";
 
+/* ---------------------------------------------
+ 💖 Trang yêu thích bác sĩ (mới thêm)
+----------------------------------------------*/
+import LikeDoctor from "./components/doctor/LikeDoctor"; // ← thêm dòng này
+
 export default function App() {
   return (
     <Routes>
@@ -117,8 +122,11 @@ export default function App() {
       {/* 🧍 Patient pages */}
       <Route path="/deposit" element={<DepositConfirmation />} />
       <Route path="/invoice" element={<InvoicePayment />} />
- 
 
+      {/* ✅ Trang yêu thích bác sĩ */}
+      <Route path="/like-doctor" element={<LikeDoctor />} />
+
+      {/* ✅ Các trang đặt lịch, đăng ký, đăng nhập */}
       <Route path="/login" element={<Login />} />
       <Route path="/forgetPassword" element={<PageForgetPassword />} />
       <Route path="/changepassword" element={<PageChangePassword />} />
@@ -130,11 +138,6 @@ export default function App() {
       <Route path="/favoritedoctors" element={<PageFavoriteDoctors />} />
       <Route path="/patientprofile" element={<PagePatientProfile />} />
       <Route path="/patienthistory" element={<PagePatientHistory />} />
-
-      {/* 🔐 Auth pages */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/forgetPassword" element={<PageForgetPassword />} />
-      <Route path="/register" element={<PageRegister />} />
 
       {/* 📞 Public pages */}
       <Route path="/contact" element={<PageContact />} />

@@ -12,6 +12,7 @@ use App\Http\Controllers\CategoryPostController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\Api\ChangePasswordController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\FavoriteController;
 
 Route::apiResource('categories', CategoryPostController::class);
 Route::apiResource('posts', PostController::class);
@@ -99,6 +100,7 @@ Route::middleware('auth:sanctum')->post('/change-password', [UserController::cla
 //CRUD Quản lí Contact 
 Route::apiResource('contacts', ContactController::class);
 
+<<<<<<< HEAD
 Route::apiResource('users', UserController::class);
 
 //Quản lý Appointment
@@ -107,3 +109,9 @@ Route::apiResource('appointments', AppointmentController::class);
 
 
 
+=======
+// Lưu danh sách bác sĩ yêu thích
+Route::post('/favorites', [FavoriteController::class, 'store']);
+Route::get('/favorites/{patient_id}', [FavoriteController::class, 'index']);
+Route::delete('/favorites/{id}', [FavoriteController::class, 'destroy']);
+>>>>>>> DangThanhPhong-LuuBacSiYeuThich
