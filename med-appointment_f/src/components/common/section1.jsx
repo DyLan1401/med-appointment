@@ -208,7 +208,7 @@ export default function Section1() {
         </AnimatePresence>
       </div>
 
-      {/* ======= GIỮ NGUYÊN: ĐỘI NGŨ BÁC SĨ NỔI BẬT ======= */}
+      {/*  ĐỘI NGŨ BÁC SĨ NỔI BẬT */}
       <div className="w-full flex flex-col justify-center items-center py-10 bg-white">
         <div className="text-3xl font-bold py-5 text-blue-600">
           Đội Ngũ Bác Sĩ Nổi Bật
@@ -234,7 +234,7 @@ export default function Section1() {
                   width={250}
                 />
                 <div className="text-center">
-                  <div className="text-xl font-semibold">Tên</div>
+                  <div className="text-xl font-semibold">Tên Bác Sĩ</div>
                   <div className="text-lg text-gray-600">Khoa</div>
                 </div>
               </div>

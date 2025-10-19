@@ -18,11 +18,10 @@ class PatientsSeeder extends Seeder
 
         foreach ($users as $user) {
             Patient::create([
-<<<<<<< HEAD
+
                 'user_id' => $user->id,
-=======
                 'id' => $user->id, // Trùng với user_id
->>>>>>> DangThanhPhong-LuuBacSiYeuThich
+
                 'date_of_birth' => $faker->date('Y-m-d', '2005-01-01'),
                 'gender' => $faker->randomElement(['male', 'female', 'other']),
                 'address' => $faker->address(),
