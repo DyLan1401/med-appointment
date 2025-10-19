@@ -27,7 +27,7 @@ class DoctorController extends Controller
             $query->where('specialization_id', $request->specialization_id);
         }
 
-        return response()->json($query->orderBy('id', 'desc')->get());
+        return response()->json($query->orderBy('id', 'asc')->get());
     }
 
     public function store(Request $request)

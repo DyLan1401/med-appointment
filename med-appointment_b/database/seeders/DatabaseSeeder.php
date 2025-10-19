@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\User;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,38 +12,22 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Tạo user mẫu
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
 
-        $this->call([
-            PatientsSeeder::class,
-        ]);
-
+        // Gọi các seeder khác
         $this->call([
             UserSeeder::class,
+            PatientsSeeder::class,
+            DepartmentSeeder::class,
+            // DoctorSeeder::class,
+            CategoryPostSeeder::class,
+            PostSeeder::class,
+            ServiceSeeder::class,
+            ContactSeeder::class,
         ]);
-
-    //     $this->call(DepartmentSeeder::class);
-
-    //      $this->call([
-    //     DoctorSeeder::class,
-    // ]);
-
-        $this->call([
-                CategoryPostSeeder::class,
-                PostSeeder::class,
-        ]);
-
-        $this->call([
-            $this->call(ServiceSeeder::class),
-        ]);
-
-                $this->call([
-            $this->call(ContactSeeder::class),
-        ]);
-
     }
 }
