@@ -1,38 +1,48 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { Search, AlertTriangle, Stethoscope } from "lucide-react";
 import heart from "../../assets/heart.png";
 import avatarDefault from "../../assets/avatar.jpg";
 import API from "../../api/axios";
 
 export default function Section1() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const searchQuery = searchParams.get("search");
+
   const [doctors, setDoctors] = useState([]);
   const [specializations, setSpecializations] = useState([]);
   const [filter, setFilter] = useState("Tất cả");
   const [loading, setLoading] = useState(false);
-  const [liked, setLiked] = useState(null); // 👈 animation tim
+  const [liked, setLiked] = useState(null);
+  const [notFound, setNotFound] = useState(false);
 
   const token = localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem("user")) || null;
 
   useEffect(() => {
-    fetchDoctors();
+    if (searchQuery) handleSearch(searchQuery);
+    else fetchDoctors();
     fetchSpecializations();
-  }, []);
+  }, [searchQuery]);
 
-  // ===== Lấy danh sách bác sĩ =====
   const fetchDoctors = async () => {
+    setLoading(true);
     try {
       const res = await API.get("/doctors");
-      setDoctors(res.data.data || res.data);
+      const list = res.data.data || res.data;
+      setDoctors(list);
+      setNotFound(list.length === 0);
     } catch (err) {
       console.error(err);
-      alert("❌ Không thể tải danh sách bác sĩ!");
+      setNotFound(true);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // ===== Lấy danh sách chuyên khoa =====
   const fetchSpecializations = async () => {
     try {
       const res = await API.get("/departments");
@@ -42,32 +52,46 @@ export default function Section1() {
     }
   };
 
-  // ===== Hàm lấy ảnh bác sĩ =====
+  const handleSearch = async (query) => {
+    setLoading(true);
+    try {
+      const res = await API.get(`/doctors/search?query=${query}`);
+      const results = res.data?.data || res.data || [];
+      setDoctors(results);
+      setNotFound(results.length === 0);
+
+      setTimeout(() => {
+        const section = document.getElementById("doctor-results");
+        if (section) section.scrollIntoView({ behavior: "smooth" });
+      }, 300);
+    } catch (err) {
+      console.error("❌ Lỗi tìm kiếm:", err);
+      setDoctors([]);
+      setNotFound(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getDoctorAvatar = (doctor) => {
     const baseURL =
       import.meta.env.VITE_API_URL?.replace("/api", "") ||
       "http://localhost:8000";
+    const avatar =
+      doctor?.user?.avatar ||
+      doctor?.avatar ||
+      doctor?.avatar_url ||
+      avatarDefault;
 
-    if (doctor?.user?.avatar) {
-      if (doctor.user.avatar.startsWith("http")) return doctor.user.avatar;
-      return `${baseURL}/storage/${doctor.user.avatar}`;
-    }
-    if (doctor?.avatar) {
-      if (doctor.avatar.startsWith("http")) return doctor.avatar;
-      return `${baseURL}/storage/${doctor.avatar}`;
-    }
-    if (doctor?.avatar_url) return doctor.avatar_url;
-
-    return avatarDefault;
+    if (avatar.startsWith("http")) return avatar;
+    return `${baseURL}/storage/${avatar}`;
   };
 
-  // ===== Thêm yêu thích =====
   const handleFavorite = async (doctor) => {
     if (!doctor?.id) return alert("⚠️ Thiếu thông tin bác sĩ!");
-    setLiked(doctor.id); // 👈 hiệu ứng tim rung
-    setTimeout(() => setLiked(null), 1000);
+    setLiked(doctor.id);
+    setTimeout(() => setLiked(null), 800);
 
-    setLoading(true);
     try {
       if (token) {
         await API.post(
@@ -91,36 +115,53 @@ export default function Section1() {
         }
         alert(`💖 Đã thêm bác sĩ ${doctor.user?.name} vào yêu thích tạm thời!`);
       }
-
       navigate("/like-doctor");
     } catch (err) {
       console.error("❌ Lỗi khi thêm yêu thích:", err);
       alert("⚠️ Không thể thêm bác sĩ yêu thích!");
-    } finally {
-      setLoading(false);
     }
   };
 
-  // ===== Lọc danh sách =====
   const filteredDoctors =
     filter === "Tất cả"
       ? doctors
       : doctors.filter((d) => d.specialization?.name === filter);
 
   return (
-    <div className="w-full h-full flex flex-col justify-center items-center bg-gray-50">
+    <motion.div
+      className="w-full min-h-screen flex flex-col justify-center items-center bg-gradient-to-b from-blue-50 to-white animate-fadeIn"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.6 }}
+    >
+      
+      <div className="w-full bg-gradient-to-r from-blue-500 to-blue-700 py-16 text-center shadow-inner">
+        <motion.h1
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-4xl sm:text-5xl font-extrabold text-white mb-4"
+        >
+          Tìm Kiếm & Khám Phá Bác Sĩ Phù Hợp Cho Bạn
+        </motion.h1>
+        <p className="text-white/90 text-lg max-w-2xl mx-auto leading-relaxed">
+          Hơn 100+ bác sĩ chuyên khoa uy tín sẵn sàng hỗ trợ bạn mọi lúc, mọi nơi 💙
+        </p>
+      </div>
+
       {/* ======= CÁC CHUYÊN KHOA ======= */}
-      <div className="w-full py-10 bg-gradient-to-r from-blue-300 to-blue-400 flex flex-col items-center space-y-6 shadow-inner">
-        <h2 className="text-3xl font-bold text-white drop-shadow-lg">
-          Các Chuyên Khoa
+      <div className="w-full py-10 bg-white flex flex-col items-center space-y-6 shadow-sm">
+        <h2 className="text-3xl font-bold text-blue-700 flex items-center gap-2">
+          <Stethoscope size={30} /> Các Chuyên Khoa
         </h2>
-        <div className="flex space-x-3 flex-wrap justify-center">
+
+        <div className="flex flex-wrap justify-center gap-3 px-4">
           <button
             onClick={() => setFilter("Tất cả")}
-            className={`py-2 px-4 rounded-xl font-medium shadow-md transition-all ${
+            className={`py-2 px-5 rounded-full font-semibold shadow-md transition-all ${
               filter === "Tất cả"
                 ? "bg-blue-700 text-white scale-105"
-                : "bg-white text-blue-700 hover:bg-blue-600 hover:text-white"
+                : "bg-gray-100 text-blue-800 hover:bg-blue-600 hover:text-white"
             }`}
           >
             Tất cả
@@ -130,10 +171,10 @@ export default function Section1() {
             <button
               key={sp.id}
               onClick={() => setFilter(sp.name)}
-              className={`py-2 px-4 rounded-xl font-medium shadow-md transition-all ${
+              className={`py-2 px-5 rounded-full font-semibold shadow-md transition-all ${
                 filter === sp.name
                   ? "bg-blue-700 text-white scale-105"
-                  : "bg-white text-blue-700 hover:bg-blue-600 hover:text-white"
+                  : "bg-gray-100 text-blue-800 hover:bg-blue-600 hover:text-white"
               }`}
             >
               {sp.name}
@@ -142,29 +183,50 @@ export default function Section1() {
         </div>
       </div>
 
-      {/* ======= DANH SÁCH BÁC SĨ THEO CHUYÊN KHOA ======= */}
-      <div className="w-full flex flex-col justify-center items-center py-12 space-y-10">
-        <h2 className="text-3xl font-bold text-blue-600">
-          Danh Sách Bác Sĩ Theo Chuyên Khoa
+      {/* ======= DANH SÁCH BÁC SĨ ======= */}
+      <div
+        id="doctor-results"
+        className="w-full flex flex-col justify-center items-center py-16 space-y-10"
+      >
+        <h2 className="text-3xl font-bold text-blue-700">
+          {searchQuery
+            ? `🔍 Kết quả tìm kiếm cho “${searchQuery}”`
+            : "Danh Sách Bác Sĩ"}
         </h2>
 
-        <AnimatePresence>
+        {/* ⏳ Loading */}
+        {loading && (
           <motion.div
-            layout
-            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 px-6"
+            className="text-blue-600 font-semibold flex items-center gap-2 animate-pulse"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
           >
-            {filteredDoctors.length > 0 ? (
-              filteredDoctors.map((d) => (
+            <Search className="w-5 h-5 animate-spin" />
+            Đang tìm kiếm bác sĩ...
+          </motion.div>
+        )}
+
+        {/* 🩺 Danh sách hoặc Thông báo */}
+        <AnimatePresence mode="wait">
+          {!loading && filteredDoctors.length > 0 ? (
+            <motion.div
+              key="list"
+              layout
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 px-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
+            >
+              {filteredDoctors.map((d) => (
                 <motion.div
                   key={d.id}
                   layout
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="bg-white shadow-2xl rounded-2xl p-6 flex flex-col items-center space-y-4 relative hover:shadow-blue-200 transition-all hover:-translate-y-1"
+                  whileHover={{ scale: 1.04 }}
+                  transition={{ type: "spring", stiffness: 200 }}
+                  className="bg-white border border-gray-100 shadow-xl rounded-2xl p-6 flex flex-col items-center space-y-4 relative hover:shadow-blue-200 hover:-translate-y-1 transition-all duration-300"
                 >
-                  {/* Nút tim có animation */}
                   <motion.img
                     src={heart}
                     onClick={() => handleFavorite(d)}
@@ -180,68 +242,45 @@ export default function Section1() {
                     transition={{ duration: 0.6, ease: "easeInOut" }}
                   />
 
-                  {/* Ảnh bác sĩ */}
                   <img
-                    className="rounded-full object-cover w-[200px] h-[200px] border-4 border-blue-200 shadow-md"
+                    className="rounded-full object-cover w-[160px] h-[160px] border-4 border-blue-100 shadow-md"
                     src={getDoctorAvatar(d)}
                     alt={`Ảnh bác sĩ ${d.user?.name || ""}`}
                     onError={(e) => (e.target.src = avatarDefault)}
                   />
 
-                  {/* Thông tin bác sĩ */}
-                  <div className="text-center">
-                    <div className="text-xl font-semibold text-gray-800">
+                  <div className="text-center space-y-1">
+                    <div className="text-lg font-semibold text-gray-800">
                       BS. {d.user?.name || "Chưa rõ"}
                     </div>
-                    <div className="text-gray-600">
+                    <div className="text-blue-600 font-medium">
                       {d.specialization?.name || "Chưa có chuyên khoa"}
                     </div>
                   </div>
                 </motion.div>
-              ))
-            ) : (
-              <p className="text-gray-500 col-span-3 text-center">
-                Không có bác sĩ nào để hiển thị.
-              </p>
-            )}
-          </motion.div>
+              ))}
+            </motion.div>
+          ) : (
+            !loading && (
+              <motion.div
+                key="notfound"
+                className="flex flex-col items-center justify-center text-center text-gray-600 animate-fadeIn"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <AlertTriangle className="w-12 h-12 text-blue-600 mb-3" />
+                <p className="text-lg font-medium">
+                  Không tìm thấy bác sĩ nào phù hợp
+                </p>
+                <p className="text-sm text-gray-500 mt-1">
+                  Hãy thử tìm với tên hoặc chuyên khoa khác nhé 💡
+                </p>
+              </motion.div>
+            )
+          )}
         </AnimatePresence>
       </div>
-
-      {/*  ĐỘI NGŨ BÁC SĨ NỔI BẬT */}
-      <div className="w-full flex flex-col justify-center items-center py-10 bg-white">
-        <div className="text-3xl font-bold py-5 text-blue-600">
-          Đội Ngũ Bác Sĩ Nổi Bật
-        </div>
-        <div className="w-full flex justify-center items-center space-x-7 flex-wrap">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="w-[300px] bg-white p-5 shadow-2xl rounded-2xl flex flex-col items-center space-y-4 hover:shadow-blue-300 transition-transform hover:-translate-y-1"
-            >
-              <img
-                className="self-end cursor-pointer hover:scale-110 transition-transform"
-                src={heart}
-                width={25}
-                height={25}
-                alt="heart"
-              />
-              <div className="flex flex-col items-center gap-y-2">
-                <img
-                  className="rounded-3xl object-cover shadow-md"
-                  src={avatarDefault}
-                  alt="avatar"
-                  width={250}
-                />
-                <div className="text-center">
-                  <div className="text-xl font-semibold">Tên Bác Sĩ</div>
-                  <div className="text-lg text-gray-600">Khoa</div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
+    </motion.div>
   );
 }

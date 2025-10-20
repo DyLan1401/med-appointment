@@ -18,7 +18,6 @@ class DatabaseSeeder extends Seeder
             'email' => 'test@example.com',
         ]);
 
-        // ✅ Gọi tất cả các seeder bạn muốn chạy
         $this->call([
             PatientsSeeder::class,
             UserSeeder::class,

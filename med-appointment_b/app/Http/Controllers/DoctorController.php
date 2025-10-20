@@ -11,10 +11,7 @@ use Illuminate\Support\Facades\Hash;
 
 class DoctorController extends Controller
 {
-    // ============================================================
     //   CRUD DOCTOR
-    // ============================================================
-
     public function index(Request $request)
     {
         $query = Doctor::with(['user', 'certificates', 'specialization']);
@@ -117,10 +114,8 @@ class DoctorController extends Controller
         return response()->json(['message' => 'Doctor deleted successfully']);
     }
 
-    // ============================================================
-    //   PROFILE (HIỂN THỊ + CẬP NHẬT)
-    // ============================================================
 
+    //   PROFILE (HIỂN THỊ + CẬP NHẬT)
     public function showProfile($doctor_id)
     {
         $doctor = Doctor::with(['user', 'specialization', 'certificates'])->find($doctor_id);
@@ -168,10 +163,8 @@ class DoctorController extends Controller
         ]);
     }
 
-    // ============================================================
-    //   UPLOAD AVATAR
-    // ============================================================
 
+    //   UPLOAD AVATAR
     public function uploadAvatar(Request $request, $doctor_id)
     {
         $doctor = Doctor::with('user')->findOrFail($doctor_id);
@@ -196,10 +189,8 @@ class DoctorController extends Controller
         ]);
     }
 
-    // ============================================================
-    //   UPLOAD CHỨNG CHỈ / BẰNG CẤP
-    // ============================================================
 
+    //   UPLOAD CHỨNG CHỈ / BẰNG CẤP
     public function uploadCertificate(Request $request, $doctor_id)
     {
         $doctor = Doctor::findOrFail($doctor_id);
@@ -253,4 +244,31 @@ class DoctorController extends Controller
 
         return response()->json(['message' => 'Xóa chứng chỉ thành công!']);
     }
+
+    // Tìm kiếm bác sĩ theo tên hoặc chuyên khoa
+    public function search(Request $request)
+{
+    $query = $request->input('query');
+
+    if (!$query) {
+        return response()->json(['message' => 'Thiếu từ khóa tìm kiếm.'], 400);
+    }
+
+    $doctors = Doctor::with(['user', 'specialization'])
+        ->where(function ($q) use ($query) {
+            $q->whereHas('user', function ($q2) use ($query) {
+                $q2->where('name', 'like', "%$query%");
+            })
+            ->orWhereHas('specialization', function ($q2) use ($query) {
+                $q2->where('name', 'like', "%$query%");
+            });
+        })
+        ->get();
+
+    if ($doctors->isEmpty()) {
+        return response()->json(['message' => 'Không tìm thấy bác sĩ phù hợp.'], 404);
+    }
+
+    return response()->json($doctors);
+}
 }

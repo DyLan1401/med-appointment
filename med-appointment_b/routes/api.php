@@ -114,3 +114,6 @@ Route::post('/favorites', [FavoriteController::class, 'store']);
 Route::get('/favorites/{patient_id}', [FavoriteController::class, 'index']);
 Route::delete('/favorites/{id}', [FavoriteController::class, 'destroy']);
 
+
+// Tìm kiếm bác sĩ theo tên hoặc chuyên khoa
+Route::get('/doctors/search', [DoctorController::class, 'search']);

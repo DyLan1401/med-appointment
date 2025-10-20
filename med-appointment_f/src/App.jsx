@@ -1,9 +1,10 @@
+/* ---------------------------------------------
+ 🌍 App.jsx
+----------------------------------------------*/
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 
-/* ---------------------------------------------
- 🧩 Components - Common
-----------------------------------------------*/
+/* 🧩 Import các component cần thiết */
 import Navbar from "./components/common/Navbar";
 import Header1 from "./components/common/Header1";
 import Header2 from "./components/common/Header2";
@@ -13,9 +14,32 @@ import MiniMap from "./components/common/maps";
 import Footer from "./components/common/Footer";
 import FormService from "./components/common/FormService";
 
-/* ---------------------------------------------
- 🧩 Components - Admin
-----------------------------------------------*/
+/* 🧩 Trang yêu thích bác sĩ */
+import LikeDoctor from "./components/doctor/LikeDoctor";
+
+/* 🧩 Các trang khác */
+import DoctorDetail from "./components/doctor/DoctorDetail";
+import DoctorProfile from "./components/doctor/DoctorProfile";
+import PageDoctorSchedule from "./pages/doctor/PageDoctorSchedule";
+import Login from "./pages/auth/Login";
+import PageRegister from "./pages/auth/PageRegister";
+import PageForgetPassword from "./pages/auth/PageForgetPassword";
+import PageChangePassword from "./pages/auth/PageChangepPassword";
+import PageSelectSchedule from "./pages/patient/PageSelectSchedule";
+import PageDatLichKhamNhanh from "./pages/patient/PageDatLichKhamNhanh";
+import PageDatLichKham from "./pages/patient/PageDatLichKham";
+import PageFavoriteDoctors from "./pages/patient/PageFavoriteDoctors";
+import PagePatientProfile from "./pages/patient/PagePatientProfile";
+import PagePatientHistory from "./pages/patient/PagePatientHistory";
+import DepositConfirmation from "./components/patient/DepositConfirmation";
+import InvoicePayment from "./components/patient/InvoicePayment";
+import PageContact from "./pages/general/PageContact";
+import PagePosts from "./pages/general/PagePosts";
+import PostDetail from "./pages/general/PostDetail";
+import Dashboard from "./pages/admin/Dashboard";
+import FormDashboard from "./components/admin/FormDashboard";
+
+/* ✅ Các trang quản lý admin */
 import ManagerDoctor from "./components/admin/ManagerDoctor";
 import ManagerLichHen from "./components/admin/ManagerLichHen";
 import ManagerChuyenKhoa from "./components/admin/ManagerChuyenKhoa";
@@ -28,64 +52,9 @@ import ManagerHoaDon from "./components/admin/ManagerHoaDon";
 import ManagerFeedBack from "./components/admin/ManagerFeedBack";
 import ManagerContact from "./components/admin/ManagerContact";
 import ManagerWork from "./components/admin/ManagerWork";
-import FormDashboard from "./components/admin/FormDashboard";
 import AppointmentStats from "./components/admin/AppointmentStats";
 import BHYTStatistics from "./components/admin/BHYTStatistics";
-
-/* ---------------------------------------------
- 🧩 Components - Doctor
-----------------------------------------------*/
 import TopDoctors from "./components/doctor/TopDoctors";
-import DoctorDetail from "./components/doctor/DoctorDetail";
-import DoctorProfile from "./components/doctor/DoctorProfile";
-
-/* ---------------------------------------------
- 🧩 Components - Patient
-----------------------------------------------*/
-import InvoicePayment from "./components/patient/InvoicePayment";
-import DepositConfirmation from "./components/patient/DepositConfirmation";
-
-/* ---------------------------------------------
- 🌍 Pages - Auth
-----------------------------------------------*/
-import Login from "./pages/auth/Login";
-import PageRegister from "./pages/auth/PageRegister";
-import PageForgetPassword from "./pages/auth/PageForgetPassword";
-import PageChangePassword from "./pages/auth/PageChangepPassword";
-
-/* ---------------------------------------------
- 🌍 Pages - Patient
-----------------------------------------------*/
-import PageSelectSchedule from "./pages/patient/PageSelectSchedule";
-import PageDatLichKhamNhanh from "./pages/patient/PageDatLichKhamNhanh";
-import PageDatLichKham from "./pages/patient/PageDatLichKham";
-import PageFavoriteDoctors from "./pages/patient/PageFavoriteDoctors";
-import PagePatientProfile from "./pages/patient/PagePatientProfile";
-import PagePatientHistory from "./pages/patient/PagePatientHistory";
-
-/* ---------------------------------------------
- 🌍 Pages - Doctor
-----------------------------------------------*/
-import PageDoctorTeam from "./pages/doctor/PageDoctorTeam";
-import PageDoctorProfile from "./pages/doctor/PageDoctorProfile";
-import PageDoctorSchedule from "./pages/doctor/PageDoctorSchedule";
-
-/* ---------------------------------------------
- 🌍 Pages - Admin
-----------------------------------------------*/
-import Dashboard from "./pages/admin/Dashboard";
-
-/* ---------------------------------------------
- 🌍 Pages - General
-----------------------------------------------*/
-import PageContact from "./pages/general/PageContact";
-import PagePosts from "./pages/general/PagePosts";
-import PostDetail from "./pages/general/PostDetail";
-
-/* ---------------------------------------------
- 💖 Trang yêu thích bác sĩ (mới thêm)
-----------------------------------------------*/
-import LikeDoctor from "./components/doctor/LikeDoctor"; // ← thêm dòng này
 
 export default function App() {
   return (
@@ -110,23 +79,36 @@ export default function App() {
         }
       />
 
-      {/* 👩‍⚕️ Doctor pages */}
-      <Route path="/doctor" element={<PageDoctorTeam />} />
+      {/* ✅ TRANG BÁC SĨ (hiển thị Section1) */}
+      <Route
+        path="/doctor"
+        element={
+          <div className="w-full min-h-screen bg-gray-50">
+            <Navbar />
+            <div className="pt-20"> {/* cách navbar 1 đoạn */}
+              <Section1 />
+            </div>
+            <Footer />
+          </div>
+        }
+      />
+
+      {/* ✅ Trang chi tiết bác sĩ */}
       <Route path="/doctor/:name" element={<DoctorDetail />} />
-      <Route path="/doctorprofile" element={<PageDoctorProfile />} />
+      <Route path="/doctor/:id/profile" element={<DoctorProfile />} />
       <Route path="/doctorschedule" element={<PageDoctorSchedule />} />
 
-      {/* ✅ Route động: hiển thị profile bác sĩ */}
-      <Route path="/doctor/:id/profile" element={<DoctorProfile />} />
-
-      {/* 🧍 Patient pages */}
-      <Route path="/deposit" element={<DepositConfirmation />} />
-      <Route path="/invoice" element={<InvoicePayment />} />
-
-      {/* ✅ Trang yêu thích bác sĩ */}
+      {/* ✅ Trang yêu thích */}
       <Route path="/like-doctor" element={<LikeDoctor />} />
 
-      {/* ✅ Các trang đặt lịch, đăng ký, đăng nhập */}
+      {/* 👤 Patient */}
+      <Route path="/deposit" element={<DepositConfirmation />} />
+      <Route path="/invoice" element={<InvoicePayment />} />
+      <Route path="/favoritedoctors" element={<PageFavoriteDoctors />} />
+      <Route path="/patientprofile" element={<PagePatientProfile />} />
+      <Route path="/patienthistory" element={<PagePatientHistory />} />
+
+      {/* 🩺 Đặt lịch & đăng nhập */}
       <Route path="/login" element={<Login />} />
       <Route path="/forgetPassword" element={<PageForgetPassword />} />
       <Route path="/changepassword" element={<PageChangePassword />} />
@@ -135,16 +117,13 @@ export default function App() {
       <Route path="/datlichkhamnhanh" element={<PageDatLichKhamNhanh />} />
       <Route path="/datlichkham" element={<PageDatLichKham />} />
       <Route path="/selectservice" element={<FormService />} />
-      <Route path="/favoritedoctors" element={<PageFavoriteDoctors />} />
-      <Route path="/patientprofile" element={<PagePatientProfile />} />
-      <Route path="/patienthistory" element={<PagePatientHistory />} />
 
-      {/* 📞 Public pages */}
+      {/* 📰 Public pages */}
       <Route path="/contact" element={<PageContact />} />
       <Route path="/blog" element={<PagePosts />} />
       <Route path="/blog/:id" element={<PostDetail />} />
 
-      {/* 🧭 Dashboard (Admin) */}
+      {/* 🧭 Dashboard */}
       <Route path="/dashboard" element={<Dashboard />}>
         <Route index element={<FormDashboard />} />
         <Route path="doctors" element={<ManagerDoctor />} />
