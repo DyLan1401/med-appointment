@@ -51,6 +51,7 @@ import ManagerPosts from "./components/admin/ManagerPosts";
 import ManagerHoaDon from "./components/admin/ManagerHoaDon";
 import ManagerFeedBack from "./components/admin/ManagerFeedBack";
 import ManagerContact from "./components/admin/ManagerContact";
+import ManagerBanners from "./components/admin/ManagerBanner";
 import ManagerWork from "./components/admin/ManagerWork";
 import AppointmentStats from "./components/admin/AppointmentStats";
 import BHYTStatistics from "./components/admin/BHYTStatistics";
@@ -137,6 +138,7 @@ export default function App() {
         <Route path="invoices" element={<ManagerHoaDon />} />
         <Route path="feedbacks" element={<ManagerFeedBack />} />
         <Route path="contacts" element={<ManagerContact />} />
+        <Route path="banners" element={<ManagerBanners />} />
         <Route path="works" element={<ManagerWork />} />
         <Route path="appointmentStats" element={<AppointmentStats />} />
         <Route path="BHYTStatistics" element={<BHYTStatistics />} />

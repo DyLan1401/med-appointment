@@ -1,37 +1,66 @@
 import React, { useState, useEffect } from "react";
+import API from "../../api/axios"; // ✅ đảm bảo bạn có file axios cấu hình sẵn baseURL
 
 export default function Header1() {
-    const banners = [
-        {
-            url: "https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=1600&q=80",
-            title: "Chăm sóc sức khỏe toàn diện",
-            subtitle: "Nơi sức khỏe của bạn được ưu tiên hàng đầu.",
-        },
-        {
-            url: "https://images.unsplash.com/photo-1588776814546-3121b78a005d?auto=format&fit=crop&w=1600&q=80",
-            title: "Đặt lịch khám nhanh chóng",
-            subtitle: "Chỉ vài cú nhấp chuột, bác sĩ đã sẵn sàng.",
-        },
-        {
-            url: "https://images.unsplash.com/photo-1550831107-1553da8c8464?auto=format&fit=crop&w=1600&q=80",
-            title: "Dịch vụ y tế chuyên nghiệp",
-            subtitle: "Tận tâm – Chính xác – Hiện đại.",
-        },
-    ];
-
+    const [banners, setBanners] = useState([]);
     const [current, setCurrent] = useState(0);
+    const [loading, setLoading] = useState(true);
 
-    // Auto slide loop
+    // ------------------- GỌI API -------------------
+    const loadBanners = async () => {
+        try {
+            const res = await API.get("/banners");
+            console.log("📦 Dữ liệu banner API:", res.data);
+
+            // Nếu API trả về mảng hoặc phân trang thì đều xử lý được
+            const data = Array.isArray(res.data)
+                ? res.data
+                : res.data.data || [];
+
+            // Chỉ hiển thị banner đang hoạt động (is_active = true)
+            const activeBanners = data.filter((b) => b.is_active);
+
+            setBanners(activeBanners);
+            setLoading(false);
+        } catch (err) {
+            console.error("❌ Lỗi khi tải banner:", err);
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
+        loadBanners();
+    }, []);
+
+    // ------------------- SLIDER TỰ ĐỘNG -------------------
+    useEffect(() => {
+        if (banners.length === 0) return;
         const timer = setInterval(() => {
             setCurrent((prev) => (prev + 1) % banners.length);
-        }, 2000); // đổi ảnh mỗi 5s
+        }, 5000); // 5 giây đổi ảnh
         return () => clearInterval(timer);
-    }, [banners.length]);
+    }, [banners]);
+
+    // ------------------- HIỂN THỊ -------------------
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-64 bg-gray-100 text-gray-600">
+                Đang tải banner...
+            </div>
+        );
+    }
+
+    if (banners.length === 0) {
+        return (
+            <div className="flex justify-center items-center h-64 bg-gray-100 text-gray-600">
+                Không có banner nào để hiển thị
+            </div>
+        );
+    }
 
     return (
         <div className="relative w-full h-64 md:h-[500px] overflow-hidden">
-            {/* Các ảnh banner */}
+            {/* Ảnh banner */}
             <div
                 className="flex transition-transform duration-1000 ease-linear"
                 style={{
@@ -42,8 +71,12 @@ export default function Header1() {
                 {banners.map((banner, i) => (
                     <img
                         key={i}
-                        src={banner.url}
-                        alt={`banner-${i}`}
+                        src={
+                            banner.image.startsWith("http")
+                                ? banner.image
+                                : `http://localhost:8000/storage/${banner.image}`
+                        }
+                        alt={banner.title}
                         className="w-full h-full object-cover flex-shrink-0"
                     />
                 ))}
@@ -51,16 +84,23 @@ export default function Header1() {
 
             {/* Overlay nội dung */}
             <div className="absolute inset-0 flex flex-col justify-center items-center bg-black/40 text-white text-center px-4">
-                <div className="text-4xl md:text-6xl font-bold mb-4">
-                    {banners[current].title}
+                <div className="text-3xl md:text-6xl font-bold mb-4 drop-shadow-md">
+                    {banners[current].title || "—"}
                 </div>
-                <div className="text-lg mb-6">{banners[current].subtitle}</div>
-                <button className="px-6 py-2 bg-white text-blue-600 font-semibold rounded-3xl shadow-md hover:bg-blue-100">
-                    Đặt lịch ngay
-                </button>
+
+                {banners[current].link && (
+                    <a
+                        href={banners[current].link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-6 py-2 bg-white text-blue-600 font-semibold rounded-3xl shadow-md hover:bg-blue-100 transition"
+                    >
+                        Xem chi tiết
+                    </a>
+                )}
             </div>
 
-            {/* Nút chọn banner (dấu chấm tròn) */}
+            {/* Nút chọn banner */}
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-3">
                 {banners.map((_, i) => (
                     <button

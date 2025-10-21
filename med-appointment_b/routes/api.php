@@ -15,6 +15,9 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FavoriteController;
 // use App\Http\Controllers\Api\Auth\SocialAuthController;
 use App\Http\Controllers\SocialAuthController;
+use App\Http\Controllers\BannerController;
+
+Route::apiResource('banners', BannerController::class);
 
 // đăng nhập với google
 Route::get('/auth/google/redirect', [SocialAuthController::class, 'redirectToGoogle']);

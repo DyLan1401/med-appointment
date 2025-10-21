@@ -17,6 +17,7 @@ export default function Dashboard() {
         { path: "invoices", label: "Quản lí hóa đơn" },
         { path: "feedbacks", label: "Quản lí phản hồi" },
         { path: "contacts", label: "Quản lí liên hệ" },
+        { path: "banners", label: "Quản lí banners" },
         { path: "works", label: "Quản lí lịch làm việc" },
         { path: "appointmentStats", label: "Thống kê lịch khám" },
         { path: "BHYTStatistics", label: "Thống kê BHYT" },
@@ -43,8 +44,8 @@ export default function Dashboard() {
                                 key={i}
                                 to={item.path}
                                 className={`py-3 px-4 border-b text-center font-semibold transition-all ${active
-                                        ? "bg-blue-600 text-white"
-                                        : "bg-blue-500 hover:bg-blue-600 text-white"
+                                    ? "bg-blue-600 text-white"
+                                    : "bg-blue-500 hover:bg-blue-600 text-white"
                                     }`}
                             >
                                 {item.label}
