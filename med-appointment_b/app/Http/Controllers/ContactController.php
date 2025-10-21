@@ -12,7 +12,12 @@ class ContactController extends Controller
      */
     public function index()
     {
-        //
+         $contacts = Contact::orderBy('created_at', 'desc')->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $contacts
+        ]);
     }
 
     /**
