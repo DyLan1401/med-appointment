@@ -19,6 +19,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('google_id')->nullable()->default(null)->after('password');
+            $table->string('facebook_id')->nullable()->default(null)->after('google_id');
             $table->enum('role', ['user', 'doctor', 'admin'])->default('user');
 
             // ✅ Thêm cả hai trường avatar và avatar_url để tương thích với Seeder và linh hoạt hơn

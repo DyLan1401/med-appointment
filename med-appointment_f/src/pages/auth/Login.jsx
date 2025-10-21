@@ -7,20 +7,28 @@ export default function Login() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // 🧩 Kiểm tra xem URL có chứa token không
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get("token");
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get("token");
 
-    if (token) {
-      // ✅ Lưu token vào localStorage
-      localStorage.setItem("token", token);
+  if (token) {
+    localStorage.setItem("token", token);
 
-      // (Tuỳ chọn) gọi API để lấy thông tin user nếu muốn
-      // hoặc chuyển hướng về trang chủ
+    // Xác định nguồn login dựa vào URL trước khi redirect
+    const previousURL = document.referrer; // URL trước khi tới trang login
+    if (previousURL.includes("facebook.com")) {
+      alert("Đăng nhập Facebook thành công!");
+    } else if (previousURL.includes("accounts.google.com")) {
       alert("Đăng nhập Google thành công!");
-      navigate("/"); // chuyển về trang chính
+    } else {
+      alert("Đăng nhập thành công!");
     }
-  }, [navigate]);
+
+    // Xoá token khỏi URL và điều hướng về trang chính
+    window.history.replaceState({}, document.title, "/");
+    navigate("/");
+  }
+}, [navigate]);
+
 
   return (
     <>

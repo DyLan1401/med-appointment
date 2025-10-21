@@ -6,7 +6,6 @@ use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens; // 👈 thêm dòng này
 
 class User extends Authenticatable
 {
@@ -17,6 +16,7 @@ class User extends Authenticatable
         'email',
         'password',
         'google_id',
+        'facebook_id',
         'role',
         'avatar', // ✅ đổi lại cho khớp DB
         'phone',
