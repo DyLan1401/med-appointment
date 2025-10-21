@@ -85,6 +85,22 @@ function FormLogin() {
             Đăng nhập với Google
           </button>
         </div>
+        {/* 🔹 Nút đăng nhập bằng Facebook */}
+        <div className="flex justify-center mt-2">
+          <button
+            onClick={() =>
+              (window.location.href = "http://localhost:8000/auth/facebook/redirect")
+            }
+            className="flex items-center justify-center w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-all"
+          >
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/1/1b/Facebook_icon.svg"
+              alt="Facebook logo"
+              className="w-5 h-5 mr-2 bg-white rounded-full"
+            />
+            Đăng nhập với Facebook
+          </button>
+        </div>
 
         {/* Link phụ */}
         <div className="text-center py-5 text-blue-700">

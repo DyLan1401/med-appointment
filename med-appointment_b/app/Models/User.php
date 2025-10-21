@@ -16,6 +16,7 @@ class User extends Authenticatable
         'email',
         'password',
         'google_id',
+        'facebook_id',
         'role',
         'avatar', // ✅ đổi lại cho khớp DB
         'phone',
