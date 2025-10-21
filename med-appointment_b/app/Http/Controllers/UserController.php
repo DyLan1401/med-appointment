@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
+
 
 class UserController extends Controller
 {
@@ -152,5 +155,121 @@ class UserController extends Controller
             'success' => false,
             'message' => 'Bạn chưa đăng nhập hoặc token không hợp lệ!',
         ], 401);
+    }
+}
+
+    /**
+     * 🧩 Hàm helper xử lý URL ảnh
+     */
+    private function getAvatarUrl($path)
+{
+    // Nếu không có ảnh -> trả về ảnh mặc định (không thêm 'storage/')
+    if (!$path) {
+        return asset('images/default-avatar.png');
+    }
+
+ 
+    // Nếu là URL đầy đủ thì trả nguyên
+    if ($this->isFullUrl($path)) {
+        return $path;
+    }
+
+    // Nếu ảnh nằm trong thư mục storage (được lưu bằng store('avatars', 'public'))
+    if (str_starts_with($path, 'avatars/')) {
+        return asset('storage/' . $path);
+    }
+
+    // Nếu ảnh nằm trong thư mục images (như ảnh mặc định)
+    if (str_starts_with($path, 'images/')) {
+        return asset($path);
+    }
+
+    // Trường hợp khác
+    return asset('storage/' . ltrim($path, '/'));
+
+        /**
+     * 🟢 API Đổi mật khẩu người dùng
+     * Yêu cầu: người dùng phải đăng nhập (có token Sanctum)
+     */
+   
+}
+
+ public function changePassword(Request $request)
+    {
+        try {
+            // Xác thực dữ liệu đầu vào
+            $request->validate([
+                'current_password' => 'required|string|min:6',
+                'new_password' => 'required|string|min:6|confirmed', // cần có field new_password_confirmation
+            ]);
+
+            $user = $request->user(); // Lấy user hiện tại từ token
+
+            // Kiểm tra mật khẩu hiện tại có đúng không
+            if (!Hash::check($request->current_password, $user->password)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Mật khẩu hiện tại không chính xác!',
+                ], 400);
+            }
+
+            // Cập nhật mật khẩu mới
+            $user->password = Hash::make($request->new_password);
+            $user->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Đổi mật khẩu thành công!',
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Dữ liệu không hợp lệ!',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Đổi mật khẩu thất bại!',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+
+/**
+     * 🧩 Kiểm tra chuỗi có phải URL đầy đủ hay không
+     */
+    private function isFullUrl($path)
+    {
+        return filter_var($path, FILTER_VALIDATE_URL) !== false;
+    }
+    
+    public function login(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string|min:6',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Email hoặc mật khẩu không chính xác!',
+            ], 401);
+        }
+
+        // Tạo token mới
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Đăng nhập thành công!',
+            'user' => $user,
+            'token' => $token,
+        ]);
     }
 }
