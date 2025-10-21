@@ -31,13 +31,19 @@ function FormLogin() {
     }
   };
 
+  // 🧩 Thêm hàm xử lý đăng nhập với Google
+  const handleGoogleLogin = () => {
+    window.location.href = "http://localhost:8000/auth/google/redirect";
+  };
+
   return (
     <div className="w-full h-screen flex justify-center items-center">
-      <div className="rounded-lg w-[400px] h-[500px] font-semibold shadow-2xl bg-white px-10 flex flex-col justify-center">
-        <h1 className="text-blue-300 text-3xl font-bold text-center py-5">
+      <div className="rounded-lg w-[400px] h-[550px] font-semibold shadow-2xl bg-white px-10 flex flex-col justify-center space-y-5">
+        <h1 className="text-blue-300 text-3xl font-bold text-center py-2">
           Đăng nhập
         </h1>
 
+        {/* Form đăng nhập truyền thống */}
         <form onSubmit={handleLogin} className="space-y-5">
           <div className="flex flex-col">
             <label>Email</label>
@@ -65,6 +71,22 @@ function FormLogin() {
           </button>
         </form>
 
+        {/* 🔹 Nút đăng nhập bằng Google */}
+        <div className="flex justify-center mt-2">
+          <button
+            onClick={handleGoogleLogin}
+            className="flex items-center justify-center w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition-all"
+          >
+            <img
+              src="https://developers.google.com/identity/images/g-logo.png"
+              alt="Google logo"
+              className="w-5 h-5 mr-2 bg-white rounded-full"
+            />
+            Đăng nhập với Google
+          </button>
+        </div>
+
+        {/* Link phụ */}
         <div className="text-center py-5 text-blue-700">
           <button onClick={() => navigate("/forgetPassword")}>
             Quên mật khẩu?

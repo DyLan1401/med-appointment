@@ -1,28 +1,31 @@
-import axios from "axios";  
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import Formlogin from "../../components/common/Formlogin";
+import Navbar from "../../components/common/Navbar";
 
 export default function Login() {
-  const handleGoogleLogin = async () => {
-    const res = await axios.get("http://localhost:8000/api/auth/google/redirect");
-    window.location.href = res.data.url;
-  };
+  const navigate = useNavigate();
 
-  const handleFacebookLogin = async () => {
-    const res = await axios.get("http://localhost:8000/api/auth/facebook/redirect");
-    window.location.href = res.data.url;
-  };
+  useEffect(() => {
+    // 🧩 Kiểm tra xem URL có chứa token không
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+
+    if (token) {
+      // ✅ Lưu token vào localStorage
+      localStorage.setItem("token", token);
+
+      // (Tuỳ chọn) gọi API để lấy thông tin user nếu muốn
+      // hoặc chuyển hướng về trang chủ
+      alert("Đăng nhập Google thành công!");
+      navigate("/"); // chuyển về trang chính
+    }
+  }, [navigate]);
 
   return (
     <>
       <Navbar />
       <Formlogin />
-      <div style={{ textAlign: "center", marginTop: "20px" }}>
-        <button onClick={handleGoogleLogin} className="btn btn-danger">
-          Đăng nhập bằng Google
-        </button>
-        <button onClick={handleFacebookLogin} className="btn btn-primary" style={{ marginLeft: 10 }}>
-          Đăng nhập bằng Facebook
-        </button>
-      </div>
     </>
   );
 }

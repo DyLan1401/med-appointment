@@ -8,7 +8,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\CategoryPostController;
 use App\Http\Controllers\PostController;
-use App\Http\Controllers\Api\Auth\SocialAuthController;
+// use App\Http\Controllers\Api\Auth\SocialAuthController;
+use App\Http\Controllers\SocialAuthController;
 
 // đăng nhập với google
 Route::get('/auth/google/redirect', [SocialAuthController::class, 'redirectToGoogle']);
