@@ -11,17 +11,22 @@ class PostSeeder extends Seeder
 {
     public function run(): void
     {
-        $faker = Faker::create('vi_VN'); // Ngôn ngữ tiếng Việt
-        $categoryIds = CategoryPost::pluck('id')->toArray();
-$imageUrl = "https://via.placeholder.com/600x400.png?text=Blog+Post+" . $i;
+        // ✅ Tạo Faker tiếng Việt
+        $faker = Faker::create('vi_VN');
 
-        for ($i = 1; $i <= 20; $i++) {
+        // ✅ Lấy danh sách ID danh mục
+        $categoryIds = CategoryPost::pluck('id')->toArray();
+
+        // ✅ Sinh 1000 bài viết mẫu
+        for ($i = 1; $i <= 300; $i++) {
+            $imageUrl = "https://via.placeholder.com/600x400.png?text=Blog+Post+" . $i;
+
             Post::create([
                 'title' => $faker->sentence(6, true),
                 'content' => $faker->paragraph(5, true),
                 'image' => $imageUrl,
                 'category_id' => $faker->randomElement($categoryIds),
-                'user_id' => null,
+                'user_id' => null, // hoặc random user nếu có bảng users
             ]);
         }
     }

@@ -23,7 +23,7 @@ class PostController extends Controller
               ->orWhere('content', 'like', "%{$keyword}%");
     }
 
-    return response()->json($query->paginate(6));
+    return response()->json($query->paginate(20));
     }
 
     /**
