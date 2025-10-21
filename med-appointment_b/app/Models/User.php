@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -11,13 +12,11 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    /**
-     * Các trường được phép gán hàng loạt (Mass Assignment)
-     */
     protected $fillable = [
         'name',
         'email',
         'password',
+        'google_id',
         'role',
         'avatar', // ✅ đổi lại cho khớp DB
         'phone',
@@ -47,17 +46,17 @@ class User extends Authenticatable
     // ✅ Accessor: tạo thuộc tính ảo "avatar_url"
     public function getAvatarUrlAttribute()
     {
-        // Nếu chưa có avatar -> dùng ảnh mặc định
-        if (empty($this->avatar)) {
+        // Nếu không có avatar -> ảnh mặc định
+        if (!$this->avatar) {
             return asset('images/default-avatar.png');
         }
 
-        // Nếu avatar là một URL đầy đủ (ví dụ link từ mạng ngoài)
+        // Nếu là URL đầy đủ
         if (str_starts_with($this->avatar, 'http')) {
             return $this->avatar;
         }
 
-        // Nếu ảnh nằm trong thư mục storage
+        // Nếu là file trong storage
         return asset('storage/' . $this->avatar);
     }
 

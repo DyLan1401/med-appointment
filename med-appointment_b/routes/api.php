@@ -13,6 +13,12 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\Api\ChangePasswordController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FavoriteController;
+// use App\Http\Controllers\Api\Auth\SocialAuthController;
+use App\Http\Controllers\SocialAuthController;
+
+// đăng nhập với google
+Route::get('/auth/google/redirect', [SocialAuthController::class, 'redirectToGoogle']);
+Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
 
 Route::apiResource('categories', CategoryPostController::class);
 Route::apiResource('posts', PostController::class);
