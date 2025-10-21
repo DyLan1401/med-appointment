@@ -21,7 +21,7 @@ $query = CategoryPost::query();
                   ->orWhere('description', 'like', "%{$keyword}%");
         }
 
-        $categories = $query->orderBy('id', 'desc')->get();
+        $categories = $query->orderBy('id', 'desc')->paginate(20);
         return response()->json($categories);
     }
 

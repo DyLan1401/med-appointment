@@ -3,6 +3,8 @@ import API from "../../api/axios";
 
 export default function Posts() {
     const [posts, setPosts] = useState([]);
+    const [pagination, setPagination] = useState({ current_page: 1, last_page: 1 });
+
     const [categories, setCategories] = useState([]);
     const [form, setForm] = useState({
         title: "",
@@ -29,6 +31,10 @@ export default function Posts() {
         console.log("Kết quả API posts:", res.data);
 
         setPosts(res.data.data);
+        setPagination({
+            current_page: res.data.current_page,
+            last_page: res.data.last_page,
+        });
     };
 
     const loadCategories = async () => {
@@ -265,6 +271,27 @@ export default function Posts() {
                         )}
                     </tbody>
                 </table>
+            </div>
+            <div className="flex justify-center items-center gap-2 mt-6">
+                <button
+                    onClick={() => loadCategories(pagination.current_page - 1)}
+                    disabled={pagination.current_page === 1}
+                    className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded-md disabled:opacity-50"
+                >
+                    ◀ Trước
+                </button>
+
+                <span className="text-gray-700 font-medium">
+                    Trang {pagination.current_page} / {pagination.last_page}
+                </span>
+
+                <button
+                    onClick={() => loadCategories(pagination.current_page + 1)}
+                    disabled={pagination.current_page === pagination.last_page}
+                    className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded-md disabled:opacity-50"
+                >
+                    Sau ▶
+                </button>
             </div>
         </div>
     );
