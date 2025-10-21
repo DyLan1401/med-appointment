@@ -73,6 +73,8 @@ Route::delete('/doctors/{id}', [DoctorController::class, 'destroy']);
 // Chức Năng Đăng kÝ
 Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
+Route::post('/forgot-password', [UserController::class, 'forgotPassword']);
+
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile', [UserController::class, 'profile']);
