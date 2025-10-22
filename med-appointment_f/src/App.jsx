@@ -13,6 +13,7 @@ import Section2 from "./components/common/Section2";
 import MiniMap from "./components/common/maps";
 import Footer from "./components/common/Footer";
 import FormService from "./components/common/FormService";
+import PatientNotifications from "./components/common/PatientNotifications";
 
 /* 🧩 Trang yêu thích bác sĩ */
 import LikeDoctor from "./components/doctor/LikeDoctor";
@@ -57,10 +58,13 @@ import AppointmentStats from "./components/admin/AppointmentStats";
 import BHYTStatistics from "./components/admin/BHYTStatistics";
 import TopDoctors from "./components/doctor/TopDoctors";
 
+/* ✅ Thêm mới component hiển thị ghi chú theo ID */
+import PatientNotes from "./components/common/PatientNotes"; // ← thêm dòng này
+
 export default function App() {
   return (
     <Routes>
-      {/* 🌍 Trang chủ */}
+      {/* Trang chủ */}
       <Route
         path="/"
         element={
@@ -80,13 +84,13 @@ export default function App() {
         }
       />
 
-      {/* ✅ TRANG BÁC SĨ (hiển thị Section1) */}
+      {/* Trang bác sĩ */}
       <Route
         path="/doctor"
         element={
           <div className="w-full min-h-screen bg-gray-50">
             <Navbar />
-            <div className="pt-20"> {/* cách navbar 1 đoạn */}
+            <div className="pt-20">
               <Section1 />
             </div>
             <Footer />
@@ -94,22 +98,61 @@ export default function App() {
         }
       />
 
-      {/* ✅ Trang chi tiết bác sĩ */}
+      {/* Chi tiết bác sĩ */}
       <Route path="/doctor/:name" element={<DoctorDetail />} />
       <Route path="/doctor/:id/profile" element={<DoctorProfile />} />
       <Route path="/doctorschedule" element={<PageDoctorSchedule />} />
 
-      {/* ✅ Trang yêu thích */}
-      <Route path="/like-doctor" element={<LikeDoctor />} />
+      {/* Trang yêu thích */}
+      <Route
+        path="/like-doctor"
+        element={
+          <div className="w-full min-h-screen bg-gray-50">
+            <Navbar />
+            <div className="pt-24 px-6">
+              <LikeDoctor />
+            </div>
+            <Footer />
+          </div>
+        }
+      />
 
-      {/* 👤 Patient */}
+      {/* Patient */}
       <Route path="/deposit" element={<DepositConfirmation />} />
       <Route path="/invoice" element={<InvoicePayment />} />
       <Route path="/favoritedoctors" element={<PageFavoriteDoctors />} />
       <Route path="/patientprofile" element={<PagePatientProfile />} />
       <Route path="/patienthistory" element={<PagePatientHistory />} />
 
-      {/* 🩺 Đặt lịch & đăng nhập */}
+      {/* ✅ Trang thông báo bệnh nhân (toàn bộ) */}
+      <Route
+        path="/notifications"
+        element={
+          <div className="w-full min-h-screen bg-gray-50">
+            <Navbar />
+            <div className="pt-24 px-6">
+              <PatientNotifications />
+            </div>
+            <Footer />
+          </div>
+        }
+      />
+
+      {/* ✅ Trang hiển thị ghi chú theo ID bệnh nhân */}
+      <Route
+        path="/notifications/:id"
+        element={
+          <div className="w-full min-h-screen bg-gray-50">
+            <Navbar />
+            <div className="pt-24 px-6">
+              <PatientNotes />
+            </div>
+            <Footer />
+          </div>
+        }
+      />
+
+      {/* Đặt lịch & đăng nhập */}
       <Route path="/login" element={<Login />} />
       <Route path="/forgetPassword" element={<PageForgetPassword />} />
       <Route path="/changepassword" element={<PageChangePassword />} />
@@ -119,12 +162,12 @@ export default function App() {
       <Route path="/datlichkham" element={<PageDatLichKham />} />
       <Route path="/selectservice" element={<FormService />} />
 
-      {/* 📰 Public pages */}
+      {/* Public pages */}
       <Route path="/contact" element={<PageContact />} />
       <Route path="/blog" element={<PagePosts />} />
       <Route path="/blog/:id" element={<PostDetail />} />
 
-      {/* 🧭 Dashboard */}
+      {/* Dashboard */}
       <Route path="/dashboard" element={<Dashboard />}>
         <Route index element={<FormDashboard />} />
         <Route path="doctors" element={<ManagerDoctor />} />

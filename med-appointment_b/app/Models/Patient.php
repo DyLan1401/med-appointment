@@ -12,7 +12,7 @@ class Patient extends Model
     // ✅ 1. Khai báo tên bảng tương ứng
     protected $table = 'patients';
 
-    // ✅ 2. Khai báo các cột có thể gán hàng loạt
+    // ✅ 2. Các cột có thể gán hàng loạt
     protected $fillable = [
         'user_id',
         'date_of_birth',
@@ -23,30 +23,41 @@ class Patient extends Model
         'facebook_id',
     ];
 
-    // ✅ 3. Bảng không có created_at / updated_at
+    // ✅ 3. Nếu bảng không có timestamps (created_at, updated_at)
     public $timestamps = false;
 
-    // ✅ 4. Khai báo quan hệ với bảng users
+    // ✅ 4. Mối quan hệ với bảng Users
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
-    // ✅ 5. Quan hệ với bảng appointments
+    // ✅ 5. Quan hệ với bảng Appointments
     public function appointments()
     {
-        return $this->hasMany(Appointment::class, 'patient_id');
+        return $this->hasMany(Appointment::class, 'patient_id', 'id');
     }
 
-    // ✅ 6. Quan hệ với bảng feedbacks
+    // ✅ 6. Quan hệ với bảng Feedbacks
     public function feedbacks()
     {
-        return $this->hasMany(Feedback::class, 'patient_id');
+        return $this->hasMany(Feedback::class, 'patient_id', 'id');
     }
 
-    // ✅ 7. Quan hệ với bảng favorites
+    // ✅ 7. Quan hệ với bảng Favorites
     public function favorites()
     {
-        return $this->hasMany(Favorite::class, 'patient_id');
+        return $this->hasMany(Favorite::class, 'patient_id', 'id');
+    }
+
+    // ✅ 8. (Tùy chọn) Xóa tất cả bản ghi liên quan khi xóa bệnh nhân
+    protected static function booted()
+    {
+        static::deleting(function ($patient) {
+            // Xóa lịch hẹn, phản hồi và yêu thích khi bệnh nhân bị xóa
+            $patient->appointments()->delete();
+            $patient->feedbacks()->delete();
+            $patient->favorites()->delete();
+        });
     }
 }
