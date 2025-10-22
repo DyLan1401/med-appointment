@@ -12,6 +12,7 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        'api/*', // Bỏ qua tất cả các route bắt đầu bằng /api/
+        'api/*', 
+        'api/payment/webhook',
     ];
 }

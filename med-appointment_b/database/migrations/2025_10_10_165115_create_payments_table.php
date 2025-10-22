@@ -12,6 +12,7 @@ return new class extends Migration {
             $table->decimal('amount', 10, 2);
             $table->string('method')->nullable(); // cash, card, online, etc.
             $table->string('status')->default('pending');
+            $table->string('transaction_code')->nullable();
             $table->timestamps();
 
             $table->foreign('appointment_id')->references('id')->on('appointments')->onDelete('cascade');

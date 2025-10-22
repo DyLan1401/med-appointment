@@ -14,6 +14,10 @@ use App\Http\Controllers\Api\ChangePasswordController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FavoriteController;
 
+use App\Http\Controllers\PaymentController;
+
+
+
 Route::apiResource('categories', CategoryPostController::class);
 Route::apiResource('posts', PostController::class);
 
@@ -117,3 +121,11 @@ Route::delete('/favorites/{id}', [FavoriteController::class, 'destroy']);
 
 // Tìm kiếm bác sĩ theo tên hoặc chuyên khoa
 Route::get('/doctors/search', [DoctorController::class, 'search']);
+
+
+
+// Thanh toán PayOS
+Route::post('/payment/create', [PaymentController::class, 'createPayment']);
+Route::post('/payment/webhook', [PaymentController::class, 'webhook']);
+
+Route::get('/test-payos', [PaymentController::class, 'testPayOS']);
