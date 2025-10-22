@@ -22,36 +22,40 @@ export default function Section1() {
   const token = localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem("user")) || null;
 
+  // ✅ Lấy danh sách bác sĩ & chuyên khoa
   useEffect(() => {
     if (searchQuery) handleSearch(searchQuery);
     else fetchDoctors();
     fetchSpecializations();
   }, [searchQuery]);
 
+  // ✅ Gọi API lấy danh sách bác sĩ
   const fetchDoctors = async () => {
     setLoading(true);
     try {
       const res = await API.get("/doctors");
-      const list = res.data.data || res.data;
+      const list = res.data.data || res.data || [];
       setDoctors(list);
       setNotFound(list.length === 0);
     } catch (err) {
-      console.error(err);
+      console.error("❌ Lỗi lấy danh sách bác sĩ:", err);
       setNotFound(true);
     } finally {
       setLoading(false);
     }
   };
 
+  // ✅ Lấy danh sách chuyên khoa
   const fetchSpecializations = async () => {
     try {
       const res = await API.get("/departments");
-      setSpecializations(res.data.data || res.data);
+      setSpecializations(res.data.data || res.data || []);
     } catch (err) {
-      console.error(err);
+      console.error("❌ Lỗi lấy chuyên khoa:", err);
     }
   };
 
+  // ✅ Tìm kiếm bác sĩ
   const handleSearch = async (query) => {
     setLoading(true);
     try {
@@ -60,6 +64,7 @@ export default function Section1() {
       setDoctors(results);
       setNotFound(results.length === 0);
 
+      // Cuộn mượt đến kết quả
       setTimeout(() => {
         const section = document.getElementById("doctor-results");
         if (section) section.scrollIntoView({ behavior: "smooth" });
@@ -73,10 +78,12 @@ export default function Section1() {
     }
   };
 
+  // ✅ Lấy ảnh đại diện bác sĩ
   const getDoctorAvatar = (doctor) => {
     const baseURL =
       import.meta.env.VITE_API_URL?.replace("/api", "") ||
       "http://localhost:8000";
+
     const avatar =
       doctor?.user?.avatar ||
       doctor?.avatar ||
@@ -87,41 +94,69 @@ export default function Section1() {
     return `${baseURL}/storage/${avatar}`;
   };
 
+  // ✅ Thêm bác sĩ yêu thích (đã đồng bộ với user thay vì patient)
   const handleFavorite = async (doctor) => {
     if (!doctor?.id) return alert("⚠️ Thiếu thông tin bác sĩ!");
+
+    // Hiệu ứng trái tim
     setLiked(doctor.id);
     setTimeout(() => setLiked(null), 800);
 
     try {
       if (token) {
-        await API.post(
+        const res = await API.post(
           "/favorites",
-          { doctor_id: doctor.id },
+          { doctor_id: doctor.id, user_id: user?.id },
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        alert(`💖 Đã thêm bác sĩ ${doctor.user?.name} vào danh sách yêu thích!`);
+
+        // ⚠️ Nếu token hết hạn hoặc không hợp lệ
+        if (res.status === 401 || res.data?.message?.includes("hết hạn")) {
+          alert("🔐 Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          navigate("/login");
+          return;
+        }
+
+        alert(`Đã thêm bác sĩ ${doctor.user?.name} vào danh sách yêu thích!`);
       } else {
+        // 👉 Người chưa đăng nhập
         const localFavs = JSON.parse(localStorage.getItem("favorites")) || [];
         const exists = localFavs.some((f) => f.doctor_id === doctor.id);
+
         if (!exists) {
           localFavs.push({
             id: doctor.id,
             doctor_id: doctor.id,
             doctor_name: doctor.user?.name || "Chưa rõ tên",
-            specialization: doctor.specialization?.name || "Chưa rõ chuyên khoa",
+            specialization:
+              doctor.specialization?.name || "Chưa rõ chuyên khoa",
             avatar_url: getDoctorAvatar(doctor),
           });
           localStorage.setItem("favorites", JSON.stringify(localFavs));
         }
-        alert(`💖 Đã thêm bác sĩ ${doctor.user?.name} vào yêu thích tạm thời!`);
+        alert(`Đã thêm bác sĩ ${doctor.user?.name} vào yêu thích tạm thời!`);
       }
+
+      // ✅ Gửi sự kiện cập nhật trang yêu thích
+      window.dispatchEvent(new Event("favoriteUpdated"));
       navigate("/like-doctor");
     } catch (err) {
       console.error("❌ Lỗi khi thêm yêu thích:", err);
-      alert("⚠️ Không thể thêm bác sĩ yêu thích!");
+
+      if (err.response?.status === 401) {
+        alert("🔐 Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        navigate("/login");
+      } else {
+        alert("⚠️ Không thể thêm bác sĩ yêu thích!");
+      }
     }
   };
 
+  // ✅ Lọc bác sĩ theo chuyên khoa
   const filteredDoctors =
     filter === "Tất cả"
       ? doctors
@@ -134,7 +169,7 @@ export default function Section1() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.6 }}
     >
-      
+      {/* ======= TIÊU ĐỀ ======= */}
       <div className="w-full bg-gradient-to-r from-blue-500 to-blue-700 py-16 text-center shadow-inner">
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
@@ -145,11 +180,12 @@ export default function Section1() {
           Tìm Kiếm & Khám Phá Bác Sĩ Phù Hợp Cho Bạn
         </motion.h1>
         <p className="text-white/90 text-lg max-w-2xl mx-auto leading-relaxed">
-          Hơn 100+ bác sĩ chuyên khoa uy tín sẵn sàng hỗ trợ bạn mọi lúc, mọi nơi 💙
+          Hơn 100+ bác sĩ chuyên khoa uy tín sẵn sàng hỗ trợ bạn mọi lúc, mọi
+          nơi 💙
         </p>
       </div>
 
-      {/* ======= CÁC CHUYÊN KHOA ======= */}
+      {/* ======= DANH SÁCH CHUYÊN KHOA ======= */}
       <div className="w-full py-10 bg-white flex flex-col items-center space-y-6 shadow-sm">
         <h2 className="text-3xl font-bold text-blue-700 flex items-center gap-2">
           <Stethoscope size={30} /> Các Chuyên Khoa
@@ -194,7 +230,6 @@ export default function Section1() {
             : "Danh Sách Bác Sĩ"}
         </h2>
 
-        {/* ⏳ Loading */}
         {loading && (
           <motion.div
             className="text-blue-600 font-semibold flex items-center gap-2 animate-pulse"
@@ -207,7 +242,6 @@ export default function Section1() {
           </motion.div>
         )}
 
-        {/* 🩺 Danh sách hoặc Thông báo */}
         <AnimatePresence mode="wait">
           {!loading && filteredDoctors.length > 0 ? (
             <motion.div

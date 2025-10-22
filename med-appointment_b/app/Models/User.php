@@ -5,46 +5,32 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens; // 👈 thêm dòng này
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    /**
-     * Các trường được phép gán hàng loạt (Mass Assignment)
-     */
     protected $fillable = [
         'name',
         'email',
         'password',
         'role',
-        'avatar', // ✅ đổi lại cho khớp DB
-        'phone',
-        'insurance_info',
-    
-
-        'avatar_url',
+        'avatar', 
         'phone',
         'insurance_info',
     ];
 
-    /**
-     * Các trường sẽ bị ẩn khi trả về JSON
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Các kiểu dữ liệu cần được cast (tự động chuyển đổi)
-     */
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
 
-    // ✅ Accessor: tạo thuộc tính ảo "avatar_url"
+    // 🖼️ Avatar URL getter (đã chuẩn, giữ nguyên)
     public function getAvatarUrlAttribute()
     {
         // Nếu chưa có avatar -> dùng ảnh mặc định
@@ -61,42 +47,40 @@ class User extends Authenticatable
         return asset('storage/' . $this->avatar);
     }
 
-    // Các quan hệ
+    // 👨‍⚕️ Quan hệ với bác sĩ
     public function doctor()
     {
-        // user.id -> doctors.user_id
         return $this->hasOne(Doctor::class, 'user_id');
     }
 
-    /**
-     * Quan hệ 1-1 với bảng patients
-     */
+    // 🧍‍♂️ Quan hệ với bệnh nhân (rất quan trọng để tránh lỗi foreign key)
     public function patient()
     {
-        return $this->hasOne(Patient::class, 'user_id');
+        // Chỉ định khóa ngoại để Eloquent hiểu đúng cấu trúc
+        return $this->hasOne(\App\Models\Patient::class, 'user_id', 'id');
     }
 
-    /**
-     * Quan hệ 1-n với bảng notifications
-     */
+    // 🔔 Quan hệ thông báo
     public function notifications()
     {
         return $this->hasMany(Notification::class, 'user_id');
     }
 
-    /**
-     * Quan hệ 1-n với bảng posts
-     */
+    // 📝 Quan hệ bài viết (bác sĩ viết bài)
     public function posts()
     {
         return $this->hasMany(Post::class, 'author_id');
     }
 
-    /**
-     * Quan hệ 1-n với bảng activity_logs
-     */
+    // 🧾 Nhật ký hoạt động
     public function activityLogs()
     {
         return $this->hasMany(ActivityLog::class, 'user_id');
+    }
+
+    // 💖 Danh sách yêu thích (bệnh nhân → favorites)
+    public function favorites()
+    {
+        return $this->hasMany(\App\Models\Favorite::class, 'patient_id', 'id');
     }
 }

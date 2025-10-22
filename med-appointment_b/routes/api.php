@@ -2,118 +2,107 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+// 🧩 Controllers
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\AppointmentController;
-
 use App\Http\Controllers\CategoryPostController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\Api\ChangePasswordController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\NoteController;
 
-Route::apiResource('categories', CategoryPostController::class);
-Route::apiResource('posts', PostController::class);
 
 Route::get('/test', fn() => response()->json(['message' => 'API đang hoạt động! ✅']));
 
-//   DOCTORS (CRUD + PROFILE + AVATAR + CERTIFICATES)
+// DOCTORS (CRUD + PROFILE + Ảnh + Chứng chỉ)
 Route::prefix('doctors')->group(function () {
+    Route::get('/', [DoctorController::class, 'index']);
+    Route::post('/', [DoctorController::class, 'store']);
+    Route::put('/{id}', [DoctorController::class, 'update']);
+    Route::delete('/{id}', [DoctorController::class, 'destroy']);
 
-    // ---- CRUD ----
-    Route::get('/', [DoctorController::class, 'index']);            
-    Route::post('/', [DoctorController::class, 'store']);            
-    Route::put('/{id}', [DoctorController::class, 'update']);        
-    Route::delete('/{id}', [DoctorController::class, 'destroy']);    
+    // Hồ sơ bác sĩ
+    Route::get('/{doctor_id}/profile', [DoctorController::class, 'showProfile']);
+    Route::post('/{doctor_id}/profile', [DoctorController::class, 'updateProfile']);
 
-    // ---- Hồ sơ bác sĩ ----
-    Route::get('/{doctor_id}/profile', [DoctorController::class, 'showProfile']);    
-    Route::post('/{doctor_id}/profile', [DoctorController::class, 'updateProfile']); 
+    // Ảnh đại diện
+    Route::post('/{doctor_id}/avatar', [DoctorController::class, 'uploadAvatar']);
 
-    // ---- Upload ảnh đại diện ----
-    Route::post('/{doctor_id}/avatar', [DoctorController::class, 'uploadAvatar']);   
+    // Chứng chỉ
+    Route::get('/{doctor_id}/certificates', [DoctorController::class, 'getCertificates']);
+    Route::post('/{doctor_id}/certificates', [DoctorController::class, 'uploadCertificate']);
+    Route::delete('/certificates/{id}', [DoctorController::class, 'deleteCertificate']);
 
-    // ---- Upload & quản lý chứng chỉ ----
-    Route::get('/{doctor_id}/certificates', [DoctorController::class, 'getCertificates']);     
-    Route::post('/{doctor_id}/certificates', [DoctorController::class, 'uploadCertificate']);  
-    Route::delete('/certificates/{id}', [DoctorController::class, 'deleteCertificate']);        
+    // Tìm kiếm bác sĩ
+    Route::get('/search', [DoctorController::class, 'search']);
 });
 
-
-
+// PATIENTS
 Route::apiResource('patients', PatientController::class);
 
-//   USERS (CRUD + PROFILE + CERTIFICATES)
-
+// USERS (CRUD + PROFILE)
 Route::apiResource('users', UserController::class);
+Route::get('/users/{id}/profile', [UserController::class, 'showProfile']);
+Route::post('/users/{id}/profile', [UserController::class, 'updateProfile']);
 
-// Hồ sơ người dùng
-Route::get('/users/{id}/profile', [UserController::class, 'showProfile']);     
-Route::post('/users/{id}/profile', [UserController::class, 'updateProfile']);  
+// Ảnh & Chứng chỉ User
+Route::get('/users/{id}/certificates', [UserController::class, 'getCertificates']);
+Route::post('/users/{id}/certificates', [UserController::class, 'uploadCertificate']);
+Route::delete('/users/certificates/{id}', [UserController::class, 'deleteCertificate']);
 
-// Upload & quản lý chứng chỉ cho user (nếu có)
-Route::get('/users/{id}/certificates', [UserController::class, 'getCertificates']);    
-Route::post('/users/{id}/certificates', [UserController::class, 'uploadCertificate']); 
-Route::delete('/users/certificates/{id}', [UserController::class, 'deleteCertificate']); 
+// DEPARTMENTS
+Route::get('/departments', [DepartmentController::class, 'index']);
+Route::get('/departments/search', [DepartmentController::class, 'search']);
+Route::apiResource('departments', DepartmentController::class);
 
-//   PATIENTS (CRUD)
+// CONTACTS
+Route::apiResource('contacts', ContactController::class);
 
-Route::get('/doctors', [DoctorController::class, 'index']);
-Route::post('/doctors', [DoctorController::class, 'store']);
-Route::put('/doctors/{id}', [DoctorController::class, 'update']);
-Route::delete('/doctors/{id}', [DoctorController::class, 'destroy']);
-// Chức Năng Đăng kÝ
+// POSTS & CATEGORIES
+Route::apiResource('categories', CategoryPostController::class);
+Route::apiResource('posts', PostController::class);
+
+// SERVICES
+Route::apiResource('services', ServiceController::class);
+
+// APPOINTMENTS
+Route::apiResource('appointments', AppointmentController::class);
+
+// (REGISTER + LOGIN)
 Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
 
+// Bác sĩ yêu thích
+// Dành cho khách hoặc hiển thị danh sách user khác
+Route::get('/favorites/{user_id?}', [FavoriteController::class, 'index']);
+
+// Lấy chi tiết 1 bác sĩ yêu thích 
+Route::get('/favorites/doctor/{doctor_id}', [FavoriteController::class, 'getDoctor']);
+
+// Các route yêu cầu đăng nhập (token Sanctum)
 Route::middleware('auth:sanctum')->group(function () {
+    // Tài khoản người dùng
     Route::get('/profile', [UserController::class, 'profile']);
     Route::post('/logout', [UserController::class, 'logout']);
+    Route::post('/change-password', [UserController::class, 'changePassword']);
+
+    // Quản lý bác sĩ yêu thích
+    Route::post('/favorites', [FavoriteController::class, 'store']);
+    Route::delete('/favorites/{doctor_id}', [FavoriteController::class, 'destroy']);
+
+    // Tùy chọn xóa yêu thích bằng body (frontend LikeDoctor.jsx)
+    Route::post('/favorites/remove', [FavoriteController::class, 'destroy']);
 });
 
-// chức năng đăng nhập
-Route::post('/login', [UserController::class, 'login']);
-Route::apiResource('patients', PatientController::class);
 
-//   DEPARTMENTS (CRUD + SEARCH)
-Route::get('/departments', [DepartmentController::class, 'index']);
-Route::get('/departments/search', [DepartmentController::class, 'search']);   // GET /api/departments/search
-Route::apiResource('departments', DepartmentController::class);
-
-use App\Http\Controllers\ServiceController;
-
-
-
-Route::get('/test', function () {
-    return response()->json(['message' => 'Hello API']);
-});
-
-// Định tuyến cho ServiceController
-Route::apiResource('services', ServiceController::class);
-
-// chức năng đổi mật khẩu        
-Route::middleware('auth:sanctum')->post('/change-password', [UserController::class, 'changePassword']);
-
-
-//CRUD Quản lí Contact 
-Route::apiResource('contacts', ContactController::class);
-
-
-Route::apiResource('users', UserController::class);
-
-//Quản lý Appointment
-Route::apiResource('appointments', AppointmentController::class);
-
-
-
-
-// Lưu danh sách bác sĩ yêu thích
-Route::post('/favorites', [FavoriteController::class, 'store']);
-Route::get('/favorites/{patient_id}', [FavoriteController::class, 'index']);
-Route::delete('/favorites/{id}', [FavoriteController::class, 'destroy']);
-
-
-// Tìm kiếm bác sĩ theo tên hoặc chuyên khoa
-Route::get('/doctors/search', [DoctorController::class, 'search']);
+// Gửi ghi chú cho bệnh nhân
+Route::get('/notes/{patient}', [NoteController::class, 'index']);
+Route::post('/notes', [NoteController::class, 'store']);
+Route::put('/notes/{note}/read', [NoteController::class, 'markAsRead']);
+Route::delete('/notes/{note}', [NoteController::class, 'destroy']);

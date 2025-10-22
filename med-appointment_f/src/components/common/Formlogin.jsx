@@ -22,9 +22,13 @@ function FormLogin() {
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("token", token);
 
+      // ✅ Gắn token vào header mặc định của axios (rất quan trọng)
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
       alert("Đăng nhập thành công!");
       navigate("/"); // chuyển trang chính
     } catch (error) {
+      console.error("❌ Lỗi đăng nhập:", error);
       alert(
         error.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại!"
       );
@@ -46,8 +50,10 @@ function FormLogin() {
               type="text"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required // ✅ thêm required
             />
           </div>
+
           <div className="flex flex-col">
             <label>Mật khẩu</label>
             <input
@@ -55,8 +61,10 @@ function FormLogin() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required // ✅ thêm required
             />
           </div>
+
           <button
             className="w-full bg-gray-200 p-2 rounded-lg hover:bg-blue-200"
             type="submit"
