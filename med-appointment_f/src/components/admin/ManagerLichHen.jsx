@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { CheckCircle, XCircle, Printer } from "lucide-react";
+import { CheckCircle, XCircle, Printer, FileSpreadsheet, FileText } from "lucide-react";
+
 
 export default function ManagerLichHen() {
     const [appointments, setAppointments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-
+    const [showMenu, setShowMenu] = useState(false);
     // Fetch dữ liệu ban đầu
     useEffect(() => {
         fetchAppointments();
@@ -26,52 +27,52 @@ export default function ManagerLichHen() {
             });
     };
 
-// PUT cập nhật trạng thái thật ở backend
-const updateStatus = async (id, newStatus) => {
-    try {
-// 🔹 Lấy appointment hiện tại trong state
-        const appointment = appointments.find((a) => a.id === id);
-        if (!appointment) {
-            alert("Không tìm thấy lịch hẹn trong danh sách.");
-            return;
+    // PUT cập nhật trạng thái thật ở backend
+    const updateStatus = async (id, newStatus) => {
+        try {
+            // 🔹 Lấy appointment hiện tại trong state
+            const appointment = appointments.find((a) => a.id === id);
+            if (!appointment) {
+                alert("Không tìm thấy lịch hẹn trong danh sách.");
+                return;
+            }
+
+            const res = await axios.put(`http://127.0.0.1:8000/api/appointments/${id}`, {
+                status: newStatus,
+                updated_at: appointment.updated_at,
+            });
+
+            // ✅ Nếu backend trả về message thì hiển thị alert
+            if (res.data?.message) {
+                alert(res.data.message);
+            }
+
+            // ✅ Cập nhật lại frontend
+            setAppointments((prev) =>
+                prev.map((item) =>
+                    item.id === id
+                        ? {
+                            ...item,
+                            status: newStatus,
+                            notes:
+                                newStatus === "completed"
+                                    ? "Đã xác nhận lịch hẹn này."
+                                    : "Đã từ chối lịch hẹn này.",
+                        }
+                        : item
+                )
+            );
+        } catch (error) {
+            console.error(error);
+
+            // ✅ Nếu backend trả về lỗi có message
+            if (error.response?.data?.message) {
+                alert(error.response.data.message);
+            } else {
+                alert("Cập nhật trạng thái thất bại!");
+            }
         }
-
-        const res = await axios.put(`http://127.0.0.1:8000/api/appointments/${id}`, {
-            status: newStatus,
-            updated_at: appointment.updated_at,
-        });
-
-        // ✅ Nếu backend trả về message thì hiển thị alert
-        if (res.data?.message) {
-            alert(res.data.message);
-        }
-
-        // ✅ Cập nhật lại frontend
-        setAppointments((prev) =>
-            prev.map((item) =>
-                item.id === id
-                    ? {
-                          ...item,
-                          status: newStatus,
-                          notes:
-                              newStatus === "completed"
-                                  ? "Đã xác nhận lịch hẹn này."
-                                  : "Đã từ chối lịch hẹn này.",
-                      }
-                    : item
-            )
-        );
-    } catch (error) {
-        console.error(error);
-
-        // ✅ Nếu backend trả về lỗi có message
-        if (error.response?.data?.message) {
-            alert(error.response.data.message);
-        } else {
-            alert("Cập nhật trạng thái thất bại!");
-        }
-    }
-};
+    };
 
 
     const handlePrint = () => window.print();
@@ -102,6 +103,17 @@ const updateStatus = async (id, newStatus) => {
     if (loading) return <p className="text-center text-gray-500">Đang tải dữ liệu...</p>;
     if (error) return <p className="text-center text-red-500">{error}</p>;
 
+    const handleDownload = (type) => {
+        const url =
+            type === "xlsx"
+                ? "http://127.0.0.1:8000/api/export-completed/xlsx"
+                : "http://127.0.0.1:8000/api/export-completed/pdf";
+
+        // Mở link trong tab mới hoặc tải trực tiếp
+        window.open(url, "_blank");
+        setShowMenu(false);
+    };
+
     return (
         <div className="p-6 bg-gray-50 min-h-screen">
             <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-md p-5">
@@ -113,12 +125,34 @@ const updateStatus = async (id, newStatus) => {
                             Duyệt và xác nhận các cuộc hẹn từ bệnh nhân.
                         </p>
                     </div>
-                    <button
-                        onClick={handlePrint}
-                        className="flex items-center gap-2 bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition"
-                    >
-                        <Printer size={18} /> In danh sách
-                    </button>
+                    {/* Nút in có menu */}
+                    <div className="relative">
+                        <button
+                            onClick={() => setShowMenu(!showMenu)}
+                            className="flex items-center gap-2 bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition"
+                        >
+                            <Printer size={18} /> In danh sách
+                        </button>
+
+                        {showMenu && (
+                            <div className="absolute right-0 mt-2 bg-white border shadow-md rounded-lg w-48 z-10">
+                                <button
+                                    onClick={() => handleDownload("xlsx")}
+                                    className="flex items-center gap-2 w-full text-left px-4 py-2 hover:bg-gray-100 transition"
+                                >
+                                    <FileSpreadsheet size={18} className="text-green-600" />
+                                    Xuất Excel (.xlsx)
+                                </button>
+                                <button
+                                    onClick={() => handleDownload("pdf")}
+                                    className="flex items-center gap-2 w-full text-left px-4 py-2 hover:bg-gray-100 transition"
+                                >
+                                    <FileText size={18} className="text-red-600" />
+                                    Xuất PDF (.pdf)
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 {/* Hai cột */}

@@ -94,8 +94,7 @@ Route::get('/departments/search', [DepartmentController::class, 'search']);   //
 Route::apiResource('departments', DepartmentController::class);
 
 use App\Http\Controllers\ServiceController;
-
-
+use App\Models\Appointment;
 
 Route::get('/test', function () {
     return response()->json(['message' => 'Hello API']);
@@ -128,3 +127,7 @@ Route::delete('/favorites/{id}', [FavoriteController::class, 'destroy']);
 
 // Tìm kiếm bác sĩ theo tên hoặc chuyên khoa
 Route::get('/doctors/search', [DoctorController::class, 'search']);
+
+//in danh sách lịch hẹn
+Route::get('/export-completed/xlsx', [AppointmentController::class, 'exportCompletedAppointmentsXlsx']);
+Route::get('/export-completed/pdf', [AppointmentController::class, 'exportCompletedAppointmentsPdf']);
