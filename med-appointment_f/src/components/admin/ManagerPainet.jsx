@@ -1,3 +1,4 @@
+// ✅ FILE: AdminNoteSend.jsx hoặc ManagerPatient.jsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import {
@@ -31,6 +32,15 @@ export default function ManagerPatient() {
   const [notFound, setNotFound] = useState(false);
   const [message, setMessage] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
+
+  // 🟩 Thêm state cho gửi ghi chú
+  const [showNoteModal, setShowNoteModal] = useState(false);
+  const [noteTitle, setNoteTitle] = useState("");
+  const [noteContent, setNoteContent] = useState("");
+  const [selectedPatient, setSelectedPatient] = useState(null);
+
+  // 🟢 Hiển thị trạng thái gửi ghi chú
+  const [noteStatus, setNoteStatus] = useState("");
 
   const API_URL = "http://localhost:8000/api/patients";
 
@@ -139,9 +149,44 @@ export default function ManagerPatient() {
     fetchPatients(1, search);
   };
 
+  // 🟩 Mở modal ghi chú
+  const handleSendNote = (p) => {
+    setSelectedPatient(p);
+    setNoteTitle("");
+    setNoteContent("");
+    setNoteStatus("");
+    setShowNoteModal(true);
+  };
+
+  // 🟩 Gửi ghi chú
+  const sendNote = async () => {
+    if (!noteContent.trim()) {
+      setNoteStatus("⚠️ Nội dung ghi chú không được để trống!");
+      return;
+    }
+
+    setNoteStatus("⏳ Đang gửi ghi chú...");
+    try {
+      await axios.post("http://localhost:8000/api/notes", {
+        patient_id: selectedPatient.id,
+        title: noteTitle || "Ghi chú từ hệ thống",
+        content: noteContent,
+      });
+
+      setNoteStatus("✅ Gửi ghi chú thành công!");
+      setTimeout(() => {
+        setShowNoteModal(false);
+        setNoteStatus("");
+      }, 1500);
+    } catch (error) {
+      console.error(error);
+      setNoteStatus("❌ Gửi ghi chú thất bại! Vui lòng thử lại.");
+    }
+  };
+
   return (
     <div className="w-full min-h-screen bg-gray-50 p-6">
-      {/* Tiêu đề màu xanh dương */}
+      {/* 🟦 Tiêu đề */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-blue-600 text-3xl font-bold">Quản lý bệnh nhân</h1>
         <button
@@ -166,6 +211,7 @@ export default function ManagerPatient() {
         </button>
       </div>
 
+      {/* 🟢 Hiển thị message */}
       {message && (
         <div
           className={`mb-4 px-4 py-3 rounded-lg ${
@@ -178,6 +224,7 @@ export default function ManagerPatient() {
         </div>
       )}
 
+      {/* 🧭 Thanh tìm kiếm */}
       <div className="flex items-center gap-2 mb-4">
         <input
           type="search"
@@ -194,7 +241,7 @@ export default function ManagerPatient() {
         </button>
       </div>
 
-      {/* Bảng danh sách bệnh nhân */}
+      {/* 🧾 Bảng danh sách bệnh nhân */}
       <div className="overflow-x-auto shadow-md rounded-lg bg-white">
         <table className="w-full text-sm text-gray-700">
           <thead className="uppercase text-white bg-blue-600">
@@ -241,6 +288,13 @@ export default function ManagerPatient() {
                     >
                       <Trash2 size={16} /> Xóa
                     </button>
+                    {/* 🟩 Nút gửi ghi chú */}
+                    <button
+                      onClick={() => handleSendNote(p)}
+                      className="text-yellow-600 hover:underline flex items-center gap-1"
+                    >
+                      📋 Ghi chú
+                    </button>
                   </td>
                 </tr>
               ))
@@ -249,7 +303,7 @@ export default function ManagerPatient() {
         </table>
       </div>
 
-      {/* Phân trang */}
+      {/* 🧭 Phân trang */}
       <div className="flex justify-center mt-4 gap-4">
         <button
           disabled={page === 1}
@@ -270,130 +324,52 @@ export default function ManagerPatient() {
         </button>
       </div>
 
-      {/* Form thêm / sửa */}
-      {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-40">
-          <div className="bg-white p-6 rounded-xl shadow-xl w-[500px] relative">
+      {/* 🟩 Modal gửi ghi chú */}
+      {showNoteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-xl shadow-xl w-[450px] relative">
             <button
-              onClick={() => setShowForm(false)}
+              onClick={() => setShowNoteModal(false)}
               className="absolute top-3 right-3 text-gray-500 hover:text-red-500"
             >
               <X size={20} />
             </button>
             <h2 className="text-2xl font-semibold text-blue-600 mb-4">
-              {editingId ? "Cập nhật thông tin bệnh nhân" : "Thêm bệnh nhân mới"}
+              Gửi ghi chú cho {selectedPatient?.user?.name}
             </h2>
+            <input
+              placeholder="Tiêu đề ghi chú (tuỳ chọn)"
+              className="border w-full p-2 rounded-lg mb-3"
+              value={noteTitle}
+              onChange={(e) => setNoteTitle(e.target.value)}
+            />
+            <textarea
+              placeholder="Nhập nội dung ghi chú..."
+              className="border w-full h-40 p-2 rounded-lg mb-4"
+              value={noteContent}
+              onChange={(e) => setNoteContent(e.target.value)}
+            />
+            <button
+              onClick={sendNote}
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg w-full"
+            >
+              Gửi đi
+            </button>
 
-            <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
-              <input
-                placeholder="Họ và tên"
-                className="border p-2 rounded-lg col-span-2"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                required
-              />
-              <input
-                placeholder="Email"
-                className="border p-2 rounded-lg col-span-2"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                required
-              />
-              <input
-                placeholder="Số điện thoại"
-                className="border p-2 rounded-lg"
-                value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                required
-              />
-              <input
-                type="date"
-                className="border p-2 rounded-lg"
-                value={form.date_of_birth}
-                onChange={(e) =>
-                  setForm({ ...form, date_of_birth: e.target.value })
-                }
-              />
-              <select
-                className="border p-2 rounded-lg"
-                value={form.gender}
-                onChange={(e) => setForm({ ...form, gender: e.target.value })}
-                required
+            {/* 🟢 Trạng thái gửi */}
+            {noteStatus && (
+              <p
+                className={`mt-3 text-sm text-center ${
+                  noteStatus.includes("✅")
+                    ? "text-green-600"
+                    : noteStatus.includes("❌")
+                    ? "text-red-600"
+                    : "text-blue-600"
+                }`}
               >
-                <option value="">Giới tính</option>
-                <option value="male">Nam</option>
-                <option value="female">Nữ</option>
-                <option value="other">Khác</option>
-              </select>
-              <input
-                placeholder="Địa chỉ"
-                className="border p-2 rounded-lg col-span-2"
-                value={form.address}
-                onChange={(e) => setForm({ ...form, address: e.target.value })}
-                required
-              />
-              <input
-                placeholder="Bảo hiểm y tế"
-                className="border p-2 rounded-lg col-span-2"
-                value={form.health_insurance}
-                onChange={(e) =>
-                  setForm({ ...form, health_insurance: e.target.value })
-                }
-              />
-              <input
-                placeholder="Google ID"
-                className="border p-2 rounded-lg"
-                value={form.google_id}
-                onChange={(e) => setForm({ ...form, google_id: e.target.value })}
-              />
-              <input
-                placeholder="Facebook ID"
-                className="border p-2 rounded-lg"
-                value={form.facebook_id}
-                onChange={(e) =>
-                  setForm({ ...form, facebook_id: e.target.value })
-                }
-              />
-              <button
-                type="submit"
-                className={`col-span-2 ${
-                  editingId
-                    ? "bg-blue-600 hover:bg-blue-700"
-                    : "bg-green-600 hover:bg-green-700"
-                } text-white py-2 rounded-lg transition`}
-              >
-                {editingId ? "Lưu thay đổi" : "Thêm mới"}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Popup xác nhận xóa */}
-      {confirmDelete && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-xl shadow-xl w-[400px] text-center">
-            <h3 className="text-lg font-semibold mb-4">
-              Bạn có chắc muốn xóa bệnh nhân
-            </h3>
-            <p className="mb-6 text-gray-600">
-              <strong>{confirmDelete.user.name}</strong> (ID:{" "}
-              {confirmDelete.id})
-            </p>
-            <div className="flex justify-center gap-4">
-              <button
-                onClick={confirmDeleteAction}
-                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
-              >
-                Xóa
-              </button>
-              <button
-                onClick={() => setConfirmDelete(null)}
-                className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
-              >
-                Hủy
-              </button>
-            </div>
+                {noteStatus}
+              </p>
+            )}
           </div>
         </div>
       )}
