@@ -3,7 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-
+// 🧩 Controllers
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\UserController;
@@ -22,14 +22,58 @@ use App\Http\Controllers\NoteController;
 use App\Http\Controllers\PaymentController;
 Route::apiResource('banners', BannerController::class);
 
-// đăng nhập với google
-Route::get('/auth/google/redirect', [SocialAuthController::class, 'redirectToGoogle']);
-Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
+Route::get('/test', fn() => response()->json(['message' => 'API đang hoạt động! ✅']));
 
+// DOCTORS (CRUD + PROFILE + Ảnh + Chứng chỉ)
+Route::prefix('doctors')->group(function () {
+    Route::get('/', [DoctorController::class, 'index']);
+    Route::post('/', [DoctorController::class, 'store']);
+    Route::put('/{id}', [DoctorController::class, 'update']);
+    Route::delete('/{id}', [DoctorController::class, 'destroy']);
+
+    // Hồ sơ bác sĩ
+    Route::get('/{doctor_id}/profile', [DoctorController::class, 'showProfile']);
+    Route::post('/{doctor_id}/profile', [DoctorController::class, 'updateProfile']);
+
+    // Ảnh đại diện
+    Route::post('/{doctor_id}/avatar', [DoctorController::class, 'uploadAvatar']);
+
+    // Chứng chỉ
+    Route::get('/{doctor_id}/certificates', [DoctorController::class, 'getCertificates']);
+    Route::post('/{doctor_id}/certificates', [DoctorController::class, 'uploadCertificate']);
+    Route::delete('/certificates/{id}', [DoctorController::class, 'deleteCertificate']);
+
+    // Tìm kiếm bác sĩ
+    Route::get('/search', [DoctorController::class, 'search']);
+});
+
+// PATIENTS
+Route::apiResource('patients', PatientController::class);
+
+// USERS (CRUD + PROFILE)
+Route::apiResource('users', UserController::class);
+Route::get('/users/{id}/profile', [UserController::class, 'showProfile']);
+Route::post('/users/{id}/profile', [UserController::class, 'updateProfile']);
+
+// Ảnh & Chứng chỉ User
+Route::get('/users/{id}/certificates', [UserController::class, 'getCertificates']);
+Route::post('/users/{id}/certificates', [UserController::class, 'uploadCertificate']);
+Route::delete('/users/certificates/{id}', [UserController::class, 'deleteCertificate']);
+
+// DEPARTMENTS
+Route::get('/departments', [DepartmentController::class, 'index']);
+Route::get('/departments/search', [DepartmentController::class, 'search']);
+Route::apiResource('departments', DepartmentController::class);
+
+// CONTACTS
+Route::apiResource('contacts', ContactController::class);
+
+// POSTS & CATEGORIES
 Route::apiResource('categories', CategoryPostController::class);
 Route::apiResource('posts', PostController::class);
 
-Route::get('/test', fn() => response()->json(['message' => 'API đang hoạt động! ✅']));
+// SERVICES
+Route::apiResource('services', ServiceController::class);
 
 // DOCTORS (CRUD + PROFILE + Ảnh + Chứng chỉ)
 Route::prefix('doctors')->group(function () {
@@ -127,8 +171,6 @@ Route::get('/doctors/search', [DoctorController::class, 'search']);
 //in danh sách lịch hẹn
 Route::get('/export-completed/xlsx', [AppointmentController::class, 'exportCompletedAppointmentsXlsx']);
 Route::get('/export-completed/pdf', [AppointmentController::class, 'exportCompletedAppointmentsPdf']);
-
-
 
 // Thanh toán PayOS
 Route::post('/payment/create', [PaymentController::class, 'createPayment']);

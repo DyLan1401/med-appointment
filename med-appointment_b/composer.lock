@@ -3088,6 +3088,7 @@
             "time": "2025-05-08T08:14:37+00:00"
         },
         {
+<<<<<<< HEAD
             "name": "payos/payos",
             "version": "v4.32.0",
             "source": {
@@ -3139,6 +3140,12 @@
             "version": "v2.0.4",
             "source": {
                 "type": "git",
+=======
+            "name": "openspout/openspout",
+            "version": "v4.32.0",
+            "source": {
+                "type": "git",
+>>>>>>> 35d7628 (tao chua nang gui mail otp khi dang ki)
                 "url": "https://github.com/openspout/openspout.git",
                 "reference": "41f045c1f632e1474e15d4c7bc3abcb4a153563d"
             },

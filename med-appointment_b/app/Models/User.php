@@ -33,7 +33,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    
+    // 🖼️ Avatar URL getter (đã chuẩn, giữ nguyên)
     public function getAvatarUrlAttribute()
     {
         // Nếu không có avatar -> ảnh mặc định
@@ -50,13 +50,13 @@ class User extends Authenticatable
         return asset('storage/' . $this->avatar);
     }
 
-    
+    // 👨‍⚕️ Quan hệ với bác sĩ
     public function doctor()
     {
         return $this->hasOne(Doctor::class, 'user_id');
     }
 
-    
+    // 🧍‍♂️ Quan hệ với bệnh nhân (rất quan trọng để tránh lỗi foreign key)
     public function patient()
     {
         // Chỉ định khóa ngoại để Eloquent hiểu đúng cấu trúc
@@ -69,13 +69,13 @@ class User extends Authenticatable
         return $this->hasMany(Post::class, 'author_id');
     }
 
-    
+    // 🧾 Nhật ký hoạt động
     public function activityLogs()
     {
         return $this->hasMany(ActivityLog::class, 'user_id');
     }
 
-    
+    // 💖 Danh sách yêu thích (bệnh nhân → favorites)
     public function favorites()
     {
         return $this->hasMany(\App\Models\Favorite::class, 'patient_id', 'id');

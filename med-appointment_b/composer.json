@@ -12,8 +12,12 @@
         "laravel/sanctum": "^4.2",
         "laravel/socialite": "*",
         "laravel/tinker": "^2.10.1",
+<<<<<<< HEAD
         "spatie/simple-excel": "^3.8",
         "payos/payos": "^1.0"
+=======
+        "spatie/simple-excel": "^3.8"
+>>>>>>> 35d7628 (tao chua nang gui mail otp khi dang ki)
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
