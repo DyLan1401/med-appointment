@@ -27,7 +27,7 @@ class DatabaseSeeder extends Seeder
             ContactSeeder::class,
             DepartmentSeeder::class,
             DoctorSeeder::class,
-            // AppointmentSeeder::class,
+            AppointmentSeeder::class,
             ScheduleSeeder::class,
             BannerSeeder::class,
         ]);

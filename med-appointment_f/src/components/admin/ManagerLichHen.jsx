@@ -192,7 +192,7 @@ export default function ManagerLichHen() {
                                     {apt.status === "pending" && (
                                         <div className="flex justify-end gap-3 mt-4">
                                             <button
-                                                onClick={() => updateStatus(apt.id, "completed")}
+                                                onClick={() => updateStatus(apt.id, "confirmed")}
                                                 className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition"
                                             >
                                                 <CheckCircle size={18} /> Xác nhận
