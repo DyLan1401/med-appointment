@@ -6,7 +6,8 @@ use App\Models\Appointment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-
+use Spatie\SimpleExcel\SimpleExcelWriter;
+use Barryvdh\DomPDF\Facade\Pdf;
 class AppointmentController extends Controller
 {
     /**
@@ -159,4 +160,85 @@ class AppointmentController extends Controller
 
         return response()->json(['message' => 'Đã xóa cuộc hẹn thành công'], 200);
     }
+
+      public function exportCompletedAppointmentsXlsx()
+    {
+         $data = DB::table('appointments')
+            ->join('patients', 'appointments.patient_id', '=', 'patients.id')
+            ->join('users as patient_user', 'patients.user_id', '=', 'patient_user.id')
+            ->join('services', 'appointments.service_id', '=', 'services.id')
+            ->select(
+                'appointments.id',
+                'patient_user.name as patient_name',
+                'services.name as service_name',
+                'appointments.status',
+                'appointments.notes',
+                'appointments.appointment_date',
+                'appointments.updated_at'
+            )
+            ->where('appointments.status', '=', 'completed')
+            ->orderBy('appointments.appointment_date', 'desc')
+            ->get();
+
+        // Tạo writer
+        $filePath = storage_path('app/public/completed_appointments.xlsx');
+        $writer = SimpleExcelWriter::create($filePath);
+
+        // 🏷️ Dòng tiêu đề
+        $writer->addRow(['DANH SÁCH LỊCH HẸN ĐÃ HOÀN THÀNH']);
+        $writer->addRow([]); // dòng trống
+
+        // 🧾 Tiêu đề cột
+        $writer->addRow([
+            'ID',
+            'Bệnh nhân',
+            'Dịch vụ',
+            'Trạng thái',
+            'Ghi chú',
+            'Ngày hẹn',
+            'Cập nhật lúc'
+        ]);
+
+        // 🧍‍♂️ Dữ liệu
+        foreach ($data as $item) {
+            $writer->addRow([
+                $item->id,
+                $item->patient_name,
+                $item->service_name,
+                ucfirst($item->status),
+                $item->notes,
+                $item->appointment_date,
+                $item->updated_at,
+            ]);
+        }
+
+        $writer->close();
+
+        return response()->download($filePath)->deleteFileAfterSend(true);
+    }
+
+    public function exportCompletedAppointmentsPdf()
+{
+    $data = DB::table('appointments')
+        ->join('patients', 'appointments.patient_id', '=', 'patients.id')
+        ->join('users as patient_user', 'patients.user_id', '=', 'patient_user.id')
+        ->join('services', 'appointments.service_id', '=', 'services.id')
+        ->select(
+            'appointments.id',
+            'patient_user.name as patient_name',
+            'services.name as service_name',
+            'appointments.status',
+            'appointments.notes',
+            'appointments.appointment_date',
+            'appointments.updated_at'
+        )
+        ->where('appointments.status', '=', 'completed')
+        ->orderBy('appointments.appointment_date', 'desc')
+        ->get();
+
+    $pdf = Pdf::loadView('pdf.completed_appointments', ['data' => $data])
+        ->setPaper('a4', 'portrait');
+
+    return $pdf->download('completed_appointments.pdf');
+}
 }

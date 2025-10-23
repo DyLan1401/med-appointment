@@ -14,20 +14,18 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\Api\ChangePasswordController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FavoriteController;
-<<<<<<< HEAD
 // use App\Http\Controllers\Api\Auth\SocialAuthController;
 use App\Http\Controllers\SocialAuthController;
 use App\Http\Controllers\BannerController;
+use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\NoteController;
 
 Route::apiResource('banners', BannerController::class);
 
 // đăng nhập với google
 Route::get('/auth/google/redirect', [SocialAuthController::class, 'redirectToGoogle']);
 Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
-=======
-use App\Http\Controllers\ServiceController;
-use App\Http\Controllers\NoteController;
->>>>>>> DangThanhPhong-GuiGhiChuChoBenhNhan
+
 
 
 Route::get('/test', fn() => response()->json(['message' => 'API đang hoạt động! ✅']));
@@ -120,3 +118,12 @@ Route::get('/notes/{patient}', [NoteController::class, 'index']);
 Route::post('/notes', [NoteController::class, 'store']);
 Route::put('/notes/{note}/read', [NoteController::class, 'markAsRead']);
 Route::delete('/notes/{note}', [NoteController::class, 'destroy']);
+
+
+// Tìm kiếm bác sĩ theo tên hoặc chuyên khoa
+Route::get('/doctors/search', [DoctorController::class, 'search']);
+
+//in danh sách lịch hẹn
+Route::get('/export-completed/xlsx', [AppointmentController::class, 'exportCompletedAppointmentsXlsx']);
+Route::get('/export-completed/pdf', [AppointmentController::class, 'exportCompletedAppointmentsPdf']);
+
