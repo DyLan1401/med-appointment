@@ -12,15 +12,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // ✅ Tạo user mẫu
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        
 
         $this->call([
             UserSeeder::class,
             PatientsSeeder::class,
+            
             CategoryPostSeeder::class,
             PostSeeder::class,
             ServiceSeeder::class,
@@ -30,6 +27,7 @@ class DatabaseSeeder extends Seeder
             AppointmentSeeder::class,
             ScheduleSeeder::class,
             BannerSeeder::class,
+            InvoiceSeeder::class,
         ]);
     }
 }

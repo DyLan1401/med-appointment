@@ -10,6 +10,18 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
+         // 🩺 10 bệnh nhân (role = user)
+        for ($i = 1; $i <= 10; $i++) {
+            User::create([
+                'name' => fake()->name(),
+                'email' => fake()->unique()->safeEmail(),
+                'password' => Hash::make('123456'),
+                'role' => 'user',
+                'phone' => fake()->numerify('09########'),
+                'insurance_info' => 'Thẻ BHYT: ' . strtoupper(fake()->bothify('BHYT####')),
+                'avatar_url' => "https://i.pravatar.cc/150?img=" . rand(51, 90),
+            ]);
+        }
         // 🧑‍💼 Admin cố định
         User::create([
             'name' => 'Admin System',
@@ -34,17 +46,6 @@ class UserSeeder extends Seeder
             ]);
         }
 
-        // 🩺 10 bệnh nhân (role = user)
-        for ($i = 1; $i <= 10; $i++) {
-            User::create([
-                'name' => fake()->name(),
-                'email' => fake()->unique()->safeEmail(),
-                'password' => Hash::make('123456'),
-                'role' => 'user',
-                'phone' => fake()->numerify('09########'),
-                'insurance_info' => 'Thẻ BHYT: ' . strtoupper(fake()->bothify('BHYT####')),
-                'avatar_url' => "https://i.pravatar.cc/150?img=" . rand(51, 90),
-            ]);
-        }
+       
     }
 }

@@ -61,6 +61,9 @@ import TopDoctors from "./components/doctor/TopDoctors";
 /* ✅ Thêm mới component hiển thị ghi chú theo ID */
 import PatientNotes from "./components/common/PatientNotes"; // ← thêm dòng này
 
+
+import PaymentSuccess from "./components/payment/paysuccess";
+import PaymentFailedV2 from "./components/payment/paycancel";
 export default function App() {
   return (
     <Routes>
@@ -187,6 +190,10 @@ export default function App() {
         <Route path="BHYTStatistics" element={<BHYTStatistics />} />
         <Route path="TopDoctors" element={<TopDoctors />} />
       </Route>
+
+
+       <Route path="/payment/success" element={<PaymentSuccess />} />
+       <Route path="/payment/cancel" element={<PaymentFailedV2 />} />
     </Routes>
   );
 }

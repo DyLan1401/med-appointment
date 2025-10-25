@@ -19,7 +19,7 @@ use App\Http\Controllers\SocialAuthController;
 use App\Http\Controllers\BannerController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\NoteController;
-
+use App\Http\Controllers\PaymentController;
 Route::apiResource('banners', BannerController::class);
 
 // đăng nhập với google
@@ -27,6 +27,12 @@ Route::get('/auth/google/redirect', [SocialAuthController::class, 'redirectToGoo
 Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
 
 
+
+
+
+
+Route::apiResource('categories', CategoryPostController::class);
+Route::apiResource('posts', PostController::class);
 
 Route::get('/test', fn() => response()->json(['message' => 'API đang hoạt động! ✅']));
 
@@ -127,3 +133,10 @@ Route::get('/doctors/search', [DoctorController::class, 'search']);
 Route::get('/export-completed/xlsx', [AppointmentController::class, 'exportCompletedAppointmentsXlsx']);
 Route::get('/export-completed/pdf', [AppointmentController::class, 'exportCompletedAppointmentsPdf']);
 
+
+
+// Thanh toán PayOS
+Route::post('/payment/create', [PaymentController::class, 'createPayment']);
+Route::post('/payment/webhook', [PaymentController::class, 'webhook']);
+
+Route::get('/test-payos', [PaymentController::class, 'testPayOS']);
