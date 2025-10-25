@@ -95,12 +95,12 @@ class DoctorController extends Controller
     {
         $doctor = Doctor::with('user', 'certificates')->findOrFail($id);
 
-        // ✅ Xóa avatar nếu có
+        // Xóa avatar nếu có
         if ($doctor->user->avatar && Storage::disk('public')->exists($doctor->user->avatar)) {
             Storage::disk('public')->delete($doctor->user->avatar);
         }
 
-        // ✅ Xóa chứng chỉ
+        // Xóa chứng chỉ
         foreach ($doctor->certificates as $cert) {
             if ($cert->image && Storage::disk('public')->exists($cert->image)) {
                 Storage::disk('public')->delete($cert->image);
@@ -123,7 +123,7 @@ class DoctorController extends Controller
             return response()->json(['message' => 'Không tìm thấy bác sĩ'], 404);
         }
 
-        // ✅ Không cần nối asset() thêm lần nữa
+        // Không cần nối asset() thêm lần nữa
         $doctor->user->avatar_url_full = $doctor->user->avatar_url;
 
         foreach ($doctor->certificates as $cert) {
@@ -174,12 +174,12 @@ class DoctorController extends Controller
             'avatar' => 'required|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
-        // ✅ Xóa avatar cũ
+        // Xóa avatar cũ
         if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
             Storage::disk('public')->delete($user->avatar);
         }
 
-        // ✅ Upload mới
+        // Upload mới
         $path = $request->file('avatar')->store('avatars', 'public');
         $user->update(['avatar' => $path]);
 
