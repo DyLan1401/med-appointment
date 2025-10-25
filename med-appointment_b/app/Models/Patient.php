@@ -12,11 +12,7 @@ class Patient extends Model
     
     protected $table = 'patients';
 
-<<<<<<< HEAD
-    
-=======
     // ✅ 2. Các cột có thể gán hàng loạt
->>>>>>> 35d7628 (tao chua nang gui mail otp khi dang ki)
     protected $fillable = [
         'user_id',
         'date_of_birth',
