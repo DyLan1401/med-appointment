@@ -9,19 +9,17 @@ use App\Models\Doctor;
 
 class FavoriteController extends Controller
 {
-    /**
-     * 🩷 Lấy danh sách bác sĩ yêu thích của user
-     */
+    // Lấy danh sách bác sĩ yêu thích của user
     public function index($user_id = null)
     {
         try {
             if ($user_id) {
-                // ✅ Nếu có user_id (người dùng đăng nhập)
+                // Nếu có user_id (người dùng đăng nhập)
                 $favorites = Favorite::with(['doctor.user', 'doctor.specialization'])
                     ->where('user_id', $user_id)
                     ->get();
             } else {
-                // ✅ Nếu chưa đăng nhập → lấy danh sách từ session (tạm)
+                // Nếu chưa đăng nhập → lấy danh sách từ session (tạm)
                 $favorites = session('favorites', []);
             }
 
@@ -43,9 +41,7 @@ class FavoriteController extends Controller
         }
     }
 
-    /**
-     * 🧩 Thêm bác sĩ vào danh sách yêu thích
-     */
+    // Thêm bác sĩ vào danh sách yêu thích
     public function store(Request $request)
     {
         try {
@@ -55,7 +51,7 @@ class FavoriteController extends Controller
 
             $user = auth()->user();
 
-            // ✅ Nếu người dùng chưa đăng nhập
+            // Nếu người dùng chưa đăng nhập
             if (!$user) {
                 Log::info('🧠 Người dùng chưa đăng nhập, lưu local favorites', [
                     'doctor_id' => $request->doctor_id,
@@ -68,7 +64,7 @@ class FavoriteController extends Controller
                 ], 200);
             }
 
-            // ✅ Lưu vào bảng favorites (dùng user_id)
+            // Lưu vào bảng favorites (dùng user_id)
             $favorite = Favorite::firstOrCreate([
                 'user_id' => $user->id,
                 'doctor_id' => $request->doctor_id,
@@ -110,9 +106,7 @@ class FavoriteController extends Controller
         }
     }
 
-    /**
-     * 🗑️ Xóa bác sĩ khỏi danh sách yêu thích
-     */
+    // Xóa bác sĩ khỏi danh sách yêu thích
     public function destroy($doctor_id)
     {
         try {
@@ -164,9 +158,7 @@ class FavoriteController extends Controller
         }
     }
 
-    /**
-     * 🩺 Lấy thông tin chi tiết của 1 bác sĩ
-     */
+    // Lấy thông tin chi tiết của 1 bác sĩ
     public function getDoctor($doctor_id)
     {
         try {

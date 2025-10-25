@@ -9,18 +9,14 @@ use Illuminate\Support\Facades\Storage;
 
 class DoctorCertificateController extends Controller
 {
-    /**
-     * Hiển thị danh sách tất cả chứng chỉ (tuỳ chọn).
-     */
+    // Hiển thị danh sách tất cả chứng chỉ
     public function index()
     {
         $certificates = DoctorCertificate::with('doctor.user')->latest()->get();
         return response()->json($certificates);
     }
 
-    /**
-     * Hiển thị danh sách chứng chỉ của 1 bác sĩ.
-     */
+    // Hiển thị danh sách chứng chỉ của 1 bác sĩ.
     public function getByDoctor($doctor_id)
     {
         $doctor = Doctor::findOrFail($doctor_id);
@@ -32,9 +28,7 @@ class DoctorCertificateController extends Controller
         ]);
     }
 
-    /**
-     * Lưu chứng chỉ mới cho bác sĩ.
-     */
+    // Lưu chứng chỉ mới cho bác sĩ.
     public function store(Request $request)
     {
         $request->validate([
@@ -59,18 +53,14 @@ class DoctorCertificateController extends Controller
         ]);
     }
 
-    /**
-     * Xem chi tiết 1 chứng chỉ.
-     */
+    // Xem chi tiết 1 chứng chỉ.
     public function show(DoctorCertificate $doctorCertificate)
     {
         $doctorCertificate->load('doctor.user');
         return response()->json($doctorCertificate);
     }
 
-    /**
-     * Cập nhật thông tin hoặc thay thế file chứng chỉ.
-     */
+    // Cập nhật thông tin hoặc thay thế file chứng chỉ.
     public function update(Request $request, DoctorCertificate $doctorCertificate)
     {
         $request->validate([
@@ -104,9 +94,7 @@ class DoctorCertificateController extends Controller
         ]);
     }
 
-    /**
-     * Xóa chứng chỉ và file vật lý.
-     */
+    // Xóa chứng chỉ và file.
     public function destroy(DoctorCertificate $doctorCertificate)
     {
         if ($doctorCertificate->image && Storage::disk('public')->exists($doctorCertificate->image)) {
@@ -118,9 +106,7 @@ class DoctorCertificateController extends Controller
         return response()->json(['message' => 'Xoá chứng chỉ thành công!']);
     }
 
-    /**
-     * Lấy link truy cập file (ảnh hoặc PDF).
-     */
+    // Lấy link truy cập file (ảnh hoặc PDF).
     public function getFileUrl($id)
     {
         $certificate = DoctorCertificate::findOrFail($id);

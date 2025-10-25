@@ -15,18 +15,16 @@ class Doctor extends Model
         'specialization_id',
         'status',
         'bio',
-        'experience_years',      // số năm kinh nghiệm
-        'education',             // trình độ học vấn
-        'clinic_address',        // địa chỉ làm việc
-        'avatar',                // ảnh đại diện (profile)
+        'experience_years',      
+        'education',             
+        'clinic_address',        
+        'avatar',                
     ];
 
-    // Nếu bảng doctors có created_at, updated_at thì xóa dòng này đi.
+    
     public $timestamps = false;
 
-    /* ====================================================
-       QUAN HỆ VỚI CÁC BẢNG KHÁC
-    ==================================================== */
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
@@ -57,13 +55,8 @@ class Doctor extends Model
         return $this->hasMany(Feedback::class, 'doctor_id');
     }
 
-    /* ====================================================
-       XỬ LÝ ẢNH ĐẠI DIỆN (AVATAR)
-    ==================================================== */
+    
 
-    /**
-     * Trả về URL đầy đủ của ảnh đại diện.
-     */
     public function getAvatarUrlAttribute()
     {
         if ($this->avatar && Storage::disk('public')->exists($this->avatar)) {
@@ -74,9 +67,7 @@ class Doctor extends Model
         return asset('images/default-avatar.png');
     }
 
-    /**
-     * Khi set avatar mới, tự động lưu file vào storage.
-     */
+    // Khi set avatar mới, tự động lưu file vào storage.
     public function setAvatarAttribute($value)
     {
         // Nếu là file upload
@@ -90,9 +81,7 @@ class Doctor extends Model
         }
     }
 
-    /* ====================================================
-       HỒ SƠ BÁC SĨ (PROFILE)
-    ==================================================== */
+    // HỒ SƠ BÁC SĨ (PROFILE)
 
     public function getFullProfileAttribute()
     {
@@ -114,9 +103,7 @@ class Doctor extends Model
         ];
     }
 
-    /* ====================================================
-       CHỨNG CHỈ (CERTIFICATES)
-    ==================================================== */
+    // CHỨNG CHỈ (CERTIFICATES)
 
     public function getCertificateCountAttribute()
     {
@@ -142,9 +129,7 @@ class Doctor extends Model
         });
     }
 
-    /* ====================================================
-       XOÁ FILE KHI XOÁ BÁC SĨ
-    ==================================================== */
+    // XOÁ FILE KHI XOÁ BÁC SĨ
     protected static function booted()
     {
         static::deleting(function ($doctor) {
