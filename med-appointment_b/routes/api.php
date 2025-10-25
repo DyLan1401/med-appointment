@@ -177,3 +177,6 @@ Route::post('/payment/create', [PaymentController::class, 'createPayment']);
 Route::post('/payment/webhook', [PaymentController::class, 'webhook']);
 
 Route::get('/test-payos', [PaymentController::class, 'testPayOS']);
+// Gửi và xác minh OTP trong đăng ký
+Route::post('/register/send-otp', [UserController::class, 'sendOtp']);
+Route::post('/register/verify-otp', [UserController::class, 'verifyOtp']);

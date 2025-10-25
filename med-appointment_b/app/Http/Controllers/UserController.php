@@ -11,6 +11,11 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
+use App\Mail\SendOtpMail;
+use App\Models\UserOtp;
+use Carbon\Carbon;
+use App\Models\PendingUser;
+
 class UserController extends Controller
 {
     // Lấy danh sách user (phân trang + tìm kiếm)
@@ -297,4 +302,83 @@ class UserController extends Controller
 
         return response()->json(['message' => 'Mật khẩu mới đã được gửi đến email của bạn']);
     }
+
+    public function sendOtp(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:6',
+        ]);
+
+        $otp = rand(100000, 999999);
+
+        UserOtp::updateOrCreate(
+            ['email' => $request->email],
+            ['otp' => $otp, 'expires_at' => Carbon::now()->addMinutes(5)]
+        );
+
+        Mail::to($request->email)->send(new SendOtpMail($otp));
+
+        // Lưu tạm thông tin người dùng
+        // session([
+        //     'pending_user' => [
+        //         'name' => $request->name,
+        //         'email' => $request->email,
+        //         'password' => Hash::make($request->password),
+        //     ]
+        // ]);
+
+        PendingUser::updateOrCreate(
+            ['email' => $request->email],
+            [
+                'name' => $request->name,
+                'password' => Hash::make($request->password)
+            ]
+        );
+
+        return response()->json(['message' => 'OTP đã được gửi đến email của bạn']);
+    }
+
+    public function verifyOtp(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'otp' => 'required'
+        ]);
+
+        // Kiểm tra OTP hợp lệ
+        $record = UserOtp::where('email', $request->email)
+            ->where('otp', $request->otp)
+            ->where('expires_at', '>', now())
+            ->first();
+
+        if (!$record) {
+            return response()->json(['message' => 'OTP không hợp lệ hoặc đã hết hạn'], 400);
+        }
+
+        // Tìm thông tin đăng ký tạm
+        $pending = \App\Models\PendingUser::where('email', $request->email)->first();
+
+        if (!$pending) {
+            return response()->json(['message' => 'Không tìm thấy thông tin đăng ký'], 400);
+        }
+
+        // Tạo user chính thức
+        $user = \App\Models\User::create([
+            'name' => $pending->name,
+            'email' => $pending->email,
+            'password' => $pending->password,
+        ]);
+
+        // Xóa dữ liệu tạm sau khi xác minh thành công
+        $record->delete();
+        $pending->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Đăng ký thành công! Tài khoản của bạn đã được kích hoạt.'
+        ], 201);
+    }
+
 }
