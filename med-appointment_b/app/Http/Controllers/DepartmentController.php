@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 class DepartmentController extends Controller
 {
-   // 🟢 Lấy danh sách departments (có phân trang)
+   // Lấy danh sách departments (có phân trang)
     public function index(Request $request)
     {
         $limit = $request->get('limit', 10); // Số bản ghi mỗi trang
@@ -23,7 +23,7 @@ class DepartmentController extends Controller
         ]);
     }
 
-    // 🟣 Tìm kiếm departments (có phân trang, query rỗng => tất cả)
+    // Tìm kiếm departments (có phân trang, query rỗng => tất cả)
     public function search(Request $request)
     {
         $query = trim($request->get('query', ''));

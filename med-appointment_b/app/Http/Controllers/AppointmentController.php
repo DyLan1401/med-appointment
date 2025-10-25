@@ -95,9 +95,7 @@ class AppointmentController extends Controller
         return response()->json(['data' => $appointment], 200);
     }
 
-    /**
-     * Cập nhật thông tin cuộc hẹn
-     */
+    // Cập nhật thông tin cuộc hẹn
    public function update(Request $request, $id)
 {
     $validator = Validator::make($request->all(), [
@@ -146,9 +144,7 @@ class AppointmentController extends Controller
     return response()->json(['message' => 'Cập nhật cuộc hẹn thành công'], 200);
 }
 
-    /**
-     * Xóa cuộc hẹn
-     */
+    // Xóa cuộc hẹn
     public function destroy($id)
     {
         $deleted = DB::table('appointments')->where('id', $id)->delete();
