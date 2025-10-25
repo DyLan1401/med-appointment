@@ -7,11 +7,11 @@ use Illuminate\Http\Request;
 
 class DepartmentController extends Controller
 {
-   // 🟢 Lấy danh sách departments (có phân trang)
+    // 🟢 Danh sách (phân trang)
     public function index(Request $request)
     {
-        $limit = $request->get('limit', 10); // Số bản ghi mỗi trang
-        $departments = Department::paginate($limit);
+        $limit = $request->get('limit', 10);
+        $departments = Department::getDepartments($limit);
 
         return response()->json([
             'data' => $departments->items(),
@@ -23,23 +23,16 @@ class DepartmentController extends Controller
         ]);
     }
 
-    // 🟣 Tìm kiếm departments (có phân trang, query rỗng => tất cả)
+    // 🟣 Tìm kiếm
     public function search(Request $request)
     {
-        $query = trim($request->get('query', ''));
+        $query = $request->get('query', '');
         $limit = $request->get('limit', 10);
-
-        if ($query === '') {
-            $departments = Department::paginate($limit);
-        } else {
-            $departments = Department::where('name', 'like', "%{$query}%")
-                ->orWhere('description', 'like', "%{$query}%")
-                ->paginate($limit);
-        }
+        $departments = Department::searchDepartments($query, $limit);
 
         return response()->json([
-            'message' => $query === '' 
-                ? 'Danh sách tất cả chuyên khoa.' 
+            'message' => $query === ''
+                ? 'Danh sách tất cả chuyên khoa.'
                 : "Kết quả tìm kiếm cho: {$query}",
             'data' => $departments->items(),
             'pagination' => [
@@ -50,8 +43,7 @@ class DepartmentController extends Controller
         ]);
     }
 
-
-    // Tạo mới department
+    // 🟠 Tạo mới
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -59,7 +51,7 @@ class DepartmentController extends Controller
             'description' => 'nullable|string|max:1000',
         ]);
 
-        $department = Department::create($validated);
+        $department = Department::createDepartment($validated);
 
         return response()->json([
             'message' => 'Department created successfully',
@@ -67,7 +59,7 @@ class DepartmentController extends Controller
         ], 201);
     }
 
-    // Xem chi tiết department theo id
+    // 🔵 Xem chi tiết
     public function show($id)
     {
         $department = Department::find($id);
@@ -79,34 +71,31 @@ class DepartmentController extends Controller
         return response()->json($department);
     }
 
-    // Cập nhật department
-   public function update(Request $request, $id)
-{
-    $department = Department::find($id);
+    // 🟣 Cập nhật
+    public function update(Request $request, $id)
+    {
+        $department = Department::find($id);
 
-    if (!$department) {
-        return response()->json(['message' => 'Department not found'], 404);
+        if (!$department) {
+            return response()->json(['message' => 'Department not found'], 404);
+        }
+
+        $data = $request->all();
+
+        $validated = validator($data, [
+            'name' => 'sometimes|required|string|max:100',
+            'description' => 'nullable|string|max:1000',
+        ])->validate();
+
+        $department->updateDepartment($validated);
+
+        return response()->json([
+            'message' => 'Department updated successfully',
+            'data' => $department,
+        ]);
     }
 
-    // Nếu là PUT với form-data, lấy tất cả dữ liệu trực tiếp
-    $data = $request->all();
-
-    // Validate thủ công
-    $validated = validator($data, [
-        'name' => 'sometimes|required|string|max:100',
-        'description' => 'nullable|string|max:1000',
-    ])->validate();
-
-    $department->fill($validated)->save();
-
-    return response()->json([
-        'message' => 'Department updated successfully nhe',
-        'data' => $department,
-    ]);
-}
-
-
-    // Xóa department
+    // 🔴 Xóa
     public function destroy($id)
     {
         $department = Department::find($id);
@@ -119,6 +108,5 @@ class DepartmentController extends Controller
 
         return response()->json(['message' => 'Department deleted successfully']);
     }
-
-    
 }
+

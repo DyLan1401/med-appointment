@@ -26,11 +26,6 @@ Route::apiResource('banners', BannerController::class);
 Route::get('/auth/google/redirect', [SocialAuthController::class, 'redirectToGoogle']);
 Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
 
-
-
-
-
-
 Route::apiResource('categories', CategoryPostController::class);
 Route::apiResource('posts', PostController::class);
 
