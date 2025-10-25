@@ -13,6 +13,8 @@ function FormRegister() {
 
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [step, setStep] = useState(1);
+  const [otp, setOtp] = useState("");
 
   // 🟢 Cập nhật giá trị form
   const handleChange = (e) => {
@@ -23,48 +25,83 @@ function FormRegister() {
   };
 
   // 🟢 Gửi request đăng ký
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setMessage("");
-    setLoading(true);
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setMessage("");
+  //   setLoading(true);
 
-    try {
-      // Gửi POST đến API Laravel
-      const res = await axios.post("http://127.0.0.1:8000/api/register", formData, {
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json"
-        }
-      });
+  //   try {
+  //     // Gửi POST đến API Laravel
+  //     const res = await axios.post("http://127.0.0.1:8000/api/register", formData, {
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Accept: "application/json"
+  //       }
+  //     });
 
-      // Kiểm tra kết quả trả về
-      if (res.status === 201 && res.data.success) {
-        setMessage("🎉 Đăng ký thành công! Đang chuyển hướng...");
-        setTimeout(() => navigate("/login"), 1500);
-      } else {  
-        setMessage(res.data.message || "Đăng ký thất bại!");
-      }
-    } catch (error) {
-      console.error("Lỗi đăng ký:", error);
+  //     // Kiểm tra kết quả trả về
+  //     if (res.status === 201 && res.data.success) {
+  //       setMessage("🎉 Đăng ký thành công! Đang chuyển hướng...");
+  //       setTimeout(() => navigate("/login"), 1500);
+  //     } else {  
+  //       setMessage(res.data.message || "Đăng ký thất bại!");
+  //     }
+  //   } catch (error) {
+  //     console.error("Lỗi đăng ký:", error);
 
-      // Laravel trả lỗi validate (422)
-      if (error.response && error.response.status === 422) {
-        const errors = error.response.data.errors;
-        const firstError = Object.values(errors)[0][0];
-        setMessage(firstError);
-      } 
-      // Laravel trả lỗi server (500)
-      else if (error.response && error.response.status === 500) {
-        setMessage("❌ Lỗi máy chủ! Vui lòng thử lại sau.");
-      } 
-      // Không kết nối được API
-      else {
-        setMessage("⚠️ Không thể kết nối đến server!");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     // Laravel trả lỗi validate (422)
+  //     if (error.response && error.response.status === 422) {
+  //       const errors = error.response.data.errors;
+  //       const firstError = Object.values(errors)[0][0];
+  //       setMessage(firstError);
+  //     } 
+  //     // Laravel trả lỗi server (500)
+  //     else if (error.response && error.response.status === 500) {
+  //       setMessage("❌ Lỗi máy chủ! Vui lòng thử lại sau.");
+  //     } 
+  //     // Không kết nối được API
+  //     else {
+  //       setMessage("⚠️ Không thể kết nối đến server!");
+  //     }
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  // Gửi OTP về email
+const sendOtp = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  setMessage("");
+  try {
+    await axios.post("http://127.0.0.1:8000/api/register/send-otp", formData);
+    setMessage("OTP đã gửi tới email của bạn!");
+    setStep(2);
+  } catch (err) {
+    setMessage(err.response?.data?.message || "Lỗi khi gửi OTP!");
+  } finally {
+    setLoading(false);
+  }
+};
+
+// Xác minh OTP
+const verifyOtp = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  try {
+    await axios.post("http://127.0.0.1:8000/api/register/verify-otp", {
+      email: formData.email,
+      otp,
+    });
+    setMessage("🎉 Đăng ký thành công!");
+    setTimeout(() => navigate("/login"), 1500);
+  } catch (err) {
+    setMessage(err.response?.data?.message || "OTP không hợp lệ hoặc đã hết hạn!");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="w-full h-screen flex justify-center items-center bg-gray-50">
@@ -81,7 +118,7 @@ function FormRegister() {
         )}
 
         {/* Form đăng ký */}
-        <form onSubmit={handleSubmit} className="space-y-5">
+        {/* <form onSubmit={handleSubmit} className="space-y-5">
           <div className="flex flex-col">
             <label className="font-medium">Họ và tên</label>
             <input
@@ -132,7 +169,101 @@ function FormRegister() {
           >
             {loading ? "Đang xử lý..." : "Đăng ký"}
           </button>
-        </form>
+        </form> */}
+
+        {/* Bước 1: Gửi OTP */}
+        {step === 1 && (
+          <form onSubmit={sendOtp} className="space-y-5">
+            <div className="flex flex-col">
+              <label className="font-medium">Họ và tên</label>
+              <input
+                type="text"
+                name="name"
+                placeholder="Nhập họ và tên..."
+                value={formData.name}
+                onChange={handleChange}
+                className="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                required
+              />
+            </div>
+
+            <div className="flex flex-col">
+              <label className="font-medium">Email</label>
+              <input
+                type="email"
+                name="email"
+                placeholder="Nhập email..."
+                value={formData.email}
+                onChange={handleChange}
+                className="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                required
+              />
+            </div>
+
+            <div className="flex flex-col">
+              <label className="font-medium">Mật khẩu</label>
+              <input
+                type="password"
+                name="password"
+                placeholder="Nhập mật khẩu..."
+                value={formData.password}
+                onChange={handleChange}
+                className="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-full p-2 rounded-lg text-white font-semibold transition ${
+                loading
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-blue-500 hover:bg-blue-600"
+              }`}
+            >
+              {loading ? "Đang gửi OTP..." : "Gửi OTP"}
+            </button>
+          </form>
+        )}
+
+        {/* Bước 2: Nhập OTP */}
+        {step === 2 && (
+          <form onSubmit={verifyOtp} className="space-y-5">
+            <div className="flex flex-col">
+              <label className="font-medium">Mã OTP</label>
+              <input
+                type="text"
+                placeholder="Nhập mã OTP đã gửi qua email..."
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                className="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-green-400"
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-full p-2 rounded-lg text-white font-semibold transition ${
+                loading
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-green-500 hover:bg-green-600"
+              }`}
+            >
+              {loading ? "Đang xác minh..." : "Xác minh OTP"}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setStep(1)}
+              className="w-full text-blue-500 mt-2"
+            >
+              ← Quay lại
+            </button>
+          </form>
+        )}
+
 
         <div className="text-center mt-5 text-blue-700">
           <button onClick={() => navigate("/login")}>

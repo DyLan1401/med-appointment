@@ -121,3 +121,6 @@ Route::get('/doctors/search', [DoctorController::class, 'search']);
 Route::get('/export-completed/xlsx', [AppointmentController::class, 'exportCompletedAppointmentsXlsx']);
 Route::get('/export-completed/pdf', [AppointmentController::class, 'exportCompletedAppointmentsPdf']);
 
+// Gửi và xác minh OTP trong đăng ký
+Route::post('/register/send-otp', [UserController::class, 'sendOtp']);
+Route::post('/register/verify-otp', [UserController::class, 'verifyOtp']);
