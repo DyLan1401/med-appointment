@@ -15,10 +15,10 @@ class DoctorSeeder extends Seeder
 
         for ($i = 1; $i <= 30; $i++) {
 
-            // 1️⃣ Tạo user
+            // Tạo user
             $userId = DB::table('users')->insertGetId([
                 'name' => $faker->name(),
-                'email' => $faker->unique()->safeEmail(), // ✅ sửa lại
+                'email' => $faker->unique()->safeEmail(), // sửa lại
                 'password' => Hash::make('123456'),
                 'role' => 'doctor',
                 'avatar_url' => null,
@@ -28,7 +28,7 @@ class DoctorSeeder extends Seeder
                 'updated_at' => now(),
             ]);
 
-            // 2️⃣ Tạo doctor liên kết user_id
+            // Tạo doctor liên kết user_id
             DB::table('doctors')->insert([
                 'user_id' => $userId,
                 'specialization_id' => $faker->randomElement([1, 2, 3, 4, 5]),

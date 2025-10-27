@@ -52,7 +52,7 @@ class Doctor extends Model
 
     public function feedbacks()
     {
-        return $this->hasMany(Feedback::class, 'doctor_id');
+    return $this->hasMany(Feedback::class);
     }
 
     
@@ -91,7 +91,7 @@ class Doctor extends Model
             'email' => $this->user->email ?? null,
             'phone' => $this->user->phone ?? null,
             'avatar' => $this->avatar,
-            'avatar_url' => $this->avatar_url, // ✅ ảnh đại diện đầy đủ URL
+            'avatar_url' => $this->avatar_url, // ảnh đại diện đầy đủ URL
             'bio' => $this->bio,
             'specialization_id' => $this->specialization_id,
             'specialization_name' => $this->specialization->name ?? null,

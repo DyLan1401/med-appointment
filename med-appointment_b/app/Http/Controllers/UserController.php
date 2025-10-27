@@ -275,21 +275,21 @@ class UserController extends Controller
     {
         $request->validate(['email' => 'required|email']);
 
-        // 1️⃣ Tìm user theo email
+        // Tìm user theo email
         $user = User::where('email', $request->email)->first();
 
         if (!$user) {
             return response()->json(['message' => 'Email không tồn tại trong hệ thống'], 404);
         }
 
-        // 2️⃣ Tạo mật khẩu ngẫu nhiên
+        // Tạo mật khẩu ngẫu nhiên
         $newPassword = Str::random(10);
 
-        // 3️⃣ Cập nhật vào database (hash)
+        // Cập nhật vào database (hash)
         $user->password = Hash::make($newPassword);
         $user->save();
 
-        // 4️⃣ Gửi email
+        // Gửi email
         Mail::raw("Mật khẩu mới của bạn là: {$newPassword}", function ($message) use ($user) {
             $message->to($user->email)
                     ->subject('Cấp lại mật khẩu mới');

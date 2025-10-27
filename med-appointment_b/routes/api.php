@@ -19,6 +19,7 @@ use App\Http\Controllers\SocialAuthController;
 use App\Http\Controllers\BannerController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\NoteController;
+use App\Http\Controllers\FeedbackController;
 
 Route::apiResource('banners', BannerController::class);
 
@@ -127,3 +128,8 @@ Route::get('/doctors/search', [DoctorController::class, 'search']);
 Route::get('/export-completed/xlsx', [AppointmentController::class, 'exportCompletedAppointmentsXlsx']);
 Route::get('/export-completed/pdf', [AppointmentController::class, 'exportCompletedAppointmentsPdf']);
 
+
+// Viết và Xem feedback/bình luận từ bệnh nhân
+Route::get('/feedbacks/{doctor_id}', [FeedbackController::class, 'getByDoctor']);
+Route::post('/feedbacks', [FeedbackController::class, 'store']);
+Route::delete('/feedbacks/{id}', [FeedbackController::class, 'destroy']);

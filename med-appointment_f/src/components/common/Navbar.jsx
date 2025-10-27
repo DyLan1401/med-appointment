@@ -1,8 +1,9 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Bell, X } from "lucide-react"; // 🔔 thêm icon
+import { Search, Bell, X } from "lucide-react"; // thêm icon
 import axios from "axios";
+import logo from "../../assets/logo.jpg"; // Thêm dòng này để import logo
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -14,17 +15,17 @@ export default function Navbar() {
   const [user, setUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // 🔔 Thông báo
+  // Thông báo
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState([]);
 
-  // ✅ Lấy thông tin user
+  // Lấy thông tin user
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) setUser(JSON.parse(storedUser));
   }, []);
 
-  // ✅ Lấy thông báo thật từ API Laravel
+  // Lấy thông báo thật từ API Laravel
   useEffect(() => {
     const fetchNotes = async () => {
       try {
@@ -38,7 +39,7 @@ export default function Navbar() {
           `http://localhost:8000/api/notes/${patientId}`
         );
 
-        // ✅ Đưa dữ liệu từ backend vào notifications
+        // Đưa dữ liệu từ backend vào notifications
         const mapped = res.data.map((note) => ({
           id: note.id,
           title: note.title || "Ghi chú từ Admin",
@@ -54,7 +55,7 @@ export default function Navbar() {
 
     fetchNotes();
 
-    // 🔄 Cập nhật lại mỗi 30 giây
+    // Cập nhật lại mỗi 30 giây
     const interval = setInterval(fetchNotes, 30000);
     return () => clearInterval(interval);
   }, []);
@@ -80,15 +81,22 @@ export default function Navbar() {
   return (
     <div className="w-full bg-white shadow-md fixed top-0 left-0 z-50 animate-fadeIn">
       <div className="max-w-7xl mx-auto flex justify-between items-center px-6 py-3 font-semibold">
-        {/* 🩺 Logo */}
+        {/* Logo hình ảnh */}
         <div
           onClick={() => navigate("/")}
-          className="cursor-pointer text-2xl font-bold text-blue-600 hover:scale-105 transition-transform"
+          className="flex items-center cursor-pointer hover:scale-105 transition-transform"
         >
-          Logo
+          <img
+            src={logo}
+            alt="Logo"
+            className="w-12 h-12 object-contain mr-2"
+          />
+          <span className="text-2xl font-bold text-blue-600 hidden sm:block">
+            MedCare
+          </span>
         </div>
 
-        {/* 🧭 Menu trung tâm */}
+        {/* Menu trung tâm */}
         <div className="flex items-center space-x-8">
           {["Trang chủ", "Liên hệ", "Bài viết", "Bác sĩ", "Đặt lịch khám"].map(
             (label, i) => {

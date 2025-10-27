@@ -18,12 +18,16 @@ function FormLogin() {
 
       const { user, token } = response.data;
 
-      // ✅ Lưu user + token vào localStorage
+      // ✅ Giữ nguyên: lưu user + token vào localStorage
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("token", token);
 
-      // ✅ Gắn token vào header mặc định của axios (rất quan trọng)
+      // ✅ Gắn token vào header mặc định của axios
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+      // ✅ Thêm mới: lưu riêng user_id và user_name để hiển thị trong feedback
+      localStorage.setItem("user_id", user?.id || "");
+      localStorage.setItem("user_name", user?.name || "Người dùng ẩn danh");
 
       alert("Đăng nhập thành công!");
       navigate("/"); // chuyển trang chính
@@ -35,7 +39,7 @@ function FormLogin() {
     }
   };
 
-  // 🧩 Thêm hàm xử lý đăng nhập với Google
+  // 🧩 Hàm đăng nhập với Google
   const handleGoogleLogin = () => {
     window.location.href = "http://localhost:8000/auth/google/redirect";
   };
@@ -56,7 +60,7 @@ function FormLogin() {
               type="text"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required // ✅ thêm required
+              required
             />
           </div>
 
@@ -67,7 +71,7 @@ function FormLogin() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required // ✅ thêm required
+              required
             />
           </div>
 
@@ -93,6 +97,7 @@ function FormLogin() {
             Đăng nhập với Google
           </button>
         </div>
+
         {/* 🔹 Nút đăng nhập bằng Facebook */}
         <div className="flex justify-center mt-2">
           <button

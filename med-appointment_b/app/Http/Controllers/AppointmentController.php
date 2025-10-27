@@ -180,11 +180,11 @@ class AppointmentController extends Controller
         $filePath = storage_path('app/public/completed_appointments.xlsx');
         $writer = SimpleExcelWriter::create($filePath);
 
-        // 🏷️ Dòng tiêu đề
+        // Dòng tiêu đề
         $writer->addRow(['DANH SÁCH LỊCH HẸN ĐÃ HOÀN THÀNH']);
         $writer->addRow([]); // dòng trống
 
-        // 🧾 Tiêu đề cột
+        // Tiêu đề cột
         $writer->addRow([
             'ID',
             'Bệnh nhân',
@@ -195,7 +195,7 @@ class AppointmentController extends Controller
             'Cập nhật lúc'
         ]);
 
-        // 🧍‍♂️ Dữ liệu
+        // Dữ liệu
         foreach ($data as $item) {
             $writer->addRow([
                 $item->id,

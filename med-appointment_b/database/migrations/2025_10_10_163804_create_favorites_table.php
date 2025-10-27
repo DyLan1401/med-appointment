@@ -17,7 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('doctor_id'); 
             $table->timestamps(); 
 
-            // 🔐 Ràng buộc khóa ngoại
+            
             $table->foreign('user_id')
                 ->references('id')
                 ->on('users')

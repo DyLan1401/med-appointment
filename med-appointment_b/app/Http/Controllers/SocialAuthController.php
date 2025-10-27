@@ -10,13 +10,13 @@ use Illuminate\Support\Str;
 
 class SocialAuthController extends Controller
 {
-    // 🔹 B1: Redirect người dùng đến Google OAuth
+    // B1: Redirect người dùng đến Google OAuth
     public function redirectToGoogle()
     {
         return Socialite::driver('google')->stateless()->redirect();
     }
 
-    // 🔹 B2: Nhận callback từ Google
+    // B2: Nhận callback từ Google
     public function handleGoogleCallback()
     {
         try {
@@ -30,7 +30,7 @@ class SocialAuthController extends Controller
             return response()->json(['error' => 'Không thể lấy email người dùng từ Google'], 400);
         }
 
-        // 🔍 Tìm user đã có hoặc tạo mới
+        // Tìm user đã có hoặc tạo mới
         $user = User::where('email', $googleUser->getEmail())->first();
 
         if (!$user) {
@@ -46,15 +46,15 @@ class SocialAuthController extends Controller
             }
         }
 
-        // 🔑 Tạo token đăng nhập
+        // Tạo token đăng nhập
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        // ✅ Redirect về React app kèm token (để React tự lưu vào localStorage)
+        // Redirect về React app kèm token (để React tự lưu vào localStorage)
         return redirect("http://localhost:5173/login?token={$token}");
     }
 
 
-    // 🟦 Redirect tới Facebook
+    // Redirect tới Facebook
     public function redirectToFacebook()
     {
         return Socialite::driver('facebook')->stateless()->redirect();

@@ -1,24 +1,24 @@
 /* ---------------------------------------------
- 🌍 App.jsx
+ App.jsx
 ----------------------------------------------*/
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 
-/* 🧩 Import các component cần thiết */
+/* Import các component cần thiết */
 import Navbar from "./components/common/Navbar";
 import Header1 from "./components/common/Header1";
 import Header2 from "./components/common/Header2";
 import Section1 from "./components/common/section1";
 import Section2 from "./components/common/Section2";
 import MiniMap from "./components/common/maps";
-import Footer from "./components/common/Footer";
+import Footer from "./components/common/Footer";  
 import FormService from "./components/common/FormService";
 import PatientNotifications from "./components/common/PatientNotifications";
 
-/* 🧩 Trang yêu thích bác sĩ */
+/* Trang yêu thích bác sĩ */
 import LikeDoctor from "./components/doctor/LikeDoctor";
 
-/* 🧩 Các trang khác */
+/* Các trang khác */
 import DoctorDetail from "./components/doctor/DoctorDetail";
 import DoctorProfile from "./components/doctor/DoctorProfile";
 import PageDoctorSchedule from "./pages/doctor/PageDoctorSchedule";
@@ -40,7 +40,7 @@ import PostDetail from "./pages/general/PostDetail";
 import Dashboard from "./pages/admin/Dashboard";
 import FormDashboard from "./components/admin/FormDashboard";
 
-/* ✅ Các trang quản lý admin */
+/* Các trang quản lý admin */
 import ManagerDoctor from "./components/admin/ManagerDoctor";
 import ManagerLichHen from "./components/admin/ManagerLichHen";
 import ManagerChuyenKhoa from "./components/admin/ManagerChuyenKhoa";
@@ -58,8 +58,11 @@ import AppointmentStats from "./components/admin/AppointmentStats";
 import BHYTStatistics from "./components/admin/BHYTStatistics";
 import TopDoctors from "./components/doctor/TopDoctors";
 
-/* ✅ Thêm mới component hiển thị ghi chú theo ID */
-import PatientNotes from "./components/common/PatientNotes"; // ← thêm dòng này
+/* Thêm mới component hiển thị ghi chú theo ID */
+import PatientNotes from "./components/common/PatientNotes"; 
+
+/* Thêm mới Feedback (bước 3) */
+import Feedback from "./components/common/FeedBack"; 
 
 export default function App() {
   return (
@@ -103,6 +106,35 @@ export default function App() {
       <Route path="/doctor/:id/profile" element={<DoctorProfile />} />
       <Route path="/doctorschedule" element={<PageDoctorSchedule />} />
 
+      {/* Thêm Route Feedback (theo id bác sĩ) */}
+      <Route
+        path="/doctor/:id/feedback"
+        element={
+          <div className="w-full min-h-screen bg-gray-50">
+            <Navbar />
+            <div className="pt-24 px-6">
+              <Feedback />
+            </div>
+            <Footer />
+          </div>
+        }
+      />
+
+      {/* 🆕 Thêm Route mới: Chi tiết bác sĩ theo ID (sửa lỗi 404 /doctor-detail/:id) */}
+      <Route
+        path="/doctor-detail/:id"
+        element={
+          <div className="w-full min-h-screen bg-gray-50">
+            <Navbar />
+            <div className="pt-24 px-6">
+              <DoctorDetail />
+              <Feedback />
+            </div>
+            <Footer />
+          </div>
+        }
+      />
+
       {/* Trang yêu thích */}
       <Route
         path="/like-doctor"
@@ -124,7 +156,7 @@ export default function App() {
       <Route path="/patientprofile" element={<PagePatientProfile />} />
       <Route path="/patienthistory" element={<PagePatientHistory />} />
 
-      {/* ✅ Trang thông báo bệnh nhân (toàn bộ) */}
+      {/* Trang thông báo bệnh nhân (toàn bộ) */}
       <Route
         path="/notifications"
         element={
@@ -138,7 +170,7 @@ export default function App() {
         }
       />
 
-      {/* ✅ Trang hiển thị ghi chú theo ID bệnh nhân */}
+      {/* Trang hiển thị ghi chú theo ID bệnh nhân */}
       <Route
         path="/notifications/:id"
         element={

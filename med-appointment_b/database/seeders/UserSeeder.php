@@ -10,7 +10,7 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        // 🧑‍💼 Admin cố định
+        // Admin cố định
         User::create([
             'name' => 'Admin System',
             'email' => 'admin@example.com',
@@ -21,7 +21,7 @@ class UserSeeder extends Seeder
             'avatar_url' => 'https://i.pravatar.cc/150?img=1',
         ]);
 
-        // 👨‍⚕️ 5 bác sĩ
+        // 5 bác sĩ
         for ($i = 1; $i <= 5; $i++) {
             User::create([
                 'name' => fake()->name(),
@@ -34,7 +34,7 @@ class UserSeeder extends Seeder
             ]);
         }
 
-        // 🩺 10 bệnh nhân (role = user)
+        // 10 bệnh nhân (role = user)
         for ($i = 1; $i <= 10; $i++) {
             User::create([
                 'name' => fake()->name(),
