@@ -164,4 +164,9 @@ public static function getAll()
     {
         return $this->hasOne(Invoice::class, 'appointment_id');
     }
+
+    public function feedback()
+    {
+        return $this->hasOne(Feedback::class, 'appointment_id');
+    }
 }

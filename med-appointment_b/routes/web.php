@@ -12,3 +12,5 @@ Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleC
 // đăng nhập với facebook
 Route::get('/auth/facebook/redirect', [SocialAuthController::class, 'redirectToFacebook']);
 Route::get('/auth/facebook/callback', [SocialAuthController::class, 'handleFacebookCallback']);
+
+
