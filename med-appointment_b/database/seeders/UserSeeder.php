@@ -10,7 +10,7 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-<<<<<<< HEAD
+
          // 🩺 10 bệnh nhân (role = user)
         for ($i = 1; $i <= 10; $i++) {
             User::create([
@@ -23,10 +23,8 @@ class UserSeeder extends Seeder
                 'avatar_url' => "https://i.pravatar.cc/150?img=" . rand(51, 90),
             ]);
         }
-        // 🧑‍💼 Admin cố định
-=======
+
         // Admin cố định
->>>>>>> DangThanhPhong/9,10-Viet&XemFeedback,BinhLuanTuBenhNhan
         User::create([
             'name' => 'Admin System',
             'email' => 'admin@example.com',
@@ -50,9 +48,7 @@ class UserSeeder extends Seeder
             ]);
         }
 
-<<<<<<< HEAD
-       
-=======
+
         // 10 bệnh nhân (role = user)
         for ($i = 1; $i <= 10; $i++) {
             User::create([
@@ -65,6 +61,5 @@ class UserSeeder extends Seeder
                 'avatar_url' => "https://i.pravatar.cc/150?img=" . rand(51, 90),
             ]);
         }
->>>>>>> DangThanhPhong/9,10-Viet&XemFeedback,BinhLuanTuBenhNhan
     }
 }

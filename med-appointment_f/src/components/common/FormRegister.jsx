@@ -25,82 +25,82 @@ function FormRegister() {
   };
 
   // 🟢 Gửi request đăng ký
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   setMessage("");
-  //   setLoading(true);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setMessage("");
+    setLoading(true);
 
-  //   try {
-  //     // Gửi POST đến API Laravel
-  //     const res = await axios.post("http://127.0.0.1:8000/api/register", formData, {
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         Accept: "application/json"
-  //       }
-  //     });
+    try {
+      // Gửi POST đến API Laravel
+      const res = await axios.post("http://127.0.0.1:8000/api/register", formData, {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json"
+        }
+      });
 
-  //     // Kiểm tra kết quả trả về
-  //     if (res.status === 201 && res.data.success) {
-  //       setMessage("🎉 Đăng ký thành công! Đang chuyển hướng...");
-  //       setTimeout(() => navigate("/login"), 1500);
-  //     } else {  
-  //       setMessage(res.data.message || "Đăng ký thất bại!");
-  //     }
-  //   } catch (error) {
-  //     console.error("Lỗi đăng ký:", error);
+      // Kiểm tra kết quả trả về
+      if (res.status === 201 && res.data.success) {
+        setMessage("🎉 Đăng ký thành công! Đang chuyển hướng...");
+        setTimeout(() => navigate("/login"), 1500);
+      } else {  
+        setMessage(res.data.message || "Đăng ký thất bại!");
+      }
+    } catch (error) {
+      console.error("Lỗi đăng ký:", error);
 
-  //     // Laravel trả lỗi validate (422)
-  //     if (error.response && error.response.status === 422) {
-  //       const errors = error.response.data.errors;
-  //       const firstError = Object.values(errors)[0][0];
-  //       setMessage(firstError);
-  //     } 
-  //     // Laravel trả lỗi server (500)
-  //     else if (error.response && error.response.status === 500) {
-  //       setMessage("❌ Lỗi máy chủ! Vui lòng thử lại sau.");
-  //     } 
-  //     // Không kết nối được API
-  //     else {
-  //       setMessage("⚠️ Không thể kết nối đến server!");
-  //     }
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+      // Laravel trả lỗi validate (422)
+      if (error.response && error.response.status === 422) {
+        const errors = error.response.data.errors;
+        const firstError = Object.values(errors)[0][0];
+        setMessage(firstError);
+      } 
+      // Laravel trả lỗi server (500)
+      else if (error.response && error.response.status === 500) {
+        setMessage("❌ Lỗi máy chủ! Vui lòng thử lại sau.");
+      } 
+      // Không kết nối được API
+      else {
+        setMessage("⚠️ Không thể kết nối đến server!");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Gửi OTP về email
-const sendOtp = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  setMessage("");
-  try {
-    await axios.post("http://127.0.0.1:8000/api/register/send-otp", formData);
-    setMessage("OTP đã gửi tới email của bạn!");
-    setStep(2);
-  } catch (err) {
-    setMessage(err.response?.data?.message || "Lỗi khi gửi OTP!");
-  } finally {
-    setLoading(false);
-  }
-};
+// const sendOtp = async (e) => {
+//   e.preventDefault();
+//   setLoading(true);
+//   setMessage("");
+//   try {
+//     await axios.post("http://127.0.0.1:8000/api/register/send-otp", formData);
+//     setMessage("OTP đã gửi tới email của bạn!");
+//     setStep(2);
+//   } catch (err) {
+//     setMessage(err.response?.data?.message || "Lỗi khi gửi OTP!");
+//   } finally {
+//     setLoading(false);
+//   }
+// };
 
 // Xác minh OTP
-const verifyOtp = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  try {
-    await axios.post("http://127.0.0.1:8000/api/register/verify-otp", {
-      email: formData.email,
-      otp,
-    });
-    setMessage("🎉 Đăng ký thành công!");
-    setTimeout(() => navigate("/login"), 1500);
-  } catch (err) {
-    setMessage(err.response?.data?.message || "OTP không hợp lệ hoặc đã hết hạn!");
-  } finally {
-    setLoading(false);
-  }
-};
+// const verifyOtp = async (e) => {
+//   e.preventDefault();
+//   setLoading(true);
+//   try {
+//     await axios.post("http://127.0.0.1:8000/api/register/verify-otp", {
+//       email: formData.email,
+//       otp,
+//     });
+//     setMessage("🎉 Đăng ký thành công!");
+//     setTimeout(() => navigate("/login"), 1500);
+//   } catch (err) {
+//     setMessage(err.response?.data?.message || "OTP không hợp lệ hoặc đã hết hạn!");
+//   } finally {
+//     setLoading(false);
+//   }
+// };
 
 
   return (
@@ -118,7 +118,7 @@ const verifyOtp = async (e) => {
         )}
 
         {/* Form đăng ký */}
-        {/* <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div className="flex flex-col">
             <label className="font-medium">Họ và tên</label>
             <input
@@ -169,10 +169,10 @@ const verifyOtp = async (e) => {
           >
             {loading ? "Đang xử lý..." : "Đăng ký"}
           </button>
-        </form> */}
+        </form>
 
         {/* Bước 1: Gửi OTP */}
-        {step === 1 && (
+        {/* {step === 1 && (
           <form onSubmit={sendOtp} className="space-y-5">
             <div className="flex flex-col">
               <label className="font-medium">Họ và tên</label>
@@ -225,10 +225,10 @@ const verifyOtp = async (e) => {
               {loading ? "Đang gửi OTP..." : "Gửi OTP"}
             </button>
           </form>
-        )}
+        )} */}
 
         {/* Bước 2: Nhập OTP */}
-        {step === 2 && (
+        {/* {step === 2 && (
           <form onSubmit={verifyOtp} className="space-y-5">
             <div className="flex flex-col">
               <label className="font-medium">Mã OTP</label>
@@ -262,7 +262,7 @@ const verifyOtp = async (e) => {
               ← Quay lại
             </button>
           </form>
-        )}
+        )} */}
 
 
         <div className="text-center mt-5 text-blue-700">

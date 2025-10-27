@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
             ScheduleSeeder::class,
             BannerSeeder::class,
             InvoiceSeeder::class,
+            FeedbackSeeder::class,
         ]);
     }
 }
