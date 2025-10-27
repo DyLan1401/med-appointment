@@ -78,10 +78,10 @@ class AppointmentController extends Controller
 
     public function exportCompletedAppointmentsXlsx()
     {
-<<<<<<< HEAD
+
         $file = Appointment::exportCompletedToXlsx();
         return response()->download($file)->deleteFileAfterSend(true);
-=======
+
          $data = DB::table('appointments')
             ->join('patients', 'appointments.patient_id', '=', 'patients.id')
             ->join('users as patient_user', 'patients.user_id', '=', 'patient_user.id')
@@ -134,7 +134,6 @@ class AppointmentController extends Controller
         $writer->close();
 
         return response()->download($filePath)->deleteFileAfterSend(true);
->>>>>>> DangThanhPhong/9,10-Viet&XemFeedback,BinhLuanTuBenhNhan
     }
 
     public function exportCompletedAppointmentsPdf()

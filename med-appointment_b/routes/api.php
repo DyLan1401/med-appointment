@@ -19,12 +19,12 @@ use App\Http\Controllers\SocialAuthController;
 use App\Http\Controllers\BannerController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\NoteController;
-<<<<<<< HEAD
+
 use App\Http\Controllers\PaymentController;
-=======
+
 use App\Http\Controllers\FeedbackController;
 
->>>>>>> DangThanhPhong/9,10-Viet&XemFeedback,BinhLuanTuBenhNhan
+
 Route::apiResource('banners', BannerController::class);
 
 Route::get('/test', fn() => response()->json(['message' => 'API đang hoạt động! ✅']));
@@ -177,7 +177,7 @@ Route::get('/doctors/search', [DoctorController::class, 'search']);
 Route::get('/export-completed/xlsx', [AppointmentController::class, 'exportCompletedAppointmentsXlsx']);
 Route::get('/export-completed/pdf', [AppointmentController::class, 'exportCompletedAppointmentsPdf']);
 
-<<<<<<< HEAD
+
 // Thanh toán PayOS
 Route::post('/payment/create', [PaymentController::class, 'createPayment']);
 Route::post('/payment/webhook', [PaymentController::class, 'webhook']);
@@ -186,10 +186,9 @@ Route::get('/test-payos', [PaymentController::class, 'testPayOS']);
 // Gửi và xác minh OTP trong đăng ký
 Route::post('/register/send-otp', [UserController::class, 'sendOtp']);
 Route::post('/register/verify-otp', [UserController::class, 'verifyOtp']);
-=======
+
 
 // Viết và Xem feedback/bình luận từ bệnh nhân
 Route::get('/feedbacks/{doctor_id}', [FeedbackController::class, 'getByDoctor']);
 Route::post('/feedbacks', [FeedbackController::class, 'store']);
 Route::delete('/feedbacks/{id}', [FeedbackController::class, 'destroy']);
->>>>>>> DangThanhPhong/9,10-Viet&XemFeedback,BinhLuanTuBenhNhan

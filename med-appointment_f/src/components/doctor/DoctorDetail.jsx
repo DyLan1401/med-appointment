@@ -38,7 +38,7 @@ export default function DoctorDetail() {
     const { name } = useParams();
     const doctor = allDoctors.find((d) => d.name === decodeURIComponent(name));
 
-    if (!doctor) return <div className="p-6">Không tìm thấy bác sĩ</div>;
+    if (!doctor) return <div className="p-6"></div>;
 
     return (
         <div className="min-h-screen bg-gray-50 p-6">
