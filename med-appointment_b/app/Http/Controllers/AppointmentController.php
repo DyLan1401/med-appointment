@@ -90,31 +90,31 @@ class AppointmentController extends Controller
 }
 
     // Xóa cuộc hẹn
-    public function destroy($id)
-    {
-        $validator = Validator::make($request->all(), [
-            'patient_id' => 'sometimes|exists:patients,id',
-            'doctor_id' => 'sometimes|exists:doctors,id',
-            'service_id' => 'sometimes|exists:services,id',
-            'appointment_date' => 'sometimes|date',
-            'status' => 'sometimes|in:pending,confirmed,rejected,cancelled,completed',
-            'notes' => 'nullable|string',
-            'updated_at' => 'required|date',
-        ]);
+    // public function destroy($id)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'patient_id' => 'sometimes|exists:patients,id',
+    //         'doctor_id' => 'sometimes|exists:doctors,id',
+    //         'service_id' => 'sometimes|exists:services,id',
+    //         'appointment_date' => 'sometimes|date',
+    //         'status' => 'sometimes|in:pending,confirmed,rejected,cancelled,completed',
+    //         'notes' => 'nullable|string',
+    //         'updated_at' => 'required|date',
+    //     ]);
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
+    //     if ($validator->fails()) {
+    //         return response()->json(['errors' => $validator->errors()], 422);
+    //     }
 
-        $result = Appointment::updateAppointment($id, $request->all());
+    //     $result = Appointment::updateAppointment($id, $request->all());
 
-        return match ($result['error'] ?? null) {
-            'not_found' => response()->json(['message' => 'Không tìm thấy cuộc hẹn'], 404),
-            'conflict' => response()->json(['message' => 'Cuộc hẹn đã được cập nhật, vui lòng tải lại.'], 409),
-            'no_changes' => response()->json(['message' => 'Không có gì để cập nhật'], 400),
-            default => response()->json(['message' => 'Cập nhật thành công'], 200),
-        };
-    }
+    //     return match ($result['error'] ?? null) {
+    //         'not_found' => response()->json(['message' => 'Không tìm thấy cuộc hẹn'], 404),
+    //         'conflict' => response()->json(['message' => 'Cuộc hẹn đã được cập nhật, vui lòng tải lại.'], 409),
+    //         'no_changes' => response()->json(['message' => 'Không có gì để cập nhật'], 400),
+    //         default => response()->json(['message' => 'Cập nhật thành công'], 200),
+    //     };
+    // }
 
     public function destroy($id)
     {
