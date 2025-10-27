@@ -19,10 +19,20 @@ export default function Navbar() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState([]);
 
-  // Lấy thông tin user
+  // Lấy thông tin user và lắng nghe sự kiện thay đổi localStorage để cập nhật user
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) setUser(JSON.parse(storedUser));
+    const loadUser = () => {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) setUser(JSON.parse(storedUser));
+      else setUser(null);
+    };
+
+    loadUser();
+
+    // 🔔 Lắng nghe khi localStorage thay đổi
+    window.addEventListener("storage", loadUser);
+
+    return () => window.removeEventListener("storage", loadUser);
   }, []);
 
   // Lấy thông báo thật từ API Laravel

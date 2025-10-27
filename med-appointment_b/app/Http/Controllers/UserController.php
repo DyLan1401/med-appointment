@@ -381,4 +381,21 @@ class UserController extends Controller
         ], 201);
     }
 
+    // 🧩 Lấy thông tin user hiện tại từ token
+    public function me(Request $request)
+    {
+        return response()->json($request->user());
+    }
+
+    // Hoặc nếu bạn muốn lấy user theo ID
+    public function getUserById($id)
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        return response()->json($user);
+    }
 }

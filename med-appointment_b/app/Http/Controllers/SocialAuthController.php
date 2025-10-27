@@ -51,6 +51,7 @@ class SocialAuthController extends Controller
 
         // Redirect về React app kèm token (để React tự lưu vào localStorage)
         return redirect("http://localhost:5173/login?token={$token}");
+        
     }
 
 

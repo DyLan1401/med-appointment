@@ -136,7 +136,6 @@ Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
 Route::post('/forgot-password', [UserController::class, 'forgotPassword']);
 
-
 // Bác sĩ yêu thích
 // Dành cho khách hoặc hiển thị danh sách user khác
 Route::get('/favorites/{user_id?}', [FavoriteController::class, 'index']);
@@ -158,8 +157,11 @@ Route::middleware('auth:sanctum')->group(function () {
     // Tùy chọn xóa yêu thích bằng body (frontend LikeDoctor.jsx)
     Route::post('/favorites/remove', [FavoriteController::class, 'destroy']);
     Route::get('/patient/history', [PatientHistoryController::class, 'index']);
-});
 
+    Route::get('/user', [UserController::class, 'me']);
+});
+// Lấy thông tin user theo ID
+Route::get('/user/{id}', [UserController::class, 'getUserById']);
 
 // Gửi ghi chú cho bệnh nhân
 Route::get('/notes/{patient}', [NoteController::class, 'index']);

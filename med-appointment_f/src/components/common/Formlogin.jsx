@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../../api/axios";
 
@@ -6,6 +6,32 @@ function FormLogin() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  // lấy token và thông tin user từ URL sau khi đăng nhập xã hội (Google/Facebook)
+  useEffect(() => {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get("token");
+
+  if (token) {
+    (async () => {
+      try {
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        const res = await axios.get("http://localhost:8000/api/user");
+
+        localStorage.setItem("user", JSON.stringify(res.data));
+        localStorage.setItem("token", token);
+
+        // 🔔 Bắn sự kiện để Navbar biết có user mới
+        window.dispatchEvent(new Event("storage"));
+
+        navigate("/");
+      } catch (err) {
+        console.error("Lỗi khi lấy thông tin user:", err);
+      }
+    })();
+  }
+}, []);
+
 
   const handleLogin = async (e) => {
     e.preventDefault();
