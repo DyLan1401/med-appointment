@@ -125,15 +125,10 @@ class AppointmentController extends Controller
 
     public function exportCompletedAppointmentsXlsx()
     {
-<<<<<<< HEAD
-        $file = Appointment::exportCompletedToXlsx();
-        return response()->download($file)->deleteFileAfterSend(true);
-=======
 
         $file = Appointment::exportCompletedToXlsx();
         return response()->download($file)->deleteFileAfterSend(true);
 
->>>>>>> DangThanhPhong/11-ChiTietBacSi
          $data = DB::table('appointments')
             ->join('patients', 'appointments.patient_id', '=', 'patients.id')
             ->join('users as patient_user', 'patients.user_id', '=', 'patient_user.id')

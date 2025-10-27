@@ -276,6 +276,8 @@ class UserController extends Controller
     {
         return filter_var($path, FILTER_VALIDATE_URL) !== false;
     }
+
+    
     public function forgotPassword(Request $request)
     {
         $request->validate(['email' => 'required|email']);
