@@ -7,59 +7,44 @@ use Illuminate\Http\Request;
 
 class FeedbackController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    // Lấy feedback theo bác sĩ
+    public function getByDoctor($doctor_id)
     {
-        //
+        $feedbacks = Feedback::with('user:id,name,email') // lấy thông tin user
+            ->where('doctor_id', $doctor_id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json(['data' => $feedbacks]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
+    // Thêm feedback mới
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'doctor_id' => 'required|exists:doctors,id',
+            'user_id' => 'nullable|exists:users,id',
+            'rating' => 'required|integer|min:1|max:5',
+            'comment' => 'nullable|string',
+        ]);
+
+        $feedback = Feedback::create($validated);
+
+        // Lấy lại feedback kèm thông tin user
+        $feedback = Feedback::with('user:id,name,email')->find($feedback->id);
+
+        return response()->json(['data' => $feedback]);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Feedback $feedback)
+    // Xóa feedback
+    public function destroy($id)
     {
-        //
-    }
+        $feedback = Feedback::find($id);
+        if (!$feedback) {
+            return response()->json(['message' => 'Không tìm thấy feedback'], 404);
+        }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Feedback $feedback)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Feedback $feedback)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Feedback $feedback)
-    {
-        //
+        $feedback->delete();
+        return response()->json(['message' => 'Đã xóa feedback thành công']);
     }
 }

@@ -13,7 +13,7 @@ class PatientsSeeder extends Seeder
     {
         $faker = Faker::create('vi_VN');
 
-        // 🩺 Chỉ tạo bản ghi Patient cho những user có role = 'user'
+        // Chỉ tạo bản ghi Patient cho những user có role = 'user'
         $users = User::where('role', 'user')->get();
 
         foreach ($users as $user) {

@@ -12,7 +12,7 @@ class AppointmentSeeder extends Seeder
     {
         $records = [];
 
-        for ($i = 1; $i <= 20; $i++) { // 👈 tạo 20 dòng dữ liệu
+        for ($i = 1; $i <= 20; $i++) { 
             $records[] = [
                 'patient_id' => rand(1, 5),
                 'doctor_id' => rand(1, 3),

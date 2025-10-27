@@ -11,13 +11,13 @@ class PostSeeder extends Seeder
 {
     public function run(): void
     {
-        // ✅ Tạo Faker tiếng Việt
+        // Tạo Faker tiếng Việt
         $faker = Faker::create('vi_VN');
 
-        // ✅ Lấy danh sách ID danh mục
+        // Lấy danh sách ID danh mục
         $categoryIds = CategoryPost::pluck('id')->toArray();
 
-        // ✅ Sinh 1000 bài viết mẫu
+        // Sinh 1000 bài viết mẫu
         for ($i = 1; $i <= 300; $i++) {
             $imageUrl = "https://via.placeholder.com/600x400.png?text=Blog+Post+" . $i;
 

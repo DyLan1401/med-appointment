@@ -80,4 +80,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(\App\Models\Favorite::class, 'patient_id', 'id');
     }
+
+    public function feedbacks()
+    {
+    return $this->hasMany(Feedback::class);
+    }
 }

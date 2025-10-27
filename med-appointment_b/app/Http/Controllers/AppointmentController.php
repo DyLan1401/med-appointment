@@ -78,8 +78,63 @@ class AppointmentController extends Controller
 
     public function exportCompletedAppointmentsXlsx()
     {
+<<<<<<< HEAD
         $file = Appointment::exportCompletedToXlsx();
         return response()->download($file)->deleteFileAfterSend(true);
+=======
+         $data = DB::table('appointments')
+            ->join('patients', 'appointments.patient_id', '=', 'patients.id')
+            ->join('users as patient_user', 'patients.user_id', '=', 'patient_user.id')
+            ->join('services', 'appointments.service_id', '=', 'services.id')
+            ->select(
+                'appointments.id',
+                'patient_user.name as patient_name',
+                'services.name as service_name',
+                'appointments.status',
+                'appointments.notes',
+                'appointments.appointment_date',
+                'appointments.updated_at'
+            )
+            ->where('appointments.status', '=', 'completed')
+            ->orderBy('appointments.appointment_date', 'desc')
+            ->get();
+
+        // Tạo writer
+        $filePath = storage_path('app/public/completed_appointments.xlsx');
+        $writer = SimpleExcelWriter::create($filePath);
+
+        // Dòng tiêu đề
+        $writer->addRow(['DANH SÁCH LỊCH HẸN ĐÃ HOÀN THÀNH']);
+        $writer->addRow([]); // dòng trống
+
+        // Tiêu đề cột
+        $writer->addRow([
+            'ID',
+            'Bệnh nhân',
+            'Dịch vụ',
+            'Trạng thái',
+            'Ghi chú',
+            'Ngày hẹn',
+            'Cập nhật lúc'
+        ]);
+
+        // Dữ liệu
+        foreach ($data as $item) {
+            $writer->addRow([
+                $item->id,
+                $item->patient_name,
+                $item->service_name,
+                ucfirst($item->status),
+                $item->notes,
+                $item->appointment_date,
+                $item->updated_at,
+            ]);
+        }
+
+        $writer->close();
+
+        return response()->download($filePath)->deleteFileAfterSend(true);
+>>>>>>> DangThanhPhong/9,10-Viet&XemFeedback,BinhLuanTuBenhNhan
     }
 
     public function exportCompletedAppointmentsPdf()

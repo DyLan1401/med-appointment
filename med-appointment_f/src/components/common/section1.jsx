@@ -19,17 +19,19 @@ export default function Section1() {
   const [liked, setLiked] = useState(null);
   const [notFound, setNotFound] = useState(false);
 
+  // ✅ Phân trang
+  const [currentPage, setCurrentPage] = useState(1);
+  const [doctorsPerPage] = useState(12);
+
   const token = localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem("user")) || null;
 
-  // ✅ Lấy danh sách bác sĩ & chuyên khoa
   useEffect(() => {
     if (searchQuery) handleSearch(searchQuery);
     else fetchDoctors();
     fetchSpecializations();
   }, [searchQuery]);
 
-  // ✅ Gọi API lấy danh sách bác sĩ
   const fetchDoctors = async () => {
     setLoading(true);
     try {
@@ -45,7 +47,6 @@ export default function Section1() {
     }
   };
 
-  // ✅ Lấy danh sách chuyên khoa
   const fetchSpecializations = async () => {
     try {
       const res = await API.get("/departments");
@@ -55,7 +56,6 @@ export default function Section1() {
     }
   };
 
-  // ✅ Tìm kiếm bác sĩ
   const handleSearch = async (query) => {
     setLoading(true);
     try {
@@ -63,8 +63,6 @@ export default function Section1() {
       const results = res.data?.data || res.data || [];
       setDoctors(results);
       setNotFound(results.length === 0);
-
-      // Cuộn mượt đến kết quả
       setTimeout(() => {
         const section = document.getElementById("doctor-results");
         if (section) section.scrollIntoView({ behavior: "smooth" });
@@ -78,7 +76,6 @@ export default function Section1() {
     }
   };
 
-  // ✅ Lấy ảnh đại diện bác sĩ
   const getDoctorAvatar = (doctor) => {
     const baseURL =
       import.meta.env.VITE_API_URL?.replace("/api", "") ||
@@ -94,11 +91,8 @@ export default function Section1() {
     return `${baseURL}/storage/${avatar}`;
   };
 
-  // ✅ Thêm bác sĩ yêu thích (đã đồng bộ với user thay vì patient)
   const handleFavorite = async (doctor) => {
     if (!doctor?.id) return alert("⚠️ Thiếu thông tin bác sĩ!");
-
-    // Hiệu ứng trái tim
     setLiked(doctor.id);
     setTimeout(() => setLiked(null), 800);
 
@@ -110,7 +104,6 @@ export default function Section1() {
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
-        // ⚠️ Nếu token hết hạn hoặc không hợp lệ
         if (res.status === 401 || res.data?.message?.includes("hết hạn")) {
           alert("🔐 Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
           localStorage.removeItem("token");
@@ -121,7 +114,6 @@ export default function Section1() {
 
         alert(`Đã thêm bác sĩ ${doctor.user?.name} vào danh sách yêu thích!`);
       } else {
-        // 👉 Người chưa đăng nhập
         const localFavs = JSON.parse(localStorage.getItem("favorites")) || [];
         const exists = localFavs.some((f) => f.doctor_id === doctor.id);
 
@@ -139,12 +131,10 @@ export default function Section1() {
         alert(`Đã thêm bác sĩ ${doctor.user?.name} vào yêu thích tạm thời!`);
       }
 
-      // ✅ Gửi sự kiện cập nhật trang yêu thích
       window.dispatchEvent(new Event("favoriteUpdated"));
       navigate("/like-doctor");
     } catch (err) {
       console.error("❌ Lỗi khi thêm yêu thích:", err);
-
       if (err.response?.status === 401) {
         alert("🔐 Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
         localStorage.removeItem("token");
@@ -156,11 +146,35 @@ export default function Section1() {
     }
   };
 
-  // ✅ Lọc bác sĩ theo chuyên khoa
+  // ✅ Hàm xử lý khi click vào bác sĩ để xem chi tiết
+  const handleDoctorClick = (doctor) => {
+    if (!doctor?.id) return;
+    navigate(`/doctor-detail/${doctor.id}`, { state: { doctor } });
+  };
+
   const filteredDoctors =
     filter === "Tất cả"
       ? doctors
       : doctors.filter((d) => d.specialization?.name === filter);
+
+  const indexOfLastDoctor = currentPage * doctorsPerPage;
+  const indexOfFirstDoctor = indexOfLastDoctor - doctorsPerPage;
+  const paginatedDoctors =
+    filter === "Tất cả"
+      ? filteredDoctors.slice(indexOfFirstDoctor, indexOfLastDoctor)
+      : filteredDoctors;
+
+  const totalPages =
+    filter === "Tất cả"
+      ? Math.ceil(filteredDoctors.length / doctorsPerPage)
+      : 1;
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+      window.scrollTo({ top: 600, behavior: "smooth" });
+    }
+  };
 
   return (
     <motion.div
@@ -180,8 +194,7 @@ export default function Section1() {
           Tìm Kiếm & Khám Phá Bác Sĩ Phù Hợp Cho Bạn
         </motion.h1>
         <p className="text-white/90 text-lg max-w-2xl mx-auto leading-relaxed">
-          Hơn 100+ bác sĩ chuyên khoa uy tín sẵn sàng hỗ trợ bạn mọi lúc, mọi
-          nơi 💙
+          Hơn 100+ bác sĩ chuyên khoa uy tín sẵn sàng hỗ trợ bạn mọi lúc, mọi nơi 💙
         </p>
       </div>
 
@@ -193,7 +206,10 @@ export default function Section1() {
 
         <div className="flex flex-wrap justify-center gap-3 px-4">
           <button
-            onClick={() => setFilter("Tất cả")}
+            onClick={() => {
+              setFilter("Tất cả");
+              setCurrentPage(1);
+            }}
             className={`py-2 px-5 rounded-full font-semibold shadow-md transition-all ${
               filter === "Tất cả"
                 ? "bg-blue-700 text-white scale-105"
@@ -206,7 +222,10 @@ export default function Section1() {
           {specializations.map((sp) => (
             <button
               key={sp.id}
-              onClick={() => setFilter(sp.name)}
+              onClick={() => {
+                setFilter(sp.name);
+                setCurrentPage(1);
+              }}
               className={`py-2 px-5 rounded-full font-semibold shadow-md transition-all ${
                 filter === sp.name
                   ? "bg-blue-700 text-white scale-105"
@@ -243,57 +262,142 @@ export default function Section1() {
         )}
 
         <AnimatePresence mode="wait">
-          {!loading && filteredDoctors.length > 0 ? (
-            <motion.div
-              key="list"
-              layout
-              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 px-6"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.4 }}
-            >
-              {filteredDoctors.map((d) => (
+          {!loading && paginatedDoctors.length > 0 ? (
+            <>
+              <motion.div
+                key="list"
+                layout
+                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 px-6"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.4 }}
+              >
+                {paginatedDoctors.map((d) => (
+                  <motion.div
+                    key={d.id}
+                    layout
+                    whileHover={{ scale: 1.04 }}
+                    transition={{ type: "spring", stiffness: 200 }}
+                    className="bg-white border border-gray-100 shadow-xl rounded-2xl p-6 flex flex-col items-center space-y-4 relative hover:shadow-blue-200 hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+                    onClick={() => handleDoctorClick(d)} // ✅ Thêm click để xem chi tiết
+                  >
+                    <motion.img
+                      src={heart}
+                      onClick={(e) => {
+                        e.stopPropagation(); // 🛑 tránh kích hoạt click vào card
+                        handleFavorite(d);
+                      }}
+                      className="absolute top-3 right-3 cursor-pointer"
+                      width={30}
+                      height={30}
+                      alt="heart"
+                      animate={
+                        liked === d.id
+                          ? { scale: [1, 1.5, 1], rotate: [0, 20, -20, 0] }
+                          : {}
+                      }
+                      transition={{ duration: 0.6, ease: "easeInOut" }}
+                    />
+
+                    <img
+                      className="rounded-full object-cover w-[160px] h-[160px] border-4 border-blue-100 shadow-md"
+                      src={getDoctorAvatar(d)}
+                      alt={`Ảnh bác sĩ ${d.user?.name || ""}`}
+                      onError={(e) => (e.target.src = avatarDefault)}
+                    />
+
+                    <div className="text-center space-y-1">
+                      <div className="text-lg font-semibold text-gray-800">
+                        BS. {d.user?.name || "Chưa rõ"}
+                      </div>
+                      <div className="text-blue-600 font-medium">
+                        {d.specialization?.name || "Chưa có chuyên khoa"}
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
+
+              {/* ======= PHÂN TRANG ======= */}
+              {filter === "Tất cả" && totalPages > 1 && (
                 <motion.div
-                  key={d.id}
-                  layout
-                  whileHover={{ scale: 1.04 }}
-                  transition={{ type: "spring", stiffness: 200 }}
-                  className="bg-white border border-gray-100 shadow-xl rounded-2xl p-6 flex flex-col items-center space-y-4 relative hover:shadow-blue-200 hover:-translate-y-1 transition-all duration-300"
+                  className="flex flex-col items-center justify-center gap-4 mt-12 w-full"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
                 >
-                  <motion.img
-                    src={heart}
-                    onClick={() => handleFavorite(d)}
-                    className="absolute top-3 right-3 cursor-pointer"
-                    width={30}
-                    height={30}
-                    alt="heart"
-                    animate={
-                      liked === d.id
-                        ? { scale: [1, 1.5, 1], rotate: [0, 20, -20, 0] }
-                        : {}
-                    }
-                    transition={{ duration: 0.6, ease: "easeInOut" }}
-                  />
+                  <div className="flex flex-wrap justify-center items-center gap-3 px-4 bg-white/70 backdrop-blur-md rounded-full py-3 shadow-lg border border-blue-100">
+                    {/* Nút prev */}
+                    <button
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      className={`flex items-center justify-center w-10 h-10 rounded-full text-blue-600 font-semibold transition-all duration-300 ${
+                        currentPage === 1
+                          ? "opacity-40 cursor-not-allowed"
+                          : "hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-700 hover:text-white shadow-md"
+                      }`}
+                    >
+                      ←
+                    </button>
 
-                  <img
-                    className="rounded-full object-cover w-[160px] h-[160px] border-4 border-blue-100 shadow-md"
-                    src={getDoctorAvatar(d)}
-                    alt={`Ảnh bác sĩ ${d.user?.name || ""}`}
-                    onError={(e) => (e.target.src = avatarDefault)}
-                  />
+                    {/* Số trang */}
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                      .filter(
+                        (page) =>
+                          totalPages <= 7 ||
+                          page === 1 ||
+                          page === totalPages ||
+                          Math.abs(page - currentPage) <= 1
+                      )
+                      .map((page, i, arr) => {
+                        const prev = arr[i - 1];
+                        if (prev && page - prev > 1)
+                          return (
+                            <span
+                              key={`ellipsis-${i}`}
+                              className="text-gray-400 px-2"
+                            >
+                              ...
+                            </span>
+                          );
 
-                  <div className="text-center space-y-1">
-                    <div className="text-lg font-semibold text-gray-800">
-                      BS. {d.user?.name || "Chưa rõ"}
-                    </div>
-                    <div className="text-blue-600 font-medium">
-                      {d.specialization?.name || "Chưa có chuyên khoa"}
-                    </div>
+                        return (
+                          <motion.button
+                            key={page}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => handlePageChange(page)}
+                            className={`w-10 h-10 rounded-full font-semibold border transition-all duration-300 ${
+                              currentPage === page
+                                ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white border-blue-600 shadow-lg scale-110"
+                                : "bg-white text-blue-700 border-blue-300 hover:bg-blue-600 hover:text-white hover:scale-105"
+                            }`}
+                          >
+                            {page}
+                          </motion.button>
+                        );
+                      })}
+
+                    {/* Nút next */}
+                    <button
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      className={`flex items-center justify-center w-10 h-10 rounded-full text-blue-600 font-semibold transition-all duration-300 ${
+                        currentPage === totalPages
+                          ? "opacity-40 cursor-not-allowed"
+                          : "hover:bg-gradient-to-r hover:from-blue-500 hover:to-blue-700 hover:text-white shadow-md"
+                      }`}
+                    >
+                      →
+                    </button>
                   </div>
+
+                  <p className="text-sm text-gray-500 font-medium">
+                    Trang {currentPage} / {totalPages}
+                  </p>
                 </motion.div>
-              ))}
-            </motion.div>
+              )}
+            </>
           ) : (
             !loading && (
               <motion.div

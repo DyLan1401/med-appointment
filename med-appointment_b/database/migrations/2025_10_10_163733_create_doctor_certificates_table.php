@@ -13,10 +13,10 @@ return new class extends Migration {
             $table->string('certificate_type', 100)->nullable();
             $table->string('image', 255)->nullable();
 
-            // ✅ Thêm timestamps chuẩn Laravel
+            // Thêm timestamps chuẩn Laravel
             $table->timestamps(); // Tự động tạo created_at & updated_at
 
-            // ✅ Khóa ngoại liên kết với bảng doctors
+            // Khóa ngoại liên kết với bảng doctors
             $table->foreign('doctor_id')
                 ->references('id')
                 ->on('doctors')

@@ -10,7 +10,7 @@ class ContactSeeder extends Seeder
 {
     public function run(): void
     {
-        $faker = Faker::create('vi_VN'); // dữ liệu tiếng Việt
+        $faker = Faker::create('vi_VN'); 
 
         for ($i = 1; $i <= 10; $i++) {
             DB::table('contacts')->insert([
