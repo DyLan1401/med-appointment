@@ -42,6 +42,7 @@ function FormRegister() {
         setMessage("🎉 Đăng ký thành công! Đang chuyển hướng...");
         setTimeout(() => navigate("/login"), 1500);
       } else {  
+        
         setMessage(res.data.message || "Đăng ký thất bại!");
       }
     } catch (error) {

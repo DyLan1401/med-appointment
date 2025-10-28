@@ -2,11 +2,18 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../../api/axios";
 
+// ✅ Thêm import react-toastify
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 function FormLogin() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  // ===========================
+  // ✅ Hàm xử lý đăng nhập
+  // ===========================
   const handleLogin = async (e) => {
     e.preventDefault();
 
@@ -16,26 +23,50 @@ function FormLogin() {
         password,
       });
 
-      const { user, token } = response.data;
+      // ✅ Nhận dữ liệu từ backend (có role)
+      const { user, token, role } = response.data;
 
       // ✅ Lưu user + token vào localStorage
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("token", token);
 
-      // ✅ Gắn token vào header mặc định của axios (rất quan trọng)
+      // ✅ Gắn token vào header mặc định của axios
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-      alert("Đăng nhập thành công!");
-      navigate("/"); // chuyển trang chính
+      // ✅ Hiển thị thông báo thành công
+      toast.success("🎉 Đăng nhập thành công!", {
+        position: "top-center",
+        autoClose: 1500,
+      });
+
+      // ✅ Điều hướng theo role
+      setTimeout(() => {
+        if (role === "admin") {
+          navigate("/dashboard"); // 👉 Trang quản trị hệ thống
+        } else if (role === "doctor") {
+          navigate("/doctor/dashboard"); // 👉 Trang quản lý của bác sĩ
+        } else {
+          navigate("/"); // 👉 Trang người dùng bình thường
+        }
+      }, 1500);
     } catch (error) {
       console.error("❌ Lỗi đăng nhập:", error);
-      alert(
-        error.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại!"
+
+      // ✅ Hiển thị thông báo lỗi
+      toast.error(
+        error.response?.data?.message ||
+          "❌ Có lỗi xảy ra, vui lòng thử lại!",
+        {
+          position: "top-center",
+          autoClose: 3000,
+        }
       );
     }
   };
 
-  // 🧩 Thêm hàm xử lý đăng nhập với Google
+  // ===========================
+  // 🧩 Đăng nhập bằng Google
+  // ===========================
   const handleGoogleLogin = () => {
     window.location.href = "http://localhost:8000/auth/google/redirect";
   };
@@ -93,11 +124,13 @@ function FormLogin() {
             Đăng nhập với Google
           </button>
         </div>
+
         {/* 🔹 Nút đăng nhập bằng Facebook */}
         <div className="flex justify-center mt-2">
           <button
             onClick={() =>
-              (window.location.href = "http://localhost:8000/auth/facebook/redirect")
+              (window.location.href =
+                "http://localhost:8000/auth/facebook/redirect")
             }
             className="flex items-center justify-center w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-all"
           >
@@ -119,6 +152,9 @@ function FormLogin() {
           <button onClick={() => navigate("/register")}>Đăng ký ngay</button>
         </div>
       </div>
+
+      {/* ✅ Thêm container hiển thị toast */}
+      <ToastContainer />
     </div>
   );
 }
