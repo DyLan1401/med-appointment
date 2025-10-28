@@ -13,6 +13,16 @@ class Schedule extends Model
         'doctor_id', 'date', 'start_time', 'end_time', 'status'
     ];
 
+
+        // 🔹 Lấy lịch làm việc theo ID bác sĩ
+    public static function getByDoctorId($doctor_id)
+    {
+        return self::where('doctor_id', $doctor_id)
+            ->orderBy('date', 'asc')
+            ->orderBy('start_time', 'asc')
+            ->get();
+    }
+
  public function doctor()
 {
     return $this->belongsTo(Doctor::class);
