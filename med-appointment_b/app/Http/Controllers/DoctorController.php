@@ -24,7 +24,8 @@ class DoctorController extends Controller
             $query->where('specialization_id', $request->specialization_id);
         }
 
-        return response()->json($query->orderBy('id', 'asc')->get());
+//        return response()->json($query->orderBy('id', 'asc')->get());
+        return response()->json($query->paginate(8));
     }
 
     public function store(Request $request)
@@ -78,51 +79,6 @@ class DoctorController extends Controller
             'email' => $request->email,
             'phone' => $request->phone,
         ]);
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:100',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:6',
-            'specialization' => 'nullable|string',
-            'bio' => 'nullable|string',
-            'phone' => 'nullable|string',
-        ]);
-
-        try {
-            // 1️⃣ Tạo user có role = doctor
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'role' => 'doctor', // 🔥 Gán role cố định ở đây
-                'phone' => $request->phone,
-            ]);
-
-            // 2️⃣ Tạo hồ sơ bác sĩ liên kết user_id
-            $doctor = Doctor::create([
-                'user_id' => $user->id, // ✅ đúng cột foreign key
-                'specialization' => $request->specialization,
-                'status' => 'offline',
-                'bio' => $request->bio,
-            ]);
-
-            return response()->json([
-                'message' => 'Thêm bác sĩ thành công!',
-                'doctor' => $doctor->load('user'),
-            ], 201);
-        } catch (\Throwable $e) {
-            return response()->json([
-                'error' => 'Không thể tạo bác sĩ',
-                'detail' => $e->getMessage(),
-            ], 500);
-        }
-    }
->>>>>>> NguyenThanhLan/QuanliBacsi
-
         $doctor->update([
             'bio' => $request->bio,
             'specialization_id' => $request->specialization_id,
@@ -134,6 +90,10 @@ class DoctorController extends Controller
             'doctor' => $doctor->load(['user', 'specialization']),
         ]);
     }
+    /**
+     * Store a newly created resource in storage.
+     */
+
 
     public function destroy($id)
     {
@@ -291,68 +251,33 @@ class DoctorController extends Controller
 
     // Tìm kiếm bác sĩ theo tên hoặc chuyên khoa
     public function search(Request $request)
-{
-    $query = $request->input('query');
+    {
+        $query = $request->input('query');
 
-    if (!$query) {
-        return response()->json(['message' => 'Thiếu từ khóa tìm kiếm.'], 400);
-    }
+        if (!$query) {
+            return response()->json(['message' => 'Thiếu từ khóa tìm kiếm.'], 400);
+        }
 
-    $doctors = Doctor::with(['user', 'specialization'])
-        ->where(function ($q) use ($query) {
-            $q->whereHas('user', function ($q2) use ($query) {
-                $q2->where('name', 'like', "%$query%");
+        $doctors = Doctor::with(['user', 'specialization'])
+            ->where(function ($q) use ($query) {
+                $q->whereHas('user', function ($q2) use ($query) {
+                    $q2->where('name', 'like', "%$query%");
+                })
+                    ->orWhereHas('specialization', function ($q2) use ($query) {
+                        $q2->where('name', 'like', "%$query%");
+                    });
             })
-            ->orWhereHas('specialization', function ($q2) use ($query) {
-                $q2->where('name', 'like', "%$query%");
-            });
-        })
-        ->get();
+            ->get();
 
-    if ($doctors->isEmpty()) {
-        return response()->json(['message' => 'Không tìm thấy bác sĩ phù hợp.'], 404);
+        if ($doctors->isEmpty()) {
+            return response()->json(['message' => 'Không tìm thấy bác sĩ phù hợp.'], 404);
+        }
+
+        return response()->json($doctors);
     }
-
-    return response()->json($doctors);
-    $request->validate([
-        'name' => 'required|string|max:100',
-        'email' => 'required|email|unique:users,email,' . $user->id,
-        'specialization' => 'nullable|string',
-        'bio' => 'nullable|string',
-        'phone' => 'nullable|string',
-    ]);
-
-    $user->update([
-        'name' => $request->name,
-        'email' => $request->email,
-        'phone' => $request->phone,
-        'role' => 'doctor', // giữ nguyên role nếu user thuộc nhóm bác sĩ
-
-    ]);
-
-    $doctor->update([
-        'specialization' => $request->specialization,
-        'bio' => $request->bio,
-        'status' => $request->status ?? $doctor->status,
-    ]);
-
-    return response()->json([
-        'message' => 'Doctor updated successfully',
-        'doctor' => $doctor->load('user'),
-    ]);
-    }
-
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
-    {
-        $doctor = Doctor::findOrFail($id);
-        $user = $doctor->user;
-        $user->delete(); // cascade xóa doctor nhờ foreign key
 
-        return response()->json(['message' => 'Đã xóa bác sĩ và tài khoản liên quan!']);
-    }
 
-}
 }

@@ -23,7 +23,7 @@ class PostController extends Controller
               ->orWhere('content', 'like', "%{$keyword}%");
     }
 
-    return response()->json($query->paginate(20));
+    return response()->json($query->paginate(6));
     }
 
     /**
@@ -98,7 +98,7 @@ class PostController extends Controller
     $post->update($validated);
 
     return response()->json(['message' => 'Post updated successfully', 'data' => $post], 200);
-    
+
     }
 
     /**
@@ -110,6 +110,6 @@ class PostController extends Controller
         $post->delete();
 
         return response()->json(['message' => 'Post deleted successfully'], 200);
-    
+
     }
 }

@@ -18,7 +18,7 @@ export default function Categories() {
 
     const loadCategories = async (page = 1) => {
         const res = await API.get(`/categories?search=${search}&page=${page}`);
-        setCategories(res.data.data); // Dữ liệu nằm trong data.data do Laravel paginate
+        setCategories(res.data); // Dữ liệu nằm trong data.data do Laravel paginate
         setPagination({
             current_page: res.data.current_page,
             last_page: res.data.last_page,
