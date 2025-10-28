@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
-
+use Exception;
 class ScheduleController extends Controller
 {
     /**
@@ -30,7 +30,7 @@ public function index()
      */
     public function show($id)
     {
-      
+         
     }
 
     /**
@@ -49,5 +49,33 @@ public function index()
     public function destroy(Schedule $schedule)
     {
        
+    }
+
+    // 🧠 Lấy lịch làm việc theo doctor_id
+    public function getScheduleById($doctor_id)
+    {
+        try {
+            $schedules = Schedule::getByDoctorId($doctor_id);
+
+            if ($schedules->isEmpty()) {
+                return response()->json([
+                    'status' => false,
+                    'msg' => "Không tìm thấy lịch làm việc cho bác sĩ ID: {$doctor_id}",
+                    'data' => []
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => true,
+                'msg' => 'Lấy lịch làm việc thành công!',
+                'data' => $schedules
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Đã xảy ra lỗi khi truy vấn dữ liệu!',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

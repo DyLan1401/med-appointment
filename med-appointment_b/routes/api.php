@@ -21,7 +21,7 @@ use App\Http\Controllers\NoteController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\PatientHistoryController;
-
+use App\Http\Controllers\ScheduleController;
 
 // Banner
 Route::apiResource('banners', BannerController::class);
@@ -66,6 +66,9 @@ Route::delete('/users/certificates/{id}', [UserController::class, 'deleteCertifi
 Route::get('/departments', [DepartmentController::class, 'index']);
 Route::get('/departments/search', [DepartmentController::class, 'search']);
 Route::apiResource('departments', DepartmentController::class);
+
+//lấy lịch làm việc bác sĩ theo id
+Route::get('/schedules/getbyid/{doctor_id}', [ScheduleController::class, 'getScheduleById']);
 
 // CONTACTS
 Route::apiResource('contacts', ContactController::class);
