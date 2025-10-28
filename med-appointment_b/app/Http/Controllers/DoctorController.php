@@ -44,47 +44,46 @@ class DoctorController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-   public function store(Request $request)
-{
-        \Log::info('Doctor store data:', $request->all());
-
-    $request->validate([
-        'name' => 'required|string|max:100',
-        'email' => 'required|email|unique:users',
-        'password' => 'required|min:6',
-        'specialization' => 'nullable|string',
-        'bio' => 'nullable|string',
-        'phone' => 'nullable|string'
-    ]);
-
-    try {
-        $user = \App\Models\User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt($request->password),
-            'role' => 'doctor',
-            'phone' => $request->phone,
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:100',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:6',
+            'specialization' => 'nullable|string',
+            'bio' => 'nullable|string',
+            'phone' => 'nullable|string',
         ]);
 
-        // ✅ Debug: kiểm tra user có tạo được không
-        // dd('user_created', $user->id);
+        try {
+            // 1️⃣ Tạo user có role = doctor
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'role' => 'doctor', // 🔥 Gán role cố định ở đây
+                'phone' => $request->phone,
+            ]);
 
-        $doctor = \App\Models\Doctor::create([
-            'id' => $user->id,
-            'specialization' => $request->specialization,
-            'status' => 'offline',
-            'bio' => $request->bio,
-        ]);
+            // 2️⃣ Tạo hồ sơ bác sĩ liên kết user_id
+            $doctor = Doctor::create([
+                'user_id' => $user->id, // ✅ đúng cột foreign key
+                'specialization' => $request->specialization,
+                'status' => 'offline',
+                'bio' => $request->bio,
+            ]);
 
-        return response()->json([
-            'message' => 'Doctor created successfully',
-            'doctor' => $doctor->load('user')
-        ]);
-    } catch (\Throwable $e) {
-        dd('error', $e->getMessage());
+            return response()->json([
+                'message' => 'Thêm bác sĩ thành công!',
+                'doctor' => $doctor->load('user'),
+            ], 201);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Không thể tạo bác sĩ',
+                'detail' => $e->getMessage(),
+            ], 500);
+        }
     }
-}
-
 
     /**
      * Display the specified resource.
@@ -123,6 +122,8 @@ class DoctorController extends Controller
         'name' => $request->name,
         'email' => $request->email,
         'phone' => $request->phone,
+        'role' => 'doctor', // giữ nguyên role nếu user thuộc nhóm bác sĩ
+
     ]);
 
     $doctor->update([
@@ -140,13 +141,13 @@ class DoctorController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Doctor $doctor,$id)
+    public function destroy($id)
     {
-        $user = User::findOrFail($id);
-        $user->delete();
+        $doctor = Doctor::findOrFail($id);
+        $user = $doctor->user;
+        $user->delete(); // cascade xóa doctor nhờ foreign key
 
-        return response()->json(['message' => 'Doctor deleted successfully']);
-    
-    
+        return response()->json(['message' => 'Đã xóa bác sĩ và tài khoản liên quan!']);
     }
+
 }
