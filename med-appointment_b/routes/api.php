@@ -11,7 +11,7 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\CategoryPostController;
 use App\Http\Controllers\PostController;
-use App\Http\Controllers\Api\ChangePasswordController;
+use App\Http\Controllers\ChangePasswordController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\SocialAuthController;
@@ -22,6 +22,19 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\PatientHistoryController;
 use App\Http\Controllers\ScheduleController;
+
+// use App\Http\Controllers\Api\Auth\SocialAuthController;
+use App\Http\Controllers\SocialAuthController;
+use App\Http\Controllers\BannerController;
+
+Route::apiResource('banners', BannerController::class);
+
+// đăng nhập với google
+Route::get('/auth/google/redirect', [SocialAuthController::class, 'redirectToGoogle']);
+Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
+use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\NoteController;
+
 
 // Banner
 Route::apiResource('banners', BannerController::class);
@@ -109,6 +122,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // Tùy chọn xóa yêu thích bằng body (frontend LikeDoctor.jsx)
     Route::post('/favorites/remove', [FavoriteController::class, 'destroy']);
     Route::get('/patient/history', [PatientHistoryController::class, 'index']);
+    
+    Route::middleware('auth:sanctum')->post('/logout', [UserController::class, 'logout']);
+
+});
 
     Route::get('/user', [UserController::class, 'me']);
 });

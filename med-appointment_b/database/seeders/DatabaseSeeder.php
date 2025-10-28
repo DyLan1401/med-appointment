@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -29,5 +30,14 @@ class DatabaseSeeder extends Seeder
             InvoiceSeeder::class,
             FeedbackSeeder::class,
         ]);
+        // Tạo tài khoản admin cố định
+         User::updateOrCreate(
+        ['email' => 'admin@gmail.com'],
+        [
+            'name' => 'admin',
+            'password' => Hash::make('admin123'),
+            'role' => 'admin',
+        ]
+    );
     }
 }
