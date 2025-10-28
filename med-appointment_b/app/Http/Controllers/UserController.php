@@ -156,30 +156,32 @@ class UserController extends Controller
 
     // API Đăng nhập
     public function login(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|string|min:6',
-        ]);
+{
+    $request->validate([
+        'email' => 'required|email',
+        'password' => 'required|string|min:6',
+    ]);
 
-        $user = User::where('email', $request->email)->first();
+    $user = User::where('email', $request->email)->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Email hoặc mật khẩu không chính xác!',
-            ], 401);
-        }
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-
+    if (!$user || !Hash::check($request->password, $user->password)) {
         return response()->json([
-            'success' => true,
-            'message' => 'Đăng nhập thành công!',
-            'user' => $user,
-            'token' => $token,
-        ]);
+            'success' => false,
+            'message' => 'Email hoặc mật khẩu không chính xác!',
+        ], 401);
     }
+
+    $token = $user->createToken('auth_token')->plainTextToken;
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Đăng nhập thành công!',
+        'user' => $user,
+        'token' => $token,
+        'role' => $user->role, // ✅ thêm để frontend biết role
+    ]);
+}
+
 
     // API Đăng xuất
     public function logout(Request $request)

@@ -53,36 +53,27 @@ class User extends Authenticatable
     // 👨‍⚕️ Quan hệ với bác sĩ
     public function doctor()
     {
-        return $this->hasOne(Doctor::class, 'user_id');
+        return $this->hasOne(Doctor::class);
     }
 
-    // 🧍‍♂️ Quan hệ với bệnh nhân (rất quan trọng để tránh lỗi foreign key)
+
     public function patient()
     {
-        // Chỉ định khóa ngoại để Eloquent hiểu đúng cấu trúc
-        return $this->hasOne(\App\Models\Patient::class, 'user_id', 'id');
+        return $this->hasOne(Patient::class, 'id');
     }
 
-    
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class, 'user_id');
+    }
+
     public function posts()
     {
         return $this->hasMany(Post::class, 'author_id');
     }
 
-    // 🧾 Nhật ký hoạt động
     public function activityLogs()
     {
         return $this->hasMany(ActivityLog::class, 'user_id');
-    }
-
-    // 💖 Danh sách yêu thích (bệnh nhân → favorites)
-    public function favorites()
-    {
-        return $this->hasMany(\App\Models\Favorite::class, 'patient_id', 'id');
-    }
-
-    public function feedbacks()
-    {
-    return $this->hasMany(Feedback::class);
     }
 }

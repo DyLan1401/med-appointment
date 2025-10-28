@@ -49,7 +49,7 @@ export default function ManagerDoctor() {
       if (search.name) params.name = search.name;
       if (search.specialization) params.specialization = search.specialization;
       const res = await API.get("/doctors", { params });
-      setDoctors(res.data);
+      setDoctors(res.data.data ||res.data);
     } catch (err) {
       console.error(err);
       alert("Không thể tải danh sách bác sĩ!");

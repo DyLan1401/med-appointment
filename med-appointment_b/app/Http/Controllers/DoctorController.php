@@ -24,7 +24,8 @@ class DoctorController extends Controller
             $query->where('specialization_id', $request->specialization_id);
         }
 
-        return response()->json($query->orderBy('id', 'asc')->get());
+//        return response()->json($query->orderBy('id', 'asc')->get());
+        return response()->json($query->paginate(8));
     }
 
     public function store(Request $request)
@@ -78,7 +79,6 @@ class DoctorController extends Controller
             'email' => $request->email,
             'phone' => $request->phone,
         ]);
-
         $doctor->update([
             'bio' => $request->bio,
             'specialization_id' => $request->specialization_id,
@@ -90,6 +90,10 @@ class DoctorController extends Controller
             'doctor' => $doctor->load(['user', 'specialization']),
         ]);
     }
+    /**
+     * Store a newly created resource in storage.
+     */
+
 
     public function destroy($id)
     {
@@ -247,28 +251,33 @@ class DoctorController extends Controller
 
     // Tìm kiếm bác sĩ theo tên hoặc chuyên khoa
     public function search(Request $request)
-{
-    $query = $request->input('query');
+    {
+        $query = $request->input('query');
 
-    if (!$query) {
-        return response()->json(['message' => 'Thiếu từ khóa tìm kiếm.'], 400);
-    }
+        if (!$query) {
+            return response()->json(['message' => 'Thiếu từ khóa tìm kiếm.'], 400);
+        }
 
-    $doctors = Doctor::with(['user', 'specialization'])
-        ->where(function ($q) use ($query) {
-            $q->whereHas('user', function ($q2) use ($query) {
-                $q2->where('name', 'like', "%$query%");
+        $doctors = Doctor::with(['user', 'specialization'])
+            ->where(function ($q) use ($query) {
+                $q->whereHas('user', function ($q2) use ($query) {
+                    $q2->where('name', 'like', "%$query%");
+                })
+                    ->orWhereHas('specialization', function ($q2) use ($query) {
+                        $q2->where('name', 'like', "%$query%");
+                    });
             })
-            ->orWhereHas('specialization', function ($q2) use ($query) {
-                $q2->where('name', 'like', "%$query%");
-            });
-        })
-        ->get();
+            ->get();
 
-    if ($doctors->isEmpty()) {
-        return response()->json(['message' => 'Không tìm thấy bác sĩ phù hợp.'], 404);
+        if ($doctors->isEmpty()) {
+            return response()->json(['message' => 'Không tìm thấy bác sĩ phù hợp.'], 404);
+        }
+
+        return response()->json($doctors);
     }
+    /**
+     * Remove the specified resource from storage.
+     */
 
-    return response()->json($doctors);
-}
+
 }
