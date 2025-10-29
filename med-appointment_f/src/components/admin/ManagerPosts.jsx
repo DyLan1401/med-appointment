@@ -30,7 +30,7 @@ export default function Posts() {
         const res = await API.get(`/posts?search=${search}`);
         console.log("Kết quả API posts:", res.data);
 
-        setPosts(res.data.data);
+        setPosts(res.data.data || res.data);
         setPagination({
             current_page: res.data.current_page,
             last_page: res.data.last_page,
@@ -40,7 +40,7 @@ export default function Posts() {
     const loadCategories = async () => {
         try {
             const res = await getCategories();
-            setCategories(res.data);
+            setCategories(Array.isArray(res.data) ? res.data : res.data.data || []);
         } catch (err) {
             console.error("Lỗi khi tải danh mục:", err);
         }

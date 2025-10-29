@@ -18,7 +18,7 @@ export default function Categories() {
 
     const loadCategories = async (page = 1) => {
         const res = await API.get(`/categories?search=${search}&page=${page}`);
-        setCategories(res.data); // Dữ liệu nằm trong data.data do Laravel paginate
+        setCategories(Array.isArray(res.data) ? res.data : res.data.data || []);
         setPagination({
             current_page: res.data.current_page,
             last_page: res.data.last_page,
@@ -101,8 +101,8 @@ export default function Categories() {
                     <button
                         type="submit"
                         className={`px-6 py-2 rounded-md text-white font-medium ${editingId
-                                ? "bg-yellow-500 hover:bg-yellow-600"
-                                : "bg-blue-600 hover:bg-blue-700"
+                            ? "bg-yellow-500 hover:bg-yellow-600"
+                            : "bg-blue-600 hover:bg-blue-700"
                             }`}
                     >
                         {editingId ? "Cập nhật" : "Thêm mới"}
