@@ -95,11 +95,7 @@ function FormLogin() {
     }
   };
 
-  // 🧩 Hàm đăng nhập với Google
-<<<<<<< HEAD
-=======
 
->>>>>>> origin/master
   // ===========================
   // 🧩 Đăng nhập bằng Google
   // ===========================
@@ -165,8 +161,8 @@ function FormLogin() {
         <div className="flex justify-center mt-2">
           <button
             onClick={() =>
-              (window.location.href =
-                "http://localhost:8000/auth/facebook/redirect")
+            (window.location.href =
+              "http://localhost:8000/auth/facebook/redirect")
             }
             className="flex items-center justify-center w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-all"
           >
