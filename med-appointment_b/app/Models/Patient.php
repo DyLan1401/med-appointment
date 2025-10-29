@@ -9,10 +9,8 @@ class Patient extends Model
 {
     use HasFactory;
 
-    
     protected $table = 'patients';
 
-    // ✅ 2. Các cột có thể gán hàng loạt
     protected $fillable = [
         'user_id',
         'date_of_birth',
@@ -23,41 +21,44 @@ class Patient extends Model
         'facebook_id',
     ];
 
-    // ✅ 3. Nếu bảng không có timestamps (created_at, updated_at)
     public $timestamps = false;
 
-    // ✅ 4. Mối quan hệ với bảng Users
+    // 🔹 Liên kết với bảng users
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
-    // ✅ 5. Quan hệ với bảng Appointments
+    // 🔹 Lịch hẹn
     public function appointments()
     {
         return $this->hasMany(Appointment::class, 'patient_id', 'id');
     }
 
-    // ✅ 6. Quan hệ với bảng Feedbacks
+    // 🔹 Phản hồi — ⚠️ Sửa lại theo user_id thay vì patient_id
     public function feedbacks()
     {
-        return $this->hasMany(Feedback::class, 'patient_id', 'id');
+        return $this->hasMany(Feedback::class, 'user_id', 'user_id');
     }
 
-    // ✅ 7. Quan hệ với bảng Favorites
+    // 🔹 Yêu thích
     public function favorites()
     {
-        return $this->hasMany(Favorite::class, 'patient_id', 'id');
+    return $this->hasMany(Favorite::class, 'user_id', 'user_id');
     }
 
-    // ✅ 8. (Tùy chọn) Xóa tất cả bản ghi liên quan khi xóa bệnh nhân
+    // 🔹 Khi xóa bệnh nhân, tự động xóa quan hệ liên quan
     protected static function booted()
     {
         static::deleting(function ($patient) {
-            // Xóa lịch hẹn, phản hồi và yêu thích khi bệnh nhân bị xóa
             $patient->appointments()->delete();
             $patient->feedbacks()->delete();
             $patient->favorites()->delete();
+
+            // Xóa luôn user liên kết nếu có
+            if ($patient->user) {
+                $patient->user->delete();
+            }
         });
     }
 }

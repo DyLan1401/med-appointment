@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react"; 
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, AlertTriangle, Stethoscope } from "lucide-react";
 import heart from "../../assets/heart.png";
 import avatarDefault from "../../assets/avatar.jpg";
 import API from "../../api/axios";
+
+/* ✅ Thêm ChatBot */
+import ChatBot from "./ChatBot";
 
 export default function Section1() {
   const navigate = useNavigate();
@@ -419,6 +422,9 @@ export default function Section1() {
           )}
         </AnimatePresence>
       </div>
+
+      {/* ✅ ChatBot luôn hiển thị */}
+      <ChatBot />
     </motion.div>
   );
 }
