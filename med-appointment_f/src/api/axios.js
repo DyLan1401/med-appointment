@@ -22,7 +22,7 @@ import axios from "axios";
 // ✅ Tạo một instance axios riêng biệt cho API
 const API = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000/api",
-  timeout: 15000, // ⏱️ Giới hạn thời gian chờ (15 giây)
+  timeout: 30000, // ⏱️ Giới hạn thời gian chờ (15 giây)
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
