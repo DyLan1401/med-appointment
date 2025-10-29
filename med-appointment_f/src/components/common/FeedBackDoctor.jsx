@@ -16,7 +16,7 @@ import { useParams, useLocation } from "react-router-dom";
 import API from "../../api/axios";
 import avatarDefault from "../../assets/avatar.jpg";
 
-export default function FeedBack() {
+export default function FeedBackDoctor() {
     const { id } = useParams();
     const location = useLocation();
     const doctorFromState = location.state?.doctor || null;
@@ -214,11 +214,10 @@ export default function FeedBack() {
                                 <Star
                                     key={index}
                                     size={25}
-                                    className={`cursor-pointer transition-all ${
-                                        index <= (hover || rating)
+                                    className={`cursor-pointer transition-all ${index <= (hover || rating)
                                             ? "fill-yellow-400 text-yellow-400 scale-110"
                                             : "text-gray-300"
-                                    }`}
+                                        }`}
                                     onClick={() => setRating(index)}
                                     onMouseEnter={() => setHover(index)}
                                     onMouseLeave={() => setHover(0)}
@@ -302,9 +301,8 @@ export default function FeedBack() {
             {/* Toast */}
             {toast && (
                 <div
-                    className={`fixed bottom-5 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-xl text-white shadow-lg flex items-center gap-2 animate-slide-up ${
-                        toast.type === "success" ? "bg-green-500" : "bg-red-500"
-                    }`}
+                    className={`fixed bottom-5 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-xl text-white shadow-lg flex items-center gap-2 animate-slide-up ${toast.type === "success" ? "bg-green-500" : "bg-red-500"
+                        }`}
                 >
                     {toast.type === "success" ? (
                         <CheckCircle size={20} />

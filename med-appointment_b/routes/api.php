@@ -22,19 +22,12 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\PatientHistoryController;
 use App\Http\Controllers\ScheduleController;
-<<<<<<< HEAD
+use App\Http\Controllers\PostFeedbackController;
 
 
-
-// đăng nhập với google
-Route::get('/auth/google/redirect', [SocialAuthController::class, 'redirectToGoogle']);
-Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
-
-=======
 // Đăng nhập với Google
 Route::get('/auth/google/redirect', [SocialAuthController::class, 'redirectToGoogle']);
 Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
->>>>>>> origin/master
 
 // Banner
 Route::apiResource('banners', BannerController::class);
@@ -104,7 +97,6 @@ Route::post('/register/verify-otp', [UserController::class, 'verifyOtp']);
 Route::get('/favorites/{user_id?}', [FavoriteController::class, 'index']); // Cho khách hoặc user khác
 Route::get('/favorites/doctor/{doctor_id}', [FavoriteController::class, 'getDoctor']); // Chi tiết bác sĩ yêu thích
 
-<<<<<<< HEAD
 // Lấy chi tiết 1 bác sĩ yêu thích 
 Route::get('/favorites/doctor/{doctor_id}', [FavoriteController::class, 'getDoctor']);
 
@@ -114,6 +106,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile', [UserController::class, 'profile']);
     Route::post('/logout', [UserController::class, 'logout']);
     Route::post('/change-password', [UserController::class, 'changePassword']);
+
+//Quản lí phản hồi bài viết
+    Route::get('/posts/{id}/feedbacks', [PostFeedbackController::class, 'index']);
+    Route::post('/posts/{id}/feedbacks', [PostFeedbackController::class, 'store']);
+    Route::put('/feedbacks/{id}', [PostFeedbackController::class, 'update']);
+    Route::delete('/feedbacks/{id}', [PostFeedbackController::class, 'destroy']);
 
     // Quản lý bác sĩ yêu thích
     Route::post('/favorites', [FavoriteController::class, 'store']);
@@ -133,12 +131,10 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::get('/user/{id}', [UserController::class, 'getUserById']);
 
 // Gửi ghi chú cho bệnh nhân
-=======
 // Notes (Ghi chú cho bệnh nhân)
 // Route::get('/notes/{patientId}', [NoteController::class, 'index']);
 // Route::post('/notes', [NoteController::class, 'store']);
 // Route::delete('/notes/{id}', [NoteController::class, 'destroy']);
->>>>>>> origin/master
 Route::get('/notes/{patient}', [NoteController::class, 'index']);
 Route::post('/notes', [NoteController::class, 'store']);
 Route::put('/notes/{note}/read', [NoteController::class, 'markAsRead']);

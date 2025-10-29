@@ -11,7 +11,7 @@ import Header2 from "./components/common/Header2";
 import Section1 from "./components/common/section1";
 import Section2 from "./components/common/Section2";
 import MiniMap from "./components/common/maps";
-import Footer from "./components/common/Footer";  
+import Footer from "./components/common/Footer";
 import FormService from "./components/common/FormService";
 import PatientNotifications from "./components/common/PatientNotifications";
 
@@ -50,7 +50,8 @@ import ManagerService from "./components/admin/ManagerService";
 import ManagerCategoriesPost from "./components/admin/ManagerCategoriesPost";
 import ManagerPosts from "./components/admin/ManagerPosts";
 import ManagerHoaDon from "./components/admin/ManagerHoaDon";
-import ManagerFeedBack from "./components/admin/ManagerFeedBack";
+import ManagerFeedBackDoctor from "./components/admin/ManagerFeedBackDoctor";
+import ManagerFeedBackPost from "./components/admin/ManagerFeedBackPost";
 import ManagerContact from "./components/admin/ManagerContact";
 import ManagerBanners from "./components/admin/ManagerBanner";
 import ManagerWork from "./components/admin/ManagerWork";
@@ -59,16 +60,17 @@ import BHYTStatistics from "./components/admin/BHYTStatistics";
 import TopDoctors from "./components/doctor/TopDoctors";
 
 /* Thêm mới component hiển thị ghi chú theo ID */
-import PatientNotes from "./components/common/PatientNotes"; 
+import PatientNotes from "./components/common/PatientNotes";
 
 /* Thêm mới Feedback (bước 3) */
-import Feedback from "./components/common/FeedBack"; 
+import FeedbackDoctor from "./components/common/FeedBackDoctor";
 
 /* Thêm ChatBot nổi 💬 */
 import ChatBot from "./components/common/ChatBot";
 
 import PaymentSuccess from "./components/payment/paysuccess";
 import PaymentFailedV2 from "./components/payment/paycancel";
+import FeedBackDoctor from "./components/common/FeedBackDoctor";
 
 export default function App() {
   return (
@@ -115,12 +117,12 @@ export default function App() {
 
         {/* Thêm Route Feedback */}
         <Route
-          path="/doctor/:id/feedback"
+          path="/doctor/:id/feedbackdoctor"
           element={
             <div className="w-full min-h-screen bg-gray-50">
               <Navbar />
               <div className="pt-24 px-6">
-                <Feedback />
+                <FeedBackDoctor />
               </div>
               <Footer />
             </div>
@@ -135,7 +137,7 @@ export default function App() {
               <Navbar />
               <div className="pt-24 px-6">
                 <DoctorDetail />
-                <Feedback />
+                <FeedbackDoctor />
               </div>
               <Footer />
             </div>
@@ -218,7 +220,8 @@ export default function App() {
           <Route path="categories" element={<ManagerCategoriesPost />} />
           <Route path="posts" element={<ManagerPosts />} />
           <Route path="invoices" element={<ManagerHoaDon />} />
-          <Route path="feedbacks" element={<ManagerFeedBack />} />
+          <Route path="feedbackdoctors" element={<ManagerFeedBackDoctor />} />
+          <Route path="feedbackposts" element={<ManagerFeedBackPost />} />
           <Route path="contacts" element={<ManagerContact />} />
           <Route path="banners" element={<ManagerBanners />} />
           <Route path="works" element={<ManagerWork />} />
