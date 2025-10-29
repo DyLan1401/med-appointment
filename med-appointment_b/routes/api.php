@@ -108,10 +108,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/change-password', [UserController::class, 'changePassword']);
 
 //Quản lí phản hồi bài viết
-    Route::get('/posts/{id}/feedbacks', [PostFeedbackController::class, 'index']);
-    Route::post('/posts/{id}/feedbacks', [PostFeedbackController::class, 'store']);
-    Route::put('/feedbacks/{id}', [PostFeedbackController::class, 'update']);
-    Route::delete('/feedbacks/{id}', [PostFeedbackController::class, 'destroy']);
+// ✅ Quản lí phản hồi bài viết
+Route::prefix('feedbacks')->group(function () {
+    Route::get('/', [PostFeedbackController::class, 'index']);      // Lấy toàn bộ feedback (cho trang quản lý)
+    Route::put('/{id}', [PostFeedbackController::class, 'update']); // Cập nhật feedback
+    Route::delete('/{id}', [PostFeedbackController::class, 'destroy']); // Xóa feedback
+});
+
+// ✅ Route cho từng bài viết
+Route::get('/posts/{id}/feedbacks', [PostFeedbackController::class, 'index']); // lấy feedback theo post
+Route::post('/posts/{id}/feedbacks', [PostFeedbackController::class, 'store']); // thêm feedback mới
 
     // Quản lý bác sĩ yêu thích
     Route::post('/favorites', [FavoriteController::class, 'store']);

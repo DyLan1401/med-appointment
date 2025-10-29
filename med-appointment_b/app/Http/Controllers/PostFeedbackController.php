@@ -7,12 +7,19 @@ use Illuminate\Http\Request;
 
 class PostFeedbackController extends Controller
 {
-    public function index($postId)
+    // ✅ Nếu có postId → lấy feedback của bài viết đó, nếu không → lấy tất cả
+    public function index($postId = null)
     {
-        $feedbacks = PostFeedback::with('user')
-            ->where('post_id', $postId)
-            ->latest()
-            ->get();
+        if ($postId) {
+            $feedbacks = PostFeedback::with('user')
+                ->where('post_id', $postId)
+                ->latest()
+                ->get();
+        } else {
+            $feedbacks = PostFeedback::with(['user', 'post'])
+                ->latest()
+                ->get();
+        }
 
         return response()->json($feedbacks);
     }
@@ -36,41 +43,37 @@ class PostFeedbackController extends Controller
             'feedback' => $feedback->load('user'),
         ]);
     }
+
     public function update(Request $request, $id)
-{
-    $feedback = PostFeedback::findOrFail($id);
+    {
+        $feedback = PostFeedback::findOrFail($id);
 
-    // 🔐 Chỉ cho phép sửa feedback của chính mình
-    if ($feedback->user_id !== auth()->id()) {
-        return response()->json(['message' => 'Bạn không có quyền sửa feedback này.'], 403);
+        if ($feedback->user_id !== auth()->id()) {
+            return response()->json(['message' => 'Bạn không có quyền sửa feedback này.'], 403);
+        }
+
+        $request->validate([
+            'content' => 'required|string|max:1000',
+        ]);
+
+        $feedback->update(['content' => $request->content]);
+
+        return response()->json([
+            'message' => 'Feedback đã được cập nhật!',
+            'feedback' => $feedback->load('user'),
+        ]);
     }
 
-    $request->validate([
-        'content' => 'required|string|max:1000',
-    ]);
+    public function destroy($id)
+    {
+        $feedback = PostFeedback::findOrFail($id);
 
-    $feedback->update([
-        'content' => $request->content,
-    ]);
+        if ($feedback->user_id !== auth()->id()) {
+            return response()->json(['message' => 'Bạn không có quyền xóa feedback này.'], 403);
+        }
 
-    return response()->json([
-        'message' => 'Feedback đã được cập nhật!',
-        'feedback' => $feedback->load('user'),
-    ]);
-}
+        $feedback->delete();
 
-public function destroy($id)
-{
-    $feedback = PostFeedback::findOrFail($id);
-
-    // 🔐 Chỉ cho phép xóa feedback của chính mình
-    if ($feedback->user_id !== auth()->id()) {
-        return response()->json(['message' => 'Bạn không có quyền xóa feedback này.'], 403);
+        return response()->json(['message' => 'Đã xóa feedback thành công!']);
     }
-
-    $feedback->delete();
-
-    return response()->json(['message' => 'Đã xóa feedback thành công!']);
-}
-
 }
