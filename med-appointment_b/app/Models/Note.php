@@ -17,11 +17,13 @@ class Note extends Model
         'is_read',
     ];
 
-    public function patient() {
-        return $this->belongsTo(Patient::class);
+    public function admin()
+    {
+        return $this->belongsTo(User::class, 'admin_id');
     }
 
-    public function admin() {
-        return $this->belongsTo(User::class, 'admin_id');
+    public function patient()
+    {
+        return $this->belongsTo(Patient::class, 'patient_id');
     }
 }

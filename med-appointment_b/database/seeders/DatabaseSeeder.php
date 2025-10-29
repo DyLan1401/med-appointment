@@ -29,6 +29,7 @@ class DatabaseSeeder extends Seeder
             BannerSeeder::class,
             InvoiceSeeder::class,
             FeedbackSeeder::class,
+            ChatbotMessageSeeder::class,
         ]);
         // Tạo tài khoản admin cố định
          User::updateOrCreate(
