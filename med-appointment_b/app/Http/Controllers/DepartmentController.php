@@ -43,7 +43,7 @@ class DepartmentController extends Controller
         ]);
     }
 
-    // 🟠 Tạo mới
+    // Tạo mới
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -59,7 +59,7 @@ class DepartmentController extends Controller
         ], 201);
     }
 
-    // 🔵 Xem chi tiết
+    // Xem chi tiết
     public function show($id)
     {
         $department = Department::find($id);
@@ -71,7 +71,7 @@ class DepartmentController extends Controller
         return response()->json($department);
     }
 
-    // 🟣 Cập nhật
+    // Cập nhật
     public function update(Request $request, $id)
     {
         $department = Department::find($id);
@@ -95,7 +95,7 @@ class DepartmentController extends Controller
         ]);
     }
 
-    // 🔴 Xóa
+    // Xóa
     public function destroy($id)
     {
         $department = Department::find($id);

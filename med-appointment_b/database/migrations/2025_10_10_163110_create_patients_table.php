@@ -8,15 +8,14 @@ return new class extends Migration {
     public function up(): void {
         Schema::create('patients', function (Blueprint $table) {
             $table->id();
-               $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->date('date_of_birth')->nullable();
             $table->enum('gender', ['male', 'female', 'other'])->nullable();
             $table->string('address', 255)->nullable();
             $table->string('health_insurance', 255)->nullable();
             $table->string('google_id', 255)->nullable();
             $table->string('facebook_id', 255)->nullable();
-
-            $table->foreign('id')->references('id')->on('users')->onDelete('cascade');
+            $table->timestamps();
         });
     }
 
@@ -24,4 +23,3 @@ return new class extends Migration {
         Schema::dropIfExists('patients');
     }
 };
-
