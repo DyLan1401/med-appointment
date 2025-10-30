@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-
+import API from "../../api/axios";
 export default function ManagerChuyenKhoa() {
   const [departments, setDepartments] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -76,7 +76,7 @@ export default function ManagerChuyenKhoa() {
           description: formData.description,
         });
       } else {
-        res = await axios.post(API_URL, {
+        res = await API.post(`/departments`, {
           name: formData.name,
           description: formData.description,
         });

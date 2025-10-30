@@ -14,6 +14,11 @@ class Appointment extends Model
         'patient_id', 'doctor_id', 'service_id',
         'appointment_date', 'status', 'notes'
     ];
+
+    protected $casts = [
+    'appointment_date' => 'datetime',
+];
+
 public static function getAll()
 {
     return DB::table('appointments')
@@ -143,6 +148,43 @@ public static function getAll()
 
         $writer->close();
         return $filePath;
+    }
+
+    /** 🔹 Đếm lịch hẹn đang chờ */
+    public static function getPendingCount()
+    {
+        return self::where('status', 'pending')->count();
+    }
+
+    /** 🔹 Đếm lịch hẹn đã xác nhận hoặc hoàn thành */
+    public static function getConfirmedCount()
+    {
+        return self::whereIn('status', ['confirmed', 'completed'])->count();
+    }
+
+
+     /** 🔹 Scope: lấy lịch hẹn gần đây cùng bác sĩ & dịch vụ */
+    public function scopeRecentWithRelations($query, $limit = 5)
+    {
+        return $query->with(['doctor.user', 'service'])
+            ->latest('appointment_date')
+            ->take($limit);
+    }
+      /** 🔹 Hàm: trả về danh sách lịch hẹn đã xử lý sẵn dữ liệu (để controller chỉ cần gọi) */
+    public static function getRecentAppointments($limit = 5)
+    {
+        return self::recentWithRelations($limit)
+            ->get()
+            ->map(function ($a) {
+                return [
+                    'appointment_date' => $a->appointment_date
+                        ? $a->appointment_date->format('d/m/Y H:i')
+                        : null,
+                    'status' => $a->status,
+                    'doctor_name' => optional($a->doctor->user)->name ?? 'Chưa có bác sĩ',
+                    'service_name' => optional($a->service)->name ?? 'Không xác định',
+                ];
+            });
     }
 
     public function patient()

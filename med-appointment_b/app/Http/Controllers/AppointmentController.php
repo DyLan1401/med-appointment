@@ -11,6 +11,7 @@ use App\Models\Patient;
 use Illuminate\Support\Facades\Mail;
 
 
+use App\Models\Feedback;
 
 class AppointmentController extends Controller
 {
@@ -119,5 +120,29 @@ class AppointmentController extends Controller
             ->setPaper('a4', 'portrait');
         return $pdf->download('completed_appointments.pdf');
     }
+
+  public function dashboard()
+{
+    try {
+        return response()->json([
+            'status' => true,
+            'data' => [
+                'total_patients' => Patient::getTotalCount(),
+                'pending_appointments' => Appointment::getPendingCount(),
+                'confirmed_appointments' => Appointment::getConfirmedCount(),
+                'feedbacks' => Feedback::getRecentFeedbacks(5),
+                'recent_appointments' => Appointment::getRecentAppointments(5),
+            ]
+        ], 200);
+
+    } catch (\Throwable $e) {
+        // Trả lỗi có msg
+        return response()->json([
+            'status' => false,
+            'msg' => 'Đã xảy ra lỗi khi tải dữ liệu dashboard.',
+            'error' => $e->getMessage(), // Có thể ẩn dòng này nếu bạn không muốn hiển thị lỗi chi tiết
+        ], 500);
+    }
 }
 
+}
