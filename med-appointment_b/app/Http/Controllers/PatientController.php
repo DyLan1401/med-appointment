@@ -6,9 +6,80 @@ use App\Models\User;
 use App\Models\Patient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class PatientController extends Controller
 {
+    // API 1: Lấy thống kê bệnh nhân
+ public function getStatistics(Request $request)
+{
+    $period = $request->query('period'); // "this_month" | "this_quarter" | "this_year"
+    $from = null;
+    $to = null;
+
+    if ($period) {
+        switch ($period) {
+            case 'this_month':
+                $from = Carbon::now()->startOfMonth();
+                $to = Carbon::now()->endOfMonth();
+                break;
+            case 'this_quarter':
+                $from = Carbon::now()->firstOfQuarter();
+                $to = Carbon::now()->lastOfQuarter();
+                break;
+            case 'this_year':
+                $from = Carbon::now()->startOfYear();
+                $to = Carbon::now()->endOfYear();
+                break;
+        }
+    } else {
+        $from = $request->query('from');
+        $to = $request->query('to');
+    }
+
+    $query = Patient::query();
+
+    if ($from && $to) {
+        $query->whereBetween('created_at', [$from, $to]);
+    }
+
+    $total = $query->count();
+    $withInsurance = (clone $query)
+        ->whereNotNull('health_insurance')
+        ->where('health_insurance', '!=', '')
+        ->count();
+    $withoutInsurance = $total - $withInsurance;
+
+    return response()->json([
+        'total_patients' => $total,
+        'with_insurance' => $withInsurance,
+        'without_insurance' => $withoutInsurance,
+        'from' => $from,
+        'to' => $to,
+        'period' => $period,
+    ]);
+}
+    // API 2: Lấy 3 bệnh nhân mới nhất
+    public function getNewest()
+    {
+        $newestPatients = \App\Models\Patient::with('user')
+            ->orderBy('created_at', 'desc')
+            ->take(3)
+            ->get()
+            ->map(function ($p) {
+                return [
+                    'id' => $p->id,
+                    'name' => $p->user->name ?? 'Chưa có tên',
+                    'health_insurance' => $p->health_insurance,
+                    'created_at' => $p->created_at,
+                ];
+            });
+
+        return response()->json([
+            'newest_patients' => $newestPatients,
+        ]);
+    }
+
     // Lấy danh sách bệnh nhân (tìm kiếm + phân trang)
     public function index(Request $request)
     {
