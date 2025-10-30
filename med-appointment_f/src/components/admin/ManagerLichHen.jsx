@@ -198,7 +198,7 @@ export default function ManagerLichHen() {
                                                 <CheckCircle size={18} /> Xác nhận
                                             </button>
                                             <button
-                                                onClick={() => updateStatus(apt.id, "cancelled")}
+                                                onClick={() => updateStatus(apt.id, "rejected")}
                                                 className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition"
                                             >
                                                 <XCircle size={18} /> Từ chối

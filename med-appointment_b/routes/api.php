@@ -24,16 +24,14 @@ use App\Http\Controllers\PatientHistoryController;
 use App\Http\Controllers\ScheduleController;
 
 // use App\Http\Controllers\Api\Auth\SocialAuthController;
-use App\Http\Controllers\SocialAuthController;
-use App\Http\Controllers\BannerController;
+
 
 Route::apiResource('banners', BannerController::class);
 
 // đăng nhập với google
 Route::get('/auth/google/redirect', [SocialAuthController::class, 'redirectToGoogle']);
 Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
-use App\Http\Controllers\ServiceController;
-use App\Http\Controllers\NoteController;
+
 
 
 // Banner
@@ -128,7 +126,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
     Route::get('/user', [UserController::class, 'me']);
-});
+
 // Lấy thông tin user theo ID
 Route::get('/user/{id}', [UserController::class, 'getUserById']);
 
