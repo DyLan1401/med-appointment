@@ -1,106 +1,298 @@
+import React, { useState, useEffect } from "react";
+import API from "../../api/axios";
 
-import React from "react";
+export default function Posts() {
+    const [posts, setPosts] = useState([]);
+    const [pagination, setPagination] = useState({ current_page: 1, last_page: 1 });
 
-export default function ManagerPosts() {
+    const [categories, setCategories] = useState([]);
+    const [form, setForm] = useState({
+        title: "",
+        content: "",
+        image: "",
+        category_id: "",
+    });
+    const [editingId, setEditingId] = useState(null);
+    const [search, setSearch] = useState("");
+
+    const getCategories = () => API.get("/categories");
+    // const getPosts = () => API.get("/posts");
+    // const createPost = (data) => API.post("/posts", data);
+    // const updatePost = (id, data) => API.put(`/posts/${id}`, data);
+    const deletePost = (id) => API.delete(`/posts/${id}`);
+
+    useEffect(() => {
+        loadPosts();
+        loadCategories();
+    }, []);
+
+    const loadPosts = async () => {
+        const res = await API.get(`/posts?search=${search}`);
+        console.log("Kết quả API posts:", res.data);
+
+        setPosts(res.data.data);
+        setPagination({
+            current_page: res.data.current_page,
+            last_page: res.data.last_page,
+        });
+    };
+
+    const loadCategories = async () => {
+        try {
+            const res = await getCategories();
+            setCategories(res.data);
+        } catch (err) {
+            console.error("Lỗi khi tải danh mục:", err);
+        }
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData();
+        formData.append("title", form.title);
+        formData.append("content", form.content);
+        formData.append("category_id", form.category_id);
+        if (form.image) formData.append("image", form.image); // chỉ gửi khi có ảnh mới
+
+        try {
+            if (editingId) {
+                await API.post(`/posts/${editingId}?_method=PUT`, formData, {
+                    headers: { "Content-Type": "multipart/form-data" },
+                });
+            } else {
+                await API.post("/posts", formData, {
+                    headers: { "Content-Type": "multipart/form-data" },
+                });
+            }
+
+            setForm({ title: "", content: "", image: "", category_id: "", oldImage: "" });
+            setEditingId(null);
+            loadPosts();
+        } catch (err) {
+            console.error("Lỗi khi gửi dữ liệu:", err);
+        }
+    };
+
+
+    const handleEdit = (post) => {
+        setEditingId(post.id);
+        setForm({
+            title: post.title,
+            content: post.content,
+            image: null, // reset để chọn ảnh mới
+            category_id: post.category_id || "",
+            oldImage: post.image, // lưu lại link ảnh cũ để hiển thị
+        });
+    };
+
+    const handleDelete = async (id) => {
+        await deletePost(id);
+        loadPosts();
+    };
+
+    const filteredPosts = posts.filter((p) =>
+        p.title.toLowerCase().includes(search.toLowerCase())
+    );
 
     return (
-        <>
-            <div className='w-full h-screen '>
-                <div className="w-full h-full  flex flex-col p-3">
-                    <h1 className="text-blue-500 text-xl font-semibold py-5">Quản lí Bài  viết</h1>
-                    <div className="py-5">Thêm, chỉnh sửa, xóa Bài  viết .</div>
-                    <div className="flex justify-between items-center py-2">
-                        <form class="max-w-md ">
-                            <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                                    <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
-                                    </svg>
-                                </div>
-                                <input type="search" id="default-search" class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-200" placeholder="Tìm kiếm Bài  viết" />
-                            </div>
-                        </form>
-                        <button className="bg-green-500 py-2 px-4 rounded-lg">Thêm Bài  viết</button>
+        <div className="p-6 bg-gray-50 min-h-screen">
+            {/* Header */}
+            <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-blue-700">📰 Quản lý bài viết</h2>
+                <button
+                    onClick={() => setEditingId(null)}
+                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium"
+                >
+                    ➕ Thêm bài viết
+                </button>
+            </div>
+
+            {/* Search bar */}
+            <div className="flex gap-3 mb-6">
+                <input
+                    type="text"
+                    placeholder="Nhập tiêu đề bài viết..."
+                    className="border border-gray-300 rounded-md px-3 py-2 w-1/3 focus:ring focus:ring-blue-200"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                />
+                <button
+                    onClick={loadPosts}
+                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md">
+                    🔍 Tìm kiếm
+                </button>
+            </div>
+
+            {/* Form thêm / sửa bài viết */}
+            <form
+                onSubmit={handleSubmit}
+                className="bg-white shadow-md rounded-lg p-5 mb-6"
+            >
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className="block text-gray-700 mb-1 font-medium">
+                            Tiêu đề
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Nhập tiêu đề bài viết..."
+                            value={form.title}
+                            onChange={(e) => setForm({ ...form, title: e.target.value })}
+                            className="border border-gray-300 rounded-md w-full px-3 py-2 focus:ring focus:ring-blue-200"
+                        />
                     </div>
-
-                    <div class="relative overflow-x-auto shadow-md ">
-                        <table class="w-full text-sm text-gray-500">
-                            <thead class="uppercase text-white   bg-blue-500">
-                                <tr>
-                                    <th scope="col" class="px-6 py-3">
-                                        ID
-                                    </th>
-                                    <th scope="col" class="px-6 py-3">
-                                        Tên Bài viết
-                                    </th>
-                                    <th scope="col" class="px-6 py-3">
-                                        Tác giả
-                                    </th>
-                                    <th scope="col" class="px-6 py-3">
-                                        Ngày đăng
-                                    </th>
-                                    <th scope="col" class="px-6 py-3">
-                                        Trạng thái
-                                    </th>
-                                    <th scope="col" class="px-6 py-3">
-                                        Thao tác
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200">
-                                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        1
-                                    </th>
-                                    <td class="px-6 py-4">
-                                        Hướng dẫn đặt lịch Khám
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        Admin
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        20/05/2025
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <button className="bg-green-300 rounded-2xl text-green-600 px-2"> đã xuất bản</button>
-                                    </td>
-                                    <td class="px-6 py-4 space-x-2">
-                                        <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Xem</a>
-                                        <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Sửa</a>
-                                        <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Xóa</a>
-                                    </td>
-                                </tr>
-
-
-                                <tr class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200">
-                                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        1
-                                    </th>
-                                    <td class="px-6 py-4">
-                                        Hướng dẫn đặt lịch Khám
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        Admin
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        20/05/2025
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <button className="bg-green-300 rounded-2xl text-green-600 px-2"> đã xuất bản</button>
-                                    </td>
-                                    <td class="px-6 py-4 space-x-2">
-                                        <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Xem</a>
-                                        <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Sửa</a>
-                                        <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Xóa</a>
-                                    </td>
-                                </tr>
-
-                            </tbody>
-                        </table>
+                    <div>
+                        <label className="block text-gray-700 mb-1 font-medium">
+                            Danh mục
+                        </label>
+                        <select
+                            value={form.category_id}
+                            onChange={(e) =>
+                                setForm({ ...form, category_id: e.target.value })
+                            }
+                            className="border border-gray-300 rounded-md w-full px-3 py-2 focus:ring focus:ring-blue-200"
+                        >
+                            <option value="">-- Chọn danh mục --</option>
+                            {categories.map((cat) => (
+                                <option key={cat.id} value={cat.id}>
+                                    {cat.name}
+                                </option>
+                            ))}
+                        </select>
                     </div>
+                </div>
+
+                <div className="mt-4">
+                    <label className="block text-gray-700 mb-1 font-medium">
+                        Hình ảnh (link)
+                    </label>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setForm({ ...form, image: e.target.files[0] })}
+                        className="border border-gray-300 rounded-md w-full px-3 py-2 focus:ring focus:ring-blue-200"
+                    />
+                    {form.image && typeof form.image === "object" && (
+                        <div className="mt-2">
+                            <img
+                                src={URL.createObjectURL(form.image)}
+                                alt="preview"
+                                className="w-24 h-24 object-cover rounded-md border"
+                            />
+                        </div>
+                    )}
 
                 </div>
-            </div> </>
+
+                <div className="mt-4">
+                    <label className="block text-gray-700 mb-1 font-medium">Nội dung</label>
+                    <textarea
+                        placeholder="Nhập nội dung bài viết..."
+                        value={form.content}
+                        onChange={(e) => setForm({ ...form, content: e.target.value })}
+                        className="border border-gray-300 rounded-md w-full px-3 py-2 h-28 focus:ring focus:ring-blue-200"
+                    ></textarea>
+                </div>
+
+                <div className="mt-4 text-right">
+                    <button
+                        type="submit"
+                        className={`px-6 py-2 rounded-md text-white font-medium ${editingId
+                            ? "bg-yellow-500 hover:bg-yellow-600"
+                            : "bg-blue-600 hover:bg-blue-700"
+                            }`}
+                    >
+                        {editingId ? "Cập nhật" : "Thêm mới"}
+                    </button>
+                </div>
+            </form>
+
+            {/* Bảng danh sách bài viết */}
+            <div className="bg-white shadow-md rounded-lg overflow-hidden">
+                <table className="min-w-full text-sm text-gray-700">
+                    <thead>
+                        <tr className="bg-blue-600 text-white text-left">
+                            <th className="py-3 px-4 font-semibold">ID</th>
+                            <th className="py-3 px-4 font-semibold">Tiêu đề</th>
+                            <th className="py-3 px-4 font-semibold">Danh mục</th>
+                            <th className="py-3 px-4 font-semibold">Hình ảnh</th>
+                            <th className="py-3 px-4 font-semibold">Nội dung</th>
+                            <th className="py-3 px-4 font-semibold text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {filteredPosts.length === 0 ? (
+                            <tr>
+                                <td colSpan="6" className="text-center text-gray-500 py-5 italic">
+                                    Chưa có bài viết nào
+                                </td>
+                            </tr>
+                        ) : (
+                            filteredPosts.map((p, index) => (
+                                <tr
+                                    key={p.id}
+                                    className={`border-b hover:bg-gray-50 ${index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                                        }`}
+                                >
+                                    <td className="py-3 px-4">{p.id}</td>
+                                    <td className="py-3 px-4 font-medium text-gray-800">
+                                        {p.title}
+                                    </td>
+                                    <td className="py-3 px-4">{p.category?.name || "Không có"}</td>
+                                    <td className="py-3 px-4">
+                                        {p.image ? (
+                                            <img
+                                                src={p.image}
+                                                alt={p.title}
+                                                className="w-16 h-16 object-cover rounded-md border"
+                                            />
+                                        ) : (
+                                            <span className="text-gray-400 italic">Không có ảnh</span>
+                                        )}
+                                    </td>
+                                    <td className="py-3 px-4 max-w-xs truncate">{p.content}</td>
+                                    <td className="py-3 px-4 text-center space-x-2">
+                                        <button
+                                            onClick={() => handleEdit(p)}
+                                            className="bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1 rounded-md text-sm"
+                                        >
+                                            Sửa
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(p.id)}
+                                            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm"
+                                        >
+                                            Xóa
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
+                    </tbody>
+                </table>
+            </div>
+            <div className="flex justify-center items-center gap-2 mt-6">
+                <button
+                    onClick={() => loadCategories(pagination.current_page - 1)}
+                    disabled={pagination.current_page === 1}
+                    className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded-md disabled:opacity-50"
+                >
+                    ◀ Trước
+                </button>
+
+                <span className="text-gray-700 font-medium">
+                    Trang {pagination.current_page} / {pagination.last_page}
+                </span>
+
+                <button
+                    onClick={() => loadCategories(pagination.current_page + 1)}
+                    disabled={pagination.current_page === pagination.last_page}
+                    className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded-md disabled:opacity-50"
+                >
+                    Sau ▶
+                </button>
+            </div>
+        </div>
     );
 }

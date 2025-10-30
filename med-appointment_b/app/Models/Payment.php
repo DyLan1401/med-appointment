@@ -10,7 +10,7 @@ class Payment extends Model
     use HasFactory;
 
     protected $fillable = [
-        'invoice_id', 'method', 'transaction_code',
+        'invoice_id', 'appointment_id', 'method', 'transaction_code',
         'amount', 'status', 'paid_at'
     ];
 

@@ -9,15 +9,27 @@ class Feedback extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['doctor_id', 'patient_id', 'rating', 'comment'];
+    protected $table = 'feedbacks';
+    protected $fillable = ['appointment_id', 'doctor_id', 'patient_id', 'rating', 'comment'];
+
+    public function appointment()
+    {
+        return $this->belongsTo(Appointment::class);
+    }
 
     public function doctor()
     {
-        return $this->belongsTo(Doctor::class, 'doctor_id');
+        return $this->belongsTo(Doctor::class);
     }
 
-    public function patient()
+    public function user()
     {
-        return $this->belongsTo(Patient::class, 'patient_id');
+        return $this->belongsTo(User::class, 'user_id');
+        // return $this->belongsTo(Patient::class);
     }
+
+    // public function patient()
+    // {
+    //     return $this->belongsTo(Patient::class, 'patient_id');
+    // }
 }

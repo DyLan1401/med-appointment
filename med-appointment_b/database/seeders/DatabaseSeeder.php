@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,39 +13,31 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
-
-
+        
 
         $this->call([
+            UserSeeder::class,
             PatientsSeeder::class,
-        ]);
-
-
-        $this->call([
-        UserSeeder::class,
-    ]);
-
-      
-    $this->call([
+            CategoryPostSeeder::class,
+            PostSeeder::class,
+            ServiceSeeder::class,
+            ContactSeeder::class,
             DepartmentSeeder::class,
-            ServicesSeeder::class,
             DoctorSeeder::class,
             AppointmentSeeder::class,
+            ScheduleSeeder::class,
+            BannerSeeder::class,
+            InvoiceSeeder::class,
+            FeedbackSeeder::class,
         ]);
-
-     
-
-    $this->call([
-        ScheduleSeeder::class,
-    ]);
+        // Tạo tài khoản admin cố định
+         User::updateOrCreate(
+        ['email' => 'admin@gmail.com'],
+        [
+            'name' => 'admin',
+            'password' => Hash::make('admin123'),
+            'role' => 'admin',
+        ]
+    );
     }
-
-
 }

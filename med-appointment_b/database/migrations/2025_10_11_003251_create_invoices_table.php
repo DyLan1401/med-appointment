@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->decimal('amount', 12, 2);
             $table->enum('status', ['paid', 'unpaid', 'canceled'])->default('unpaid');
             $table->string('file_url', 255)->nullable();
-            $table->timestamp('created_at')->useCurrent();
+             $table->timestamps(); 
 
             $table->foreign('appointment_id')->references('id')->on('appointments')->onDelete('cascade');
             $table->foreign('patient_id')->references('id')->on('patients')->onDelete('cascade');

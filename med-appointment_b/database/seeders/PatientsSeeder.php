@@ -13,17 +13,12 @@ class PatientsSeeder extends Seeder
     {
         $faker = Faker::create('vi_VN');
 
-        for ($i = 0; $i < 10; $i++) {
-            // Tạo user
-            $user = User::create([
-                'name' => $faker->name(),
-                'email' => $faker->unique()->safeEmail(),
-                'phone' => $faker->numerify('09########'),
-                'password' => bcrypt('password'), // mật khẩu mặc định
-            ]);
+        // Chỉ tạo bản ghi Patient cho những user có role = 'user'
+        $users = User::where('role', 'user')->get();
 
-            // Tạo bệnh nhân tương ứng
+        foreach ($users as $user) {
             Patient::create([
+
                 'user_id' => $user->id,
                 'date_of_birth' => $faker->date('Y-m-d', '2005-01-01'),
                 'gender' => $faker->randomElement(['male', 'female', 'other']),

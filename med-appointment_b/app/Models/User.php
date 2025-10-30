@@ -2,32 +2,38 @@
 
 namespace App\Models;
 
+use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
         'name',
         'email',
         'password',
+        'google_id',
+        'facebook_id',
         'role',
-        'avatar', // ✅ đổi lại cho khớp DB
+        'avatar', 
         'phone',
         'insurance_info',
-        'email_verified_at'
     ];
 
-    protected $hidden = ['password', 'remember_token'];
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
 
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
 
-    // ✅ Accessor: tạo thuộc tính ảo "avatar_url"
+    // 🖼️ Avatar URL getter (đã chuẩn, giữ nguyên)
     public function getAvatarUrlAttribute()
     {
         // Nếu không có avatar -> ảnh mặc định
@@ -44,11 +50,12 @@ class User extends Authenticatable
         return asset('storage/' . $this->avatar);
     }
 
-    // Các quan hệ
+    // 👨‍⚕️ Quan hệ với bác sĩ
     public function doctor()
     {
-        return $this->hasOne(Doctor::class, 'id');
+        return $this->hasOne(Doctor::class);
     }
+
 
     public function patient()
     {

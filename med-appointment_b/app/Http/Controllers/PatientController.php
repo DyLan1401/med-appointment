@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 class PatientController extends Controller
 {
-    // ✅ Danh sách bệnh nhân (tìm kiếm + phân trang)
+    // Danh sách bệnh nhân (tìm kiếm + phân trang)
     public function index(Request $request)
     {
         $query = Patient::with('user:id,name,email,phone');
@@ -32,7 +32,7 @@ class PatientController extends Controller
         //
     }
 
-    // ✅ Thêm bệnh nhân
+    // Thêm bệnh nhân
     public function store(Request $request)
     {
         $request->validate([
@@ -59,7 +59,7 @@ class PatientController extends Controller
         return response()->json($patient, 201);
     }
 
-    // ✅ Lấy thông tin 1 bệnh nhân
+    // Lấy thông tin 1 bệnh nhân
     public function show($id)
     {
         $patient = Patient::with('user')->findOrFail($id);
@@ -74,7 +74,7 @@ class PatientController extends Controller
         //
     }
 
-    // ✅ Sửa bệnh nhân
+    // Sửa bệnh nhân
     public function update(Request $request, $id)
     {
         $patient = Patient::findOrFail($id);
@@ -96,7 +96,7 @@ class PatientController extends Controller
         return response()->json(['message' => 'Cập nhật thành công']);
     }
 
-    // ✅ Xóa bệnh nhân
+    // Xóa bệnh nhân
     public function destroy($id)
     {
         $patient = Patient::findOrFail($id);

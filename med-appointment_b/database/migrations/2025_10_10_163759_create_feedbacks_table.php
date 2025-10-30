@@ -9,13 +9,26 @@ return new class extends Migration {
         Schema::create('feedbacks', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('doctor_id')->nullable();
-            $table->unsignedBigInteger('patient_id')->nullable();
-            $table->integer('rating')->checkBetween(1, 5);
-            $table->text('comment')->nullable();
-            $table->timestamp('created_at')->useCurrent();
+            $table->unsignedBigInteger('user_id')->nullable();
 
-            $table->foreign('doctor_id')->references('id')->on('doctors');
-            $table->foreign('patient_id')->references('id')->on('patients');
+            $table->unsignedTinyInteger('rating')->default(1)
+                ->comment('Giá trị đánh giá từ 1 đến 5');
+
+            $table->text('comment')->nullable();
+
+            $table->timestamp('created_at')->useCurrent();
+            $table->timestamp('updated_at')->nullable()->useCurrentOnUpdate();
+
+            $table->foreign('doctor_id')
+                ->references('id')
+                ->on('doctors')
+                ->onDelete('cascade');
+
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade');
+
         });
     }
 

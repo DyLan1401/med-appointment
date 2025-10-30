@@ -12,10 +12,12 @@ export default function Dashboard() {
         { path: "painets", label: "Quản lí bệnh nhân" },
         { path: "users", label: "Quản lí người dùng" },
         { path: "services", label: "Quản lí dịch vụ" },
+        { path: "categories", label: "Quản lí danh mục bài viết" },
         { path: "posts", label: "Quản lí bài viết" },
         { path: "invoices", label: "Quản lí hóa đơn" },
         { path: "feedbacks", label: "Quản lí phản hồi" },
         { path: "contacts", label: "Quản lí liên hệ" },
+        { path: "banners", label: "Quản lí banners" },
         { path: "works", label: "Quản lí lịch làm việc" },
         { path: "appointmentStats", label: "Thống kê lịch khám" },
         { path: "BHYTStatistics", label: "Thống kê BHYT" },
@@ -41,11 +43,10 @@ export default function Dashboard() {
                             <Link
                                 key={i}
                                 to={item.path}
-                                className={`py-3 px-4 border-b text-center font-semibold transition-all ${
-                                    active
-                                        ? "bg-blue-600 text-white"
-                                        : "bg-blue-500 hover:bg-blue-600 text-white"
-                                }`}
+                                className={`py-3 px-4 border-b text-center font-semibold transition-all ${active
+                                    ? "bg-blue-600 text-white"
+                                    : "bg-blue-500 hover:bg-blue-600 text-white"
+                                    }`}
                             >
                                 {item.label}
                             </Link>
@@ -56,7 +57,7 @@ export default function Dashboard() {
 
             {/* NỘI DUNG BÊN PHẢI */}
             <div className="flex-1 h-full bg-gray-50 p-6  overflow-y-auto">
-<div className=""></div>
+                <div className=""></div>
                 <Outlet />
             </div>
         </div>
