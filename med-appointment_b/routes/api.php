@@ -63,7 +63,11 @@ Route::prefix('doctors')->group(function () {
 Route::get('/schedules/getbyid/{doctor_id}', [ScheduleController::class, 'getScheduleById']);
 
 // PATIENTS
+// hai route này phải đặt trước route resource để không bị nhầm với {patient}
+Route::get('/patients/statistics', [PatientController::class, 'getStatistics']);
+Route::get('/patients/newest', [PatientController::class, 'getNewest']);
 Route::apiResource('patients', PatientController::class);
+
 
 // USERS (CRUD + Profile + Ảnh + Chứng chỉ)
 Route::apiResource('users', UserController::class);

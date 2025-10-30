@@ -21,7 +21,7 @@ class Patient extends Model
         'facebook_id',
     ];
 
-    public $timestamps = false;
+    public $timestamps = true;
 
     // 🔹 Liên kết với bảng users
     public function user()
