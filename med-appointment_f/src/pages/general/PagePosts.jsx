@@ -27,7 +27,7 @@ export default function PostsPage() {
     const loadCategories = async () => {
         try {
             const res = await API.get("/categories");
-            setCategories(res.data);
+            setCategories(Array.isArray(res.data) ? res.data : res.data.data || []);
         } catch (error) {
             console.error("Lỗi khi tải danh mục:", error);
         }
@@ -165,8 +165,8 @@ export default function PostsPage() {
                                 onClick={() => handlePageChange(currentPage - 1)}
                                 disabled={currentPage === 1}
                                 className={`px-4 py-2 rounded-md border text-sm ${currentPage === 1
-                                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                                        : "bg-blue-600 text-white hover:bg-blue-700"
+                                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                                    : "bg-blue-600 text-white hover:bg-blue-700"
                                     }`}
                             >
                                 ← Trước
@@ -180,8 +180,8 @@ export default function PostsPage() {
                                 onClick={() => handlePageChange(currentPage + 1)}
                                 disabled={currentPage === lastPage}
                                 className={`px-4 py-2 rounded-md border text-sm ${currentPage === lastPage
-                                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                                        : "bg-blue-600 text-white hover:bg-blue-700"
+                                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                                    : "bg-blue-600 text-white hover:bg-blue-700"
                                     }`}
                             >
                                 Sau →

@@ -233,7 +233,7 @@ export default function ManagerBanners() {
                                     <td className="py-3 px-4">
                                         {b.image ? (
                                             <img
-                                                src={`http://localhost:8000/storage/${b.image}`}
+                                                src={b.image}
                                                 alt={b.title}
                                                 className="w-16 h-16 object-cover rounded-md border"
                                             />

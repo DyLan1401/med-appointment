@@ -13,9 +13,11 @@ class BannerSeeder extends Seeder
         $faker = Faker::create();
 
         foreach (range(1, 10) as $index) {
+         $imageUrl = "https://picsum.photos/seed/post{$index}/800/400";
+
             DB::table('banners')->insert([
                 'title' => $faker->sentence(3),
-                'image' => $faker->imageUrl(800, 400, 'health', true, 'Clinic Banner'),
+                'image' => $imageUrl,
                 'link' => $faker->url(),
                 'created_at' => now(),
                 'updated_at' => now(),

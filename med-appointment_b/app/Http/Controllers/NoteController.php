@@ -4,43 +4,51 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Note;
-use Exception;
 
 class NoteController extends Controller
 {
+    // Lấy danh sách ghi chú của 1 bệnh nhân
     public function index($patientId)
     {
         $notes = Note::where('patient_id', $patientId)
-                    ->orderBy('created_at', 'desc')
-                    ->get();
+            ->with('admin:id,name')
+            ->orderBy('created_at', 'desc')
+            ->get();
         return response()->json($notes);
     }
 
+    // Gửi ghi chú
     public function store(Request $request)
     {
-        try {
-            $note = Note::create([
-                'patient_id' => $request->patient_id,
-                'admin_id' => $request->admin_id ?? null,
-                'title' => $request->title,
-                'content' => $request->content,
-            ]);
+        $request->validate([
+            'patient_id' => 'required|exists:patients,id',
+            'title' => 'nullable|string|max:255',
+            'content' => 'required|string',
+        ]);
 
-            return response()->json(['message' => 'Gửi ghi chú thành công', 'note' => $note]);
-        } catch (Exception $e) {
-            return response()->json(['error' => 'Lỗi khi lưu ghi chú: '.$e->getMessage()], 500);
-        }
+        $note = Note::create([
+            'patient_id' => $request->patient_id,
+            'admin_id' => auth()->id() ?? 1, // admin cố định ID=1
+            'title' => $request->title ?? 'Ghi chú từ hệ thống',
+            'content' => $request->content,
+        ]);
+
+        return response()->json($note, 201);
     }
 
-    public function markAsRead(Note $note)
+    // Đánh dấu đã đọc
+    public function markAsRead($id)
     {
+        $note = Note::findOrFail($id);
         $note->update(['is_read' => true]);
-        return response()->json(['message' => 'Đánh dấu đã đọc thành công']);
+        return response()->json(['message' => 'Đã đánh dấu là đã đọc']);
     }
 
-    public function destroy(Note $note)
+    // Xóa ghi chú
+    public function destroy($id)
     {
+        $note = Note::findOrFail($id);
         $note->delete();
-        return response()->json(['message' => 'Xóa ghi chú thành công']);
+        return response()->json(['message' => 'Đã xóa ghi chú']);
     }
 }
