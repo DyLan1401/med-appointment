@@ -61,4 +61,9 @@ class Patient extends Model
             }
         });
     }
+     /** 🔹 Lấy tổng số bệnh nhân */
+    public static function getTotalCount()
+    {
+        return self::count();
+    }
 }

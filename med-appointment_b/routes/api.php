@@ -24,6 +24,8 @@ use App\Http\Controllers\PatientHistoryController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\PostFeedbackController;
 use App\Http\Controllers\Api\ChatbotController;
+use App\Models\Appointment;
+
 // use App\Http\Controllers\Api\Auth\SocialAuthController;
 
 
@@ -187,3 +189,7 @@ Route::get('/user/{id}', [UserController::class, 'getUserById']);
 
 // Chatbot hỗ trợ bệnh nhân đặt lịch tự động    
 Route::post('/chatbot', [ChatbotController::class, 'getReply']);
+
+
+//dashboard
+Route::get('/dashboard', [AppointmentController::class, 'dashboard']);
