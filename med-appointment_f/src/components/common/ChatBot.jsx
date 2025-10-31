@@ -6,7 +6,10 @@ import API from "../../api/axios";
 export default function ChatBot() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { from: "bot", text: "🤖 Xin chào! Tôi là ChatCare – trợ lý ảo y tế của bạn 💙. Tôi có thể giúp gì hôm nay?" },
+    {
+      from: "bot",
+      text: "🤖 Xin chào! Tôi là ChatCare – trợ lý ảo y tế của bạn 💙. Tôi có thể giúp gì hôm nay?",
+    },
   ]);
   const [input, setInput] = useState("");
 
@@ -23,7 +26,10 @@ export default function ChatBot() {
       console.error(err);
       setMessages((prev) => [
         ...prev,
-        { from: "bot", text: "Xin lỗi, hệ thống đang gặp sự cố 😔. Vui lòng thử lại sau nhé." },
+        {
+          from: "bot",
+          text: "Xin lỗi, hệ thống đang gặp sự cố 😔. Vui lòng thử lại sau nhé.",
+        },
       ]);
     } finally {
       setInput("");
@@ -31,14 +37,14 @@ export default function ChatBot() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-6 right-6 z-[9999]">
       {/* ===== NÚT MỞ CHAT ===== */}
       {!open && (
         <button
           onClick={() => setOpen(true)}
           className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white p-4 rounded-full shadow-xl transition-all duration-300 hover:scale-110 flex items-center justify-center"
         >
-          <Bot size={30} className="text-white" /> {/* 🤖 Icon robot hiện đại */}
+          <Bot size={30} className="text-white" />
         </button>
       )}
 

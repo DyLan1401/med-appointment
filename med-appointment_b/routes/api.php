@@ -3,7 +3,9 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-// Controllers
+// ===============================
+// 📦 Controllers
+// ===============================
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\UserController;
@@ -26,48 +28,65 @@ use App\Http\Controllers\PostFeedbackController;
 use App\Http\Controllers\Api\ChatbotController;
 use App\Models\Appointment;
 
-// use App\Http\Controllers\Api\Auth\SocialAuthController;
 
-
-// Đăng nhập với Google
+// ===============================
+// 🌐 Xác thực Google
+// ===============================
 Route::get('/auth/google/redirect', [SocialAuthController::class, 'redirectToGoogle']);
 Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
 
 
-
-// Banner
+// ===============================
+// 🖼️ Banner
+// ===============================
 Route::apiResource('banners', BannerController::class);
 
-// DOCTORS (CRUD + Profile + Ảnh + Chứng chỉ + Tìm kiếm)
+
 Route::prefix('doctors')->group(function () {
-    Route::get('/', [DoctorController::class, 'index']);
-    Route::post('/', [DoctorController::class, 'store']);
-    Route::put('/{id}', [DoctorController::class, 'update']);
-    Route::delete('/{id}', [DoctorController::class, 'destroy']);
 
-    // Hồ sơ bác sĩ
-    Route::get('/{doctor_id}/profile', [DoctorController::class, 'showProfile']);
-    Route::post('/{doctor_id}/profile', [DoctorController::class, 'updateProfile']);
+    // CRUD DOCTOR
+    Route::get('/', [DoctorController::class, 'index']);          // Danh sách bác sĩ (có phân trang)
+    Route::post('/', [DoctorController::class, 'store']);         // Thêm bác sĩ mới
+    Route::put('/{id}', [DoctorController::class, 'update']);     // Cập nhật thông tin bác sĩ
+    Route::delete('/{id}', [DoctorController::class, 'destroy']); // Xóa bác sĩ
 
-    // Ảnh đại diện
-    Route::post('/{doctor_id}/avatar', [DoctorController::class, 'uploadAvatar']);
 
-    // Chứng chỉ
-    Route::get('/{doctor_id}/certificates', [DoctorController::class, 'getCertificates']);
-    Route::post('/{doctor_id}/certificates', [DoctorController::class, 'uploadCertificate']);
-    Route::delete('/certificates/{id}', [DoctorController::class, 'deleteCertificate']);
+    // HỒ SƠ BÁC SĨ
+    Route::get('/{doctor_id}/profile', [DoctorController::class, 'showProfile']);   // Xem hồ sơ
+    Route::post('/{doctor_id}/profile', [DoctorController::class, 'updateProfile']); // Cập nhật hồ sơ
 
-    // Tìm kiếm bác sĩ theo tên hoặc chuyên khoa
-    Route::get('/search', [DoctorController::class, 'search']);
+
+    // ẢNH ĐẠI DIỆN
+    Route::post('/{doctor_id}/avatar', [DoctorController::class, 'uploadAvatar']);  // Upload ảnh đại diện
+
+
+    // CHỨNG CHỈ / BẰNG CẤP
+    Route::get('/{doctor_id}/certificates', [DoctorController::class, 'getCertificates']);   // Lấy danh sách chứng chỉ
+    Route::post('/{doctor_id}/certificates', [DoctorController::class, 'uploadCertificate']); // Upload chứng chỉ mới
+    Route::delete('/certificates/{id}', [DoctorController::class, 'deleteCertificate']);      // Xóa chứng chỉ
+
+
+    // TÌM KIẾM BÁC SĨ
+    Route::get('/search', [DoctorController::class, 'search']); // Tìm kiếm theo tên / chuyên khoa
+
 });
 
-// Lịch làm việc bác sĩ
+
+// ===============================
+// ⏰ Lịch làm việc bác sĩ
+// ===============================
 Route::get('/schedules/getbyid/{doctor_id}', [ScheduleController::class, 'getScheduleById']);
 
-// PATIENTS
+
+// ===============================
+// 🧍‍♂️ PATIENTS
+// ===============================
 Route::apiResource('patients', PatientController::class);
 
-// USERS (CRUD + Profile + Ảnh + Chứng chỉ)
+
+// ===============================
+// 👤 USERS (CRUD + Hồ sơ + Chứng chỉ)
+// ===============================
 Route::apiResource('users', UserController::class);
 Route::get('/users/{id}/profile', [UserController::class, 'showProfile']);
 Route::post('/users/{id}/profile', [UserController::class, 'updateProfile']);
@@ -75,121 +94,132 @@ Route::get('/users/{id}/certificates', [UserController::class, 'getCertificates'
 Route::post('/users/{id}/certificates', [UserController::class, 'uploadCertificate']);
 Route::delete('/users/certificates/{id}', [UserController::class, 'deleteCertificate']);
 
-// DEPARTMENTS
+
+// ===============================
+// 🏥 DEPARTMENTS
+// ===============================
 Route::get('/departments/search', [DepartmentController::class, 'search']);
 Route::apiResource('departments', DepartmentController::class);
 
-// CONTACTS
+
+// ===============================
+// 📬 CONTACTS
+// ===============================
 Route::apiResource('contacts', ContactController::class);
 
-// POSTS & CATEGORIES
+
+// ===============================
+// 📰 POSTS & CATEGORIES
+// ===============================
 Route::apiResource('categories', CategoryPostController::class);
 Route::apiResource('posts', PostController::class);
 
-// SERVICES
+
+// ===============================
+// 💼 SERVICES
+// ===============================
 Route::apiResource('services', ServiceController::class);
 
-// APPOINTMENTS
+
+// ===============================
+// 📅 APPOINTMENTS
+// ===============================
 Route::apiResource('appointments', AppointmentController::class);
 
-// AUTH (Đăng ký + Đăng nhập + OTP + Đổi mật khẩu)
+
+// ===============================
+// 🔐 AUTH (Đăng ký + Đăng nhập + OTP + Mật khẩu)
+// ===============================
 Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
 Route::post('/forgot-password', [UserController::class, 'forgotPassword']);
 Route::post('/register/send-otp', [UserController::class, 'sendOtp']);
 Route::post('/register/verify-otp', [UserController::class, 'verifyOtp']);
 
-// Bác sĩ yêu thích (Favorites)
-Route::get('/favorites/{user_id?}', [FavoriteController::class, 'index']); // Cho khách hoặc user khác
-Route::get('/favorites/doctor/{doctor_id}', [FavoriteController::class, 'getDoctor']); // Chi tiết bác sĩ yêu thích
 
-// Lấy chi tiết 1 bác sĩ yêu thích 
+// ===============================
+// ❤️ BÁC SĨ YÊU THÍCH (Favorites)
+// ===============================
+Route::get('/favorites/{user_id?}', [FavoriteController::class, 'index']);
 Route::get('/favorites/doctor/{doctor_id}', [FavoriteController::class, 'getDoctor']);
 
-// Các route yêu cầu đăng nhập (token Sanctum)
+
+// ===============================
+// 🔒 CÁC ROUTE YÊU CẦU ĐĂNG NHẬP (Sanctum)
+// ===============================
 Route::middleware('auth:sanctum')->group(function () {
-    // Tài khoản người dùng
+    // 👤 Thông tin tài khoản người dùng
     Route::get('/profile', [UserController::class, 'profile']);
     Route::post('/logout', [UserController::class, 'logout']);
     Route::post('/change-password', [UserController::class, 'changePassword']);
 
-//Quản lí phản hồi bài viết
-// ✅ Quản lí phản hồi bài viết
-Route::prefix('feedbacks')->group(function () {
-    Route::get('/', [PostFeedbackController::class, 'index']);      // Lấy toàn bộ feedback (cho trang quản lý)
-    Route::put('/{id}', [PostFeedbackController::class, 'update']); // Cập nhật feedback
-    Route::delete('/{id}', [PostFeedbackController::class, 'destroy']); // Xóa feedback
-});
+    // 📝 Quản lý phản hồi bài viết
+    Route::prefix('feedbacks')->group(function () {
+        Route::get('/', [PostFeedbackController::class, 'index']);
+        Route::put('/{id}', [PostFeedbackController::class, 'update']);
+        Route::delete('/{id}', [PostFeedbackController::class, 'destroy']);
+    });
 
-// ✅ Route cho từng bài viết
-Route::get('/posts/{id}/feedbacks', [PostFeedbackController::class, 'index']); // lấy feedback theo post
-Route::post('/posts/{id}/feedbacks', [PostFeedbackController::class, 'store']); // thêm feedback mới
+    // 🆕 Route feedback theo từng bài viết
+    Route::get('/posts/{id}/feedbacks', [PostFeedbackController::class, 'index']);
+    Route::post('/posts/{id}/feedbacks', [PostFeedbackController::class, 'store']);
 
-    // Quản lý bác sĩ yêu thích
+    // ❤️ Quản lý bác sĩ yêu thích
     Route::post('/favorites', [FavoriteController::class, 'store']);
     Route::delete('/favorites/{doctor_id}', [FavoriteController::class, 'destroy']);
-
-    // Tùy chọn xóa yêu thích bằng body (frontend LikeDoctor.jsx)
     Route::post('/favorites/remove', [FavoriteController::class, 'destroy']);
-    Route::get('/patient/history', [PatientHistoryController::class, 'index']);
-    
-    Route::middleware('auth:sanctum')->post('/logout', [UserController::class, 'logout']);
 
+    // 📜 Lịch sử bệnh nhân
+    Route::get('/patient/history', [PatientHistoryController::class, 'index']);
 });
 
-    Route::get('/user', [UserController::class, 'me']);
 
-// Lấy thông tin user theo ID
+// ===============================
+// 👥 USER thông tin & kiểm tra đăng nhập
+// ===============================
+Route::get('/user', [UserController::class, 'me']);
 Route::get('/user/{id}', [UserController::class, 'getUserById']);
 
-// Gửi ghi chú cho bệnh nhân
-// Notes (Ghi chú cho bệnh nhân)
-// Route::get('/notes/{patientId}', [NoteController::class, 'index']);
-// Route::post('/notes', [NoteController::class, 'store']);
-// Route::delete('/notes/{id}', [NoteController::class, 'destroy']);
+
+// ===============================
+// 🗒️ GHI CHÚ (NOTES) cho bệnh nhân
+// ===============================
 Route::get('/notes/{patient}', [NoteController::class, 'index']);
 Route::post('/notes', [NoteController::class, 'store']);
 Route::put('/notes/{note}/read', [NoteController::class, 'markAsRead']);
 Route::delete('/notes/{note}', [NoteController::class, 'destroy']);
 
-// Xuất danh sách lịch hẹn (Excel/PDF)
+
+// ===============================
+// 📤 XUẤT FILE (Excel / PDF)
+// ===============================
 Route::get('/export-completed/xlsx', [AppointmentController::class, 'exportCompletedAppointmentsXlsx']);
 Route::get('/export-completed/pdf', [AppointmentController::class, 'exportCompletedAppointmentsPdf']);
 
-// Thanh toán PayOS
+
+// ===============================
+// 💰 THANH TOÁN (PayOS)
+// ===============================
 Route::post('/payment/create', [PaymentController::class, 'createPayment']);
 Route::post('/payment/webhook', [PaymentController::class, 'webhook']);
 Route::get('/test-payos', [PaymentController::class, 'testPayOS']);
 
-// Feedback (Đánh giá bác sĩ)
+
+// ===============================
+// ⭐ FEEDBACK (Đánh giá bác sĩ)
+// ===============================
 Route::get('/feedbacks/{doctor_id}', [FeedbackController::class, 'getByDoctor']);
 Route::post('/feedbacks', [FeedbackController::class, 'store']);
 Route::delete('/feedbacks/{id}', [FeedbackController::class, 'destroy']);
 
-// ROUTES yêu cầu đăng nhập (token Sanctum)
-Route::middleware('auth:sanctum')->group(function () {
-    // Thông tin tài khoản
-    Route::get('/profile', [UserController::class, 'profile']);
-    Route::post('/logout', [UserController::class, 'logout']);
-    Route::post('/change-password', [UserController::class, 'changePassword']);
 
-    // Quản lý bác sĩ yêu thích
-    Route::post('/favorites', [FavoriteController::class, 'store']);
-    Route::delete('/favorites/{doctor_id}', [FavoriteController::class, 'destroy']);
-    Route::post('/favorites/remove', [FavoriteController::class, 'destroy']);
-
-    // Lịch sử bệnh nhân
-    Route::get('/patient/history', [PatientHistoryController::class, 'index']);
-});
-
-// Lấy thông tin user theo ID hoặc chính mình
-Route::get('/user', [UserController::class, 'me']);
-Route::get('/user/{id}', [UserController::class, 'getUserById']);
-
-
-// Chatbot hỗ trợ bệnh nhân đặt lịch tự động    
+// ===============================
+// 🤖 CHATBOT hỗ trợ bệnh nhân
+// ===============================
 Route::post('/chatbot', [ChatbotController::class, 'getReply']);
 
 
-//dashboard
+// ===============================
+// 📊 DASHBOARD
+// ===============================
 Route::get('/dashboard', [AppointmentController::class, 'dashboard']);

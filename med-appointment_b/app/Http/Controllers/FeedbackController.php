@@ -7,15 +7,23 @@ use Illuminate\Http\Request;
 
 class FeedbackController extends Controller
 {
-    // Lấy feedback theo bác sĩ
-    public function getByDoctor($doctor_id)
+    // Lấy feedback theo bác sĩ + LỌC SAO nếu có truyền rating
+    public function getByDoctor(Request $request, $doctor_id)
     {
-        $feedbacks = Feedback::with('user:id,name,email') // lấy thông tin user
-            ->where('doctor_id', $doctor_id)
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $rating = $request->query('rating'); // lấy rating nếu có
 
-        return response()->json(['data' => $feedbacks]);
+        $query = Feedback::with('user:id,name,email')
+            ->where('doctor_id', $doctor_id)
+            ->orderBy('created_at', 'desc');
+
+        // Nếu có rating thì thêm điều kiện lọc
+        if ($rating) {
+            $query->where('rating', $rating);
+        }
+
+        $feedbacks = $query->get();
+
+        return response()->json(['data' => $feedbacks], 200);
     }
 
     // Thêm feedback mới
@@ -30,7 +38,7 @@ class FeedbackController extends Controller
 
         $feedback = Feedback::create($validated);
 
-        // Lấy lại feedback kèm thông tin user
+        // Lấy lại feedback kèm user
         $feedback = Feedback::with('user:id,name,email')->find($feedback->id);
 
         return response()->json(['data' => $feedback]);

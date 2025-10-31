@@ -13,13 +13,37 @@ export default function Navbar() {
   const [openUser, setOpenUser] = useState(false);
   const [openDoctor, setOpenDoctor] = useState(false);
   const [user, setUser] = useState(null);
+  const [doctorId, setDoctorId] = useState(null); // ✅ thêm state để lưu doctor_id
   const [searchTerm, setSearchTerm] = useState("");
 
   // Thông báo
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState([]);
 
-  // Lấy thông tin user và lắng nghe sự kiện thay đổi localStorage để cập nhật user
+  // 🩺 Lấy doctor_id tương ứng nếu user là bác sĩ
+  useEffect(() => {
+    const loadDoctorId = async () => {
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      if (storedUser?.role === "doctor") {
+        try {
+          const res = await axios.get(
+            `http://localhost:8000/api/doctors?email=${storedUser.email}`
+          );
+          if (res.data?.data && res.data.data.length > 0) {
+            const doctor = res.data.data.find(
+              (d) => d.user.email === storedUser.email
+            );
+            if (doctor) setDoctorId(doctor.id);
+          }
+        } catch (error) {
+          console.error("Lỗi khi tải doctor_id:", error);
+        }
+      }
+    };
+    loadDoctorId();
+  }, []);
+
+  // Lấy thông tin user
   useEffect(() => {
     const loadUser = () => {
       const storedUser = localStorage.getItem("user");
@@ -28,10 +52,7 @@ export default function Navbar() {
     };
 
     loadUser();
-
-    // 🔔 Lắng nghe khi localStorage thay đổi
     window.addEventListener("storage", loadUser);
-
     return () => window.removeEventListener("storage", loadUser);
   }, []);
 
@@ -49,7 +70,6 @@ export default function Navbar() {
           `http://localhost:8000/api/notes/${patientId}`
         );
 
-        // Đưa dữ liệu từ backend vào notifications
         const mapped = res.data.map((note) => ({
           id: note.id,
           title: note.title || "Ghi chú từ Admin",
@@ -64,8 +84,6 @@ export default function Navbar() {
     };
 
     fetchNotes();
-
-    // Cập nhật lại mỗi 30 giây
     const interval = setInterval(fetchNotes, 30000);
     return () => clearInterval(interval);
   }, []);
@@ -342,14 +360,20 @@ export default function Navbar() {
                     </>
                   )}
 
+                  {/* 🩺 Bác sĩ */}
                   {user.role === "doctor" && (
                     <>
                       <button
-                        onClick={() => navigate("/doctorprofile")}
+                        onClick={() => {
+                          setOpenUser(false);
+                          if (doctorId) navigate(`/doctorprofile/${doctorId}`);
+                          else navigate("/doctorprofile");
+                        }}
                         className="block w-full px-4 py-2 hover:bg-gray-100 text-left"
                       >
                         Hồ sơ bác sĩ
                       </button>
+
                       <button
                         onClick={() => navigate("/doctorschedule")}
                         className="block w-full px-4 py-2 hover:bg-gray-100 text-left"

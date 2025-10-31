@@ -110,6 +110,10 @@ export default function App() {
           }
         />
 
+        {/* ✅ Hồ sơ bác sĩ */}
+        <Route path="/doctorprofile" element={<DoctorProfile />} />
+        <Route path="/doctorprofile/:id" element={<DoctorProfile />} />
+
         {/* Chi tiết bác sĩ */}
         <Route path="/doctor/:name" element={<DoctorDetail />} />
         <Route path="/doctor/:id/profile" element={<DoctorProfile />} />
