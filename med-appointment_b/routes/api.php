@@ -26,6 +26,7 @@ use App\Http\Controllers\PatientHistoryController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\PostFeedbackController;
 use App\Http\Controllers\Api\ChatbotController;
+use App\Http\Controllers\InvoiceController;
 use App\Models\Appointment;
 
 
@@ -77,7 +78,6 @@ Route::prefix('doctors')->group(function () {
 // ===============================
 Route::get('/schedules/getbyid/{doctor_id}', [ScheduleController::class, 'getScheduleById']);
 
-<<<<<<< HEAD
 // PATIENTS
 // hai route này phải đặt trước route resource để không bị nhầm với {patient}
 Route::get('/patients/statistics', [PatientController::class, 'getStatistics']);
@@ -86,7 +86,6 @@ Route::apiResource('patients', PatientController::class);
 
 
 // USERS (CRUD + Profile + Ảnh + Chứng chỉ)
-=======
 
 // ===============================
 // 🧍‍♂️ PATIENTS
@@ -97,7 +96,6 @@ Route::apiResource('patients', PatientController::class);
 // ===============================
 // 👤 USERS (CRUD + Hồ sơ + Chứng chỉ)
 // ===============================
->>>>>>> DangThanhPhong/13-BoLocFeedbackTheoSao
 Route::apiResource('users', UserController::class);
 Route::get('/users/{id}/profile', [UserController::class, 'showProfile']);
 Route::post('/users/{id}/profile', [UserController::class, 'updateProfile']);
@@ -215,6 +213,11 @@ Route::post('/payment/create', [PaymentController::class, 'createPayment']);
 Route::post('/payment/webhook', [PaymentController::class, 'webhook']);
 Route::get('/test-payos', [PaymentController::class, 'testPayOS']);
 
+// ===============================
+// 💰 Quản lý hóa đơn 
+// ===============================
+Route::apiResource('invoices', InvoiceController::class);
+
 
 // ===============================
 // ⭐ FEEDBACK (Đánh giá bác sĩ)
@@ -234,3 +237,7 @@ Route::post('/chatbot', [ChatbotController::class, 'getReply']);
 // 📊 DASHBOARD
 // ===============================
 Route::get('/dashboard', [AppointmentController::class, 'dashboard']);
+// ===============================
+// 📊 Appointment
+// ===============================
+Route::get('/appointments/show/{id}', [AppointmentController::class, 'shownew']);

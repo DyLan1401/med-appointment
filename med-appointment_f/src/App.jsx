@@ -68,10 +68,11 @@ import FeedbackDoctor from "./components/common/FeedBackDoctor";
 /* Thêm ChatBot nổi 💬 */
 import ChatBot from "./components/common/ChatBot";
 
+import PaymentOptions  from "./components/payment/Paymain";
 import PaymentSuccess from "./components/payment/paysuccess";
 import PaymentFailedV2 from "./components/payment/paycancel";
 import FeedBackDoctor from "./components/common/FeedBackDoctor";
-
+import DepositPage from "./components/payment/DepositPage";
 export default function App() {
   return (
     <>
@@ -236,6 +237,8 @@ export default function App() {
 
         <Route path="/payment/success" element={<PaymentSuccess />} />
         <Route path="/payment/cancel" element={<PaymentFailedV2 />} />
+        <Route path="/payment/options" element={<PaymentOptions />} />
+        <Route path="/payment/deposit/:appointmentId" element={<DepositPage />} />
       </Routes>
 
       {/* 💬 Chatbot nổi - hiển thị toàn cục */}

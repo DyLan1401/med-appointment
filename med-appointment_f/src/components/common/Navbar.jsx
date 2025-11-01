@@ -46,7 +46,9 @@ export default function Navbar() {
   // Lấy thông tin user
   useEffect(() => {
     const loadUser = () => {
+    
       const storedUser = localStorage.getItem("user");
+   
       if (storedUser) setUser(JSON.parse(storedUser));
       else setUser(null);
     };
@@ -105,7 +107,7 @@ export default function Navbar() {
     navigate(`/doctor?search=${encodeURIComponent(searchTerm.trim())}`);
     setSearchTerm("");
   };
-
+console.log("user in navbar:", user);
   return (
     <div className="w-full bg-white shadow-md fixed top-0 left-0 z-50 animate-fadeIn">
       <div className="max-w-7xl mx-auto flex justify-between items-center px-6 py-3 font-semibold">

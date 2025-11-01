@@ -11,7 +11,7 @@ class Invoice extends Model
 
     protected $fillable = [
         'appointment_id', 'patient_id', 'doctor_id',
-        'amount', 'status', 'file_url'
+        'amount', 'status',  'type', 'file_url'
     ];
 
     public function appointment()
