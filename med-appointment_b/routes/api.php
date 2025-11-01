@@ -136,13 +136,13 @@ Route::post('/posts/{id}/feedbacks', [PostFeedbackController::class, 'store']); 
     Route::get('/patient/history', [PatientHistoryController::class, 'index']);
     
     Route::middleware('auth:sanctum')->post('/logout', [UserController::class, 'logout']);
-
-});
-
     Route::get('/user', [UserController::class, 'me']);
 
 // Lấy thông tin user theo ID
-Route::get('/user/{id}', [UserController::class, 'getUserById']);
+    Route::get('/user/{id}', [UserController::class, 'getUserById']);
+});
+
+
 
 // Gửi ghi chú cho bệnh nhân
 // Notes (Ghi chú cho bệnh nhân)
