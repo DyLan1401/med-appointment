@@ -77,7 +77,6 @@ Route::prefix('doctors')->group(function () {
 // ===============================
 Route::get('/schedules/getbyid/{doctor_id}', [ScheduleController::class, 'getScheduleById']);
 
-<<<<<<< HEAD
 // PATIENTS
 // hai route này phải đặt trước route resource để không bị nhầm với {patient}
 Route::get('/patients/statistics', [PatientController::class, 'getStatistics']);
@@ -86,18 +85,6 @@ Route::apiResource('patients', PatientController::class);
 
 
 // USERS (CRUD + Profile + Ảnh + Chứng chỉ)
-=======
-
-// ===============================
-// 🧍‍♂️ PATIENTS
-// ===============================
-Route::apiResource('patients', PatientController::class);
-
-
-// ===============================
-// 👤 USERS (CRUD + Hồ sơ + Chứng chỉ)
-// ===============================
->>>>>>> DangThanhPhong/13-BoLocFeedbackTheoSao
 Route::apiResource('users', UserController::class);
 Route::get('/users/{id}/profile', [UserController::class, 'showProfile']);
 Route::post('/users/{id}/profile', [UserController::class, 'updateProfile']);
@@ -164,6 +151,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [UserController::class, 'logout']);
     Route::post('/change-password', [UserController::class, 'changePassword']);
 
+    // ===============================
+    // 👥 USER thông tin & kiểm tra đăng nhập
+    // ===============================
+    Route::get('/user', [UserController::class, 'me']);
+    Route::get('/user/{id}', [UserController::class, 'getUserById']);
+
     // 📝 Quản lý phản hồi bài viết
     Route::prefix('feedbacks')->group(function () {
         Route::get('/', [PostFeedbackController::class, 'index']);
@@ -185,11 +178,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 
-// ===============================
-// 👥 USER thông tin & kiểm tra đăng nhập
-// ===============================
-Route::get('/user', [UserController::class, 'me']);
-Route::get('/user/{id}', [UserController::class, 'getUserById']);
+
 
 
 // ===============================
