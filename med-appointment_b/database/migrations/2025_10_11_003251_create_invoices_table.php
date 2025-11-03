@@ -13,7 +13,7 @@ return new class extends Migration {
             $table->unsignedBigInteger('patient_id');
             $table->unsignedBigInteger('doctor_id');
             $table->decimal('amount', 12, 2);
-            $table->enum('status', ['paid', 'unpaid', 'canceled', 'hiden'])->default('unpaid');
+            $table->enum('status', ['paid', 'unpaid', 'canceled', 'hidden'])->default('unpaid');
             $table->enum('type', ['deposit', 'pay'])->default('pay');
             $table->string('file_url', 255)->nullable();
             $table->timestamps();

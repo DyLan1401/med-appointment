@@ -216,8 +216,9 @@ Route::get('/test-payos', [PaymentController::class, 'testPayOS']);
 // ===============================
 // 💰 Quản lý hóa đơn 
 // ===============================
-Route::apiResource('invoices', InvoiceController::class);
 
+Route::get('invoices/cancel-invoice', [InvoiceController::class, 'cancelInvoice']);
+Route::apiResource('invoices', InvoiceController::class);
 
 // ===============================
 // ⭐ FEEDBACK (Đánh giá bác sĩ)

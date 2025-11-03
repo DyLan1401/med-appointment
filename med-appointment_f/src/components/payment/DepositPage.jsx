@@ -1,10 +1,13 @@
+// ===============================
+// 💰 DepositPage.jsx (cập nhật)
+// ===============================
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Loader2, Wallet, User, Stethoscope, Activity } from "lucide-react";
-import { useParams } from "react-router-dom"; // ✅ thêm dòng này
+import { useParams } from "react-router-dom";
 
 export default function DepositPage() {
-  const { appointmentId } = useParams(); // ✅ lấy id từ URL
+  const { appointmentId } = useParams();
   const [loading, setLoading] = useState(false);
   const [appointment, setAppointment] = useState(null);
   const [depositAmount, setDepositAmount] = useState(0);
@@ -12,7 +15,7 @@ export default function DepositPage() {
   // Lấy dữ liệu cuộc hẹn
   useEffect(() => {
     const fetchAppointment = async () => {
-      if (!appointmentId) return; // ✅ tránh lỗi undefined
+      if (!appointmentId) return;
       try {
         const res = await axios.get(`http://localhost:8000/api/appointments/show/${appointmentId}`);
         setAppointment(res.data.data);
@@ -25,10 +28,11 @@ export default function DepositPage() {
     fetchAppointment();
   }, [appointmentId]);
 
-  // Gửi yêu cầu tạo hóa đơn đặt cọc
+  // Gửi yêu cầu tạo hóa đơn và chuyển hướng sang PayOS
   const handleDeposit = async () => {
     setLoading(true);
     try {
+      // 1️⃣ Tạo hóa đơn đặt cọc
       const payload = {
         appointment_id: appointment.id,
         patient_id: appointment.patient.id,
@@ -36,12 +40,29 @@ export default function DepositPage() {
         amount: depositAmount,
         type: "deposit",
       };
-      const res = await axios.post("http://localhost:8000/api/invoices", payload);
-      alert("✅ Đặt cọc thành công!");
-      console.log(res.data);
+      const resInvoice = await axios.post("http://localhost:8000/api/invoices", payload);
+
+      if (!resInvoice.data?.data?.invoice?.id) {
+        alert("❌ Không lấy được ID hóa đơn!");
+        return;
+      }
+
+      const invoiceId = resInvoice.data.data.invoice.id;
+
+      // 2️⃣ Gọi API tạo link thanh toán PayOS
+      const resPayment = await axios.post("http://localhost:8000/api/payment/create", {
+        invoice_id: invoiceId,
+      });
+
+      if (resPayment.data?.success && resPayment.data?.checkoutUrl) {
+        // 3️⃣ Chuyển hướng người dùng đến trang thanh toán
+        window.location.href = resPayment.data.checkoutUrl;
+      } else {
+        alert("❌ Không tạo được link thanh toán!");
+      }
     } catch (error) {
       console.error(error);
-      alert("❌ Không thể tạo hóa đơn!");
+      alert("❌ Lỗi khi tạo hóa đơn hoặc thanh toán!");
     } finally {
       setLoading(false);
     }

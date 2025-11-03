@@ -10,8 +10,13 @@ class Invoice extends Model
     use HasFactory;
 
     protected $fillable = [
-        'appointment_id', 'patient_id', 'doctor_id',
-        'amount', 'status',  'type', 'file_url'
+        'appointment_id',
+        'patient_id',
+        'doctor_id',
+        'amount',
+        'status',
+        'type',
+        'file_url'
     ];
 
     public function appointment()
@@ -22,5 +27,14 @@ class Invoice extends Model
     public function payments()
     {
         return $this->hasMany(Payment::class, 'invoice_id');
+    }
+    public function patient()
+    {
+        return $this->belongsTo(Patient::class);
+    }
+
+    public function doctor()
+    {
+        return $this->belongsTo(Doctor::class);
     }
 }

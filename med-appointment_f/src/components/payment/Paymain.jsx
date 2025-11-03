@@ -1,28 +1,27 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { Loader2, CreditCard, Wallet } from "lucide-react";
 
 export default function PaymentOptions() {
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState(null);
 
-  const handlePayment = async (type) => {
+  // ID mẫu
+  const appointment_id = 1;
+
+
+  const handlePayment = (type) => {
     setSelected(type);
     setLoading(true);
-    try {
-      const res = await axios.post("/api/create-payment-link", { type });
-      if (res.data?.checkoutUrl) {
-        window.location.href = res.data.checkoutUrl;
-      } else {
-        alert("Không tạo được link thanh toán!");
+
+    setTimeout(() => {
+      if (type === "deposit") {
+        window.location.href = `http://localhost:5173/payment/deposit/${appointment_id}`;
+      } else if (type === "full") {
+        window.location.href = `http://localhost:5173/payment/payfull/${appointment_id}`;
       }
-    } catch (error) {
-      console.error(error);
-      alert("Lỗi khi khởi tạo thanh toán!");
-    } finally {
       setLoading(false);
       setSelected(null);
-    }
+    }, 1000); // Giả lập hiệu ứng xử lý
   };
 
   return (
