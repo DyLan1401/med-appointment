@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Doctor;
 use App\Models\DoctorCertificate;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
 
@@ -278,6 +279,48 @@ class DoctorController extends Controller
     /**
      * Remove the specified resource from storage.
      */
+
+    // public function topDoctors()
+    // {
+    //     $top = Doctor::join('users', 'users.id', '=', 'doctors.user_id')
+    //         ->join('appointments', 'appointments.doctor_id', '=', 'doctors.id')
+    //         ->select(
+    //             'doctors.id as doctor_id',
+    //             'users.name as doctor_name',
+    //             'users.email',
+    //             'users.avatar',
+    //             DB::raw('COUNT(appointments.id) as total_appointments')
+    //         )
+    //         ->groupBy('doctors.id', 'users.name', 'users.email', 'users.avatar')
+    //         ->orderByDesc('total_appointments')
+    //         ->take(10)
+    //         ->get();
+
+    //     return response()->json($top);
+    // }
+
+    public function topDoctors(Request $request)
+    {
+        $limit = $request->get('limit', 10);
+
+        $top = Doctor::join('users', 'users.id', '=', 'doctors.user_id')
+            ->leftJoin('departments', 'departments.id', '=', 'doctors.specialization_id')
+            ->join('appointments', 'appointments.doctor_id', '=', 'doctors.id')
+            ->select(
+                'doctors.id as doctor_id',
+                'users.name as doctor_name',
+                'users.email',
+                'users.avatar',
+                'departments.name as specialty',
+                DB::raw('COUNT(appointments.id) as total_appointments')
+            )
+            ->groupBy('doctors.id', 'users.name', 'users.email', 'users.avatar', 'departments.name')
+            ->orderByDesc('total_appointments')
+            ->take($limit)
+            ->get();
+
+        return response()->json($top);
+    }
 
 
 }

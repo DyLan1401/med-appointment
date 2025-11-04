@@ -140,6 +140,7 @@ Route::post('/register/verify-otp', [UserController::class, 'verifyOtp']);
 // ===============================
 Route::get('/favorites/{user_id?}', [FavoriteController::class, 'index']);
 Route::get('/favorites/doctor/{doctor_id}', [FavoriteController::class, 'getDoctor']);
+Route::get('/doctors/top', [DoctorController::class, 'topDoctors']);
 
 
 // ===============================
