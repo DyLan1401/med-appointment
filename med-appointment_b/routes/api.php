@@ -13,7 +13,6 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\CategoryPostController;
 use App\Http\Controllers\PostController;
-use App\Http\Controllers\ChangePasswordController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\SocialAuthController;
@@ -42,33 +41,30 @@ Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleC
 Route::apiResource('banners', BannerController::class);
 
 
+// ===============================
+// 🧑‍⚕️ DOCTORS
+// ===============================
 Route::prefix('doctors')->group(function () {
-
     // CRUD DOCTOR
-    Route::get('/', [DoctorController::class, 'index']);          // Danh sách bác sĩ (có phân trang)
-    Route::post('/', [DoctorController::class, 'store']);         // Thêm bác sĩ mới
-    Route::put('/{id}', [DoctorController::class, 'update']);     // Cập nhật thông tin bác sĩ
-    Route::delete('/{id}', [DoctorController::class, 'destroy']); // Xóa bác sĩ
-
+    Route::get('/', [DoctorController::class, 'index']);
+    Route::post('/', [DoctorController::class, 'store']);
+    Route::put('/{id}', [DoctorController::class, 'update']);
+    Route::delete('/{id}', [DoctorController::class, 'destroy']);
 
     // HỒ SƠ BÁC SĨ
-    Route::get('/{doctor_id}/profile', [DoctorController::class, 'showProfile']);   // Xem hồ sơ
-    Route::post('/{doctor_id}/profile', [DoctorController::class, 'updateProfile']); // Cập nhật hồ sơ
-
+    Route::get('/{doctor_id}/profile', [DoctorController::class, 'showProfile']);
+    Route::post('/{doctor_id}/profile', [DoctorController::class, 'updateProfile']);
 
     // ẢNH ĐẠI DIỆN
-    Route::post('/{doctor_id}/avatar', [DoctorController::class, 'uploadAvatar']);  // Upload ảnh đại diện
-
+    Route::post('/{doctor_id}/avatar', [DoctorController::class, 'uploadAvatar']);
 
     // CHỨNG CHỈ / BẰNG CẤP
-    Route::get('/{doctor_id}/certificates', [DoctorController::class, 'getCertificates']);   // Lấy danh sách chứng chỉ
-    Route::post('/{doctor_id}/certificates', [DoctorController::class, 'uploadCertificate']); // Upload chứng chỉ mới
-    Route::delete('/certificates/{id}', [DoctorController::class, 'deleteCertificate']);      // Xóa chứng chỉ
-
+    Route::get('/{doctor_id}/certificates', [DoctorController::class, 'getCertificates']);
+    Route::post('/{doctor_id}/certificates', [DoctorController::class, 'uploadCertificate']);
+    Route::delete('/certificates/{id}', [DoctorController::class, 'deleteCertificate']);
 
     // TÌM KIẾM BÁC SĨ
-    Route::get('/search', [DoctorController::class, 'search']); // Tìm kiếm theo tên / chuyên khoa
-
+    Route::get('/search', [DoctorController::class, 'search']);
 });
 
 
@@ -77,27 +73,19 @@ Route::prefix('doctors')->group(function () {
 // ===============================
 Route::get('/schedules/getbyid/{doctor_id}', [ScheduleController::class, 'getScheduleById']);
 
-<<<<<<< HEAD
-// PATIENTS
-// hai route này phải đặt trước route resource để không bị nhầm với {patient}
-Route::get('/patients/statistics', [PatientController::class, 'getStatistics']);
-Route::get('/patients/newest', [PatientController::class, 'getNewest']);
-Route::apiResource('patients', PatientController::class);
-
-
-// USERS (CRUD + Profile + Ảnh + Chứng chỉ)
-=======
 
 // ===============================
 // 🧍‍♂️ PATIENTS
 // ===============================
+// Hai route này phải đặt trước route resource để không bị nhầm với {patient}
+Route::get('/patients/statistics', [PatientController::class, 'getStatistics']);
+Route::get('/patients/newest', [PatientController::class, 'getNewest']);
 Route::apiResource('patients', PatientController::class);
 
 
 // ===============================
 // 👤 USERS (CRUD + Hồ sơ + Chứng chỉ)
 // ===============================
->>>>>>> DangThanhPhong/13-BoLocFeedbackTheoSao
 Route::apiResource('users', UserController::class);
 Route::get('/users/{id}/profile', [UserController::class, 'showProfile']);
 Route::post('/users/{id}/profile', [UserController::class, 'updateProfile']);
@@ -159,19 +147,19 @@ Route::get('/favorites/doctor/{doctor_id}', [FavoriteController::class, 'getDoct
 // 🔒 CÁC ROUTE YÊU CẦU ĐĂNG NHẬP (Sanctum)
 // ===============================
 Route::middleware('auth:sanctum')->group(function () {
-    // 👤 Thông tin tài khoản người dùng
+    // 👤 Tài khoản người dùng
     Route::get('/profile', [UserController::class, 'profile']);
     Route::post('/logout', [UserController::class, 'logout']);
     Route::post('/change-password', [UserController::class, 'changePassword']);
 
-    // 📝 Quản lý phản hồi bài viết
+    // 📝 Phản hồi bài viết
     Route::prefix('feedbacks')->group(function () {
         Route::get('/', [PostFeedbackController::class, 'index']);
         Route::put('/{id}', [PostFeedbackController::class, 'update']);
         Route::delete('/{id}', [PostFeedbackController::class, 'destroy']);
     });
 
-    // 🆕 Route feedback theo từng bài viết
+    // 🆕 Feedback theo từng bài viết
     Route::get('/posts/{id}/feedbacks', [PostFeedbackController::class, 'index']);
     Route::post('/posts/{id}/feedbacks', [PostFeedbackController::class, 'store']);
 
@@ -200,9 +188,15 @@ Route::post('/notes', [NoteController::class, 'store']);
 Route::put('/notes/{note}/read', [NoteController::class, 'markAsRead']);
 Route::delete('/notes/{note}', [NoteController::class, 'destroy']);
 
+// ⚙️ Xuất PDF cho ghi chú
+Route::get('/notes/{id}/export-pdf', [NoteController::class, 'exportPdf']);
+
+// 🧩 Xuất Excel cho ghi chú (mới thêm)
+Route::get('/notes/{id}/export-excel', [NoteController::class, 'exportExcel']);
+
 
 // ===============================
-// 📤 XUẤT FILE (Excel / PDF)
+// 📤 XUẤT FILE (Excel / PDF) cho lịch hẹn
 // ===============================
 Route::get('/export-completed/xlsx', [AppointmentController::class, 'exportCompletedAppointmentsXlsx']);
 Route::get('/export-completed/pdf', [AppointmentController::class, 'exportCompletedAppointmentsPdf']);
