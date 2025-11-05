@@ -11,12 +11,13 @@ import {
     Award,
     Briefcase,
     User2,
+    Sparkles,
 } from "lucide-react";
 import { useParams, useLocation } from "react-router-dom";
 import API from "../../api/axios";
 import avatarDefault from "../../assets/avatar.jpg";
 
-export default function FeedBack() {
+export default function FeedBackDoctor() {
     const { id } = useParams();
     const location = useLocation();
     const doctorFromState = location.state?.doctor || null;
@@ -30,6 +31,8 @@ export default function FeedBack() {
     const [notFound, setNotFound] = useState(false);
     const [showForm, setShowForm] = useState(false);
     const [toast, setToast] = useState(null);
+
+    const [filterRating, setFilterRating] = useState(null);
 
     const currentUser = JSON.parse(localStorage.getItem("user"));
     const currentUserId = currentUser?.id || localStorage.getItem("user_id") || null;
@@ -50,7 +53,7 @@ export default function FeedBack() {
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
-            setNotFound(false); // ✅ reset trước khi fetch
+            setNotFound(false);
             try {
                 let doc = doctorFromState;
                 if (!doc) {
@@ -68,7 +71,6 @@ export default function FeedBack() {
                         experience: doc.experience || "Chưa có kinh nghiệm",
                     };
                     setDoctor(formattedDoctor);
-                    setNotFound(false); // ✅ đảm bảo reset lại khi có doctor
 
                     const feedbackRes = await API.get(`/feedbacks/${id}`);
                     setFeedbacks(feedbackRes.data.data || feedbackRes.data || []);
@@ -76,21 +78,13 @@ export default function FeedBack() {
                     setDoctor(null);
                     setNotFound(true);
                 }
-            } catch (error) {
-                console.error("❌ Lỗi khi lấy dữ liệu:", error);
-                setDoctor(null);
+            } catch {
                 setNotFound(true);
             } finally {
-                // ✅ Tránh render "not found" sớm
                 setTimeout(() => setLoading(false), 100);
             }
         };
         fetchData();
-
-        // ✅ reset an toàn khi rời khỏi component
-        return () => {
-            setNotFound(false);
-        };
     }, [id, doctorFromState]);
 
     const handleSubmit = async (e) => {
@@ -125,8 +119,7 @@ export default function FeedBack() {
             setRating(0);
             setShowForm(false);
             showToast("success", "🎉 Gửi feedback thành công!");
-        } catch (error) {
-            console.error("❌ Lỗi gửi feedback:", error);
+        } catch {
             showToast("error", "Gửi feedback thất bại, vui lòng thử lại!");
         }
     };
@@ -137,38 +130,39 @@ export default function FeedBack() {
             await API.delete(`/feedbacks/${feedbackId}`);
             setFeedbacks((prev) => prev.filter((fb) => fb.id !== feedbackId));
             showToast("success", "🗑️ Đã xóa feedback thành công!");
-        } catch (error) {
-            console.error("❌ Lỗi khi xóa:", error);
+        } catch {
             showToast("error", "Không thể xóa feedback!");
         }
     };
 
-    // 🌀 Loading state
-    if (loading) {
-        return (
-            <div className="p-10 text-center text-gray-500 animate-pulse">
-                Đang tải dữ liệu bác sĩ...
-            </div>
-        );
-    }
+    const filterByRating = async (value) => {
+        setFilterRating(value);
+        const res = await API.get(`/feedbacks/${id}?rating=${value}`);
+        setFeedbacks(res.data.data || []);
+    };
 
-    // ✅ Chỉ hiển thị "Không tìm thấy bác sĩ" khi chắc chắn không có dữ liệu thật
-    if (!loading && (!doctor || !doctor.id) && notFound) {
+    const resetFilter = async () => {
+        setFilterRating(null);
+        const res = await API.get(`/feedbacks/${id}`);
+        setFeedbacks(res.data.data || res.data || []);
+    };
+
+    if (loading)
+        return <div className="p-10 text-center text-gray-500 animate-pulse">Đang tải dữ liệu bác sĩ...</div>;
+
+    if (!doctor || notFound)
         return (
             <div className="flex flex-col items-center justify-center p-10 text-center text-gray-600">
                 <AlertTriangle className="text-blue-600 w-10 h-10 mb-3" />
                 <p className="text-lg font-semibold">Không tìm thấy bác sĩ phù hợp</p>
-                <p className="text-sm text-gray-500 mt-1">
-                    Có thể bác sĩ đã bị xóa hoặc không tồn tại.
-                </p>
             </div>
         );
-    }
 
-    // ✅ Normal display when doctor exists
     return (
         <div className="max-w-5xl mx-auto mt-12 p-6 bg-gradient-to-b from-white to-blue-50 rounded-3xl shadow-xl border border-gray-100">
-            {/* Doctor profile */}
+
+            {/* ---------- INFO BÁC SĨ (GIỮ NGUYÊN) ---------- */}
+
             <div className="flex flex-col md:flex-row items-center gap-8 mb-8 p-6 bg-white rounded-2xl shadow-md hover:shadow-lg transition">
                 <img
                     src={doctor.avatar}
@@ -191,13 +185,14 @@ export default function FeedBack() {
                 </div>
             </div>
 
-            {/* Feedback form */}
+            {/* ---------- FORM FEEDBACK (GIỮ NGUYÊN) ---------- */}
+
             <div className="bg-white rounded-2xl shadow-md p-6 mb-8">
                 <div className="flex items-center justify-between mb-4">
                     <h3 className="text-xl font-semibold text-blue-700">Viết đánh giá của bạn</h3>
                     <button
                         onClick={() => setShowForm(!showForm)}
-                        className="text-blue-600 hover:text-blue-800 font-medium flex items-center"
+                        className="text-blue-600 hover:text-blue-800 font-medium flex items-center transition"
                     >
                         {showForm ? <X className="mr-2" /> : <MessageSquarePlus className="mr-2" />}
                         {showForm ? "Đóng" : "Viết Feedback"}
@@ -207,24 +202,22 @@ export default function FeedBack() {
                 {showForm && (
                     <div className="animate-fade-in">
                         <div className="flex items-center mb-3">
-                            <span className="mr-3 text-sm text-gray-700 font-medium">
-                                Mức độ hài lòng:
-                            </span>
+                            <span className="mr-3 text-sm text-gray-700 font-medium">Mức độ hài lòng:</span>
                             {[1, 2, 3, 4, 5].map((index) => (
                                 <Star
                                     key={index}
                                     size={25}
-                                    className={`cursor-pointer transition-all ${
-                                        index <= (hover || rating)
+                                    className={`cursor-pointer transition-all ${index <= (hover || rating)
                                             ? "fill-yellow-400 text-yellow-400 scale-110"
                                             : "text-gray-300"
-                                    }`}
+                                        }`}
                                     onClick={() => setRating(index)}
                                     onMouseEnter={() => setHover(index)}
                                     onMouseLeave={() => setHover(0)}
                                 />
                             ))}
                         </div>
+
                         <textarea
                             value={comment}
                             onChange={(e) => setComment(e.target.value)}
@@ -232,6 +225,7 @@ export default function FeedBack() {
                             className="w-full border border-gray-300 rounded-lg p-3 mb-4 focus:ring-2 focus:ring-blue-400 outline-none text-sm"
                             rows="4"
                         />
+
                         <button
                             onClick={handleSubmit}
                             className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition font-semibold"
@@ -242,75 +236,92 @@ export default function FeedBack() {
                 )}
             </div>
 
-            {/* Feedback list */}
-            <div className="bg-white rounded-2xl shadow-md p-6">
-                <h3 className="text-xl font-semibold text-gray-700 mb-5">
-                    Các Feedback gần đây
-                </h3>
-                {feedbacks.length === 0 ? (
-                    <p className="text-gray-500 text-sm text-center">
-                        Chưa có feedback nào.
-                    </p>
-                ) : (
-                    feedbacks.map((fb, idx) => (
-                        <div
-                            key={idx}
-                            className="bg-blue-50 p-4 rounded-xl shadow-sm mb-3 border border-blue-100 hover:shadow-md transition relative"
-                        >
-                            {currentUserId == fb.user?.id && (
-                                <button
-                                    onClick={() => handleDelete(fb.id)}
-                                    className="absolute top-3 right-3 text-gray-400 hover:text-red-500 transition transform hover:scale-110"
-                                >
-                                    <Trash2 size={18} />
-                                </button>
-                            )}
-                            <div className="flex justify-between items-center mb-2">
-                                <div className="flex items-center gap-2">
-                                    <User2 className="text-blue-600" />
-                                    <div>
-                                        <p className="font-semibold text-gray-800">
-                                            {fb.user?.name || "Người dùng ẩn danh"}
-                                        </p>
-                                        <p className="text-xs text-gray-400">
-                                            {fb.created_at
-                                                ? new Date(fb.created_at).toLocaleDateString("vi-VN")
-                                                : "Chưa xác định"}
-                                        </p>
+            {/* ⭐⭐⭐ LIST + FILTER PANEL ⭐⭐⭐ */}
+            <div className="flex flex-col md:flex-row gap-6">
+
+                {/* LEFT: LIST (GIỮ NGUYÊN) */}
+                <div className="flex-1 bg-white rounded-2xl shadow-md p-6">
+                    <h3 className="text-xl font-semibold text-gray-700 mb-5">Các Feedback gần đây</h3>
+
+                    {feedbacks.length === 0 ? (
+                        <p className="text-gray-500 text-sm text-center">Chưa có feedback nào.</p>
+                    ) : (
+                        feedbacks.map((fb, idx) => (
+                            <div
+                                key={idx}
+                                className="bg-blue-50 p-4 rounded-xl shadow-sm mb-3 border border-blue-100 hover:shadow-md transition relative animate-fade-in"
+                            >
+                                {currentUserId == fb.user?.id && (
+                                    <button
+                                        onClick={() => handleDelete(fb.id)}
+                                        className="absolute top-3 right-3 text-gray-400 hover:text-red-500 transition transform hover:scale-110"
+                                    >
+                                        <Trash2 size={18} />
+                                    </button>
+                                )}
+                                <div className="flex justify-between items-center mb-2">
+                                    <div className="flex items-center gap-2">
+                                        <User2 className="text-blue-600" />
+                                        <div>
+                                            <p className="font-semibold text-gray-800">{fb.user?.name || "Người dùng ẩn danh"}</p>
+                                            <p className="text-xs text-gray-400">{fb.created_at ? new Date(fb.created_at).toLocaleDateString("vi-VN") : "Chưa xác định"}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                        {[...Array(5)].map((_, i) => (
+                                            <Star key={i} size={15} className={i < fb.rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"} />
+                                        ))}
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-1">
-                                    {Array.from({ length: 5 }, (_, i) => (
-                                        <Star
-                                            key={i}
-                                            size={15}
-                                            className={
-                                                i < Math.round(fb.rating)
-                                                    ? "fill-yellow-400 text-yellow-400"
-                                                    : "text-gray-300"
-                                            }
-                                        />
-                                    ))}
-                                </div>
+                                <p className="text-gray-700 text-sm italic">{fb.comment}</p>
                             </div>
-                            <p className="text-gray-700 text-sm italic">{fb.comment}</p>
-                        </div>
-                    ))
-                )}
+                        ))
+                    )}
+                </div>
+
+                {/* ✅ RIGHT: NEW BEAUTIFUL STAR FILTER PANEL */}
+                <div className="w-full md:w-64 bg-white/60 backdrop-blur-xl border border-blue-200 rounded-2xl shadow-lg p-6 h-fit animate-slide-up">
+                    <h3 className="text-lg font-bold text-blue-700 mb-4 flex items-center gap-2">
+                        <Sparkles className="text-yellow-400" /> Bộ lọc theo đánh giá
+                    </h3>
+
+                    {[5, 4, 3, 2, 1].map(star => (
+                        <button
+                            key={star}
+                            onClick={() => filterByRating(star)}
+                            className={`w-full flex justify-between px-4 py-3 rounded-xl font-medium transition-all mb-3 border
+                                ${filterRating === star
+                                    ? "bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-lg scale-[1.05]"
+                                    : "bg-white hover:bg-blue-50 text-gray-700 hover:shadow-md"
+                                }`}
+                        >
+                            <span className="flex items-center gap-1">
+                                {[...Array(star)].map((_, i) => (
+                                    <Star key={i} size={18} className="fill-yellow-400 text-yellow-400" />
+                                ))}
+                            </span>
+                            <span className="text-xs opacity-80 italic">
+                                {star === 5 ? "Tuyệt vời ✨" :
+                                    star === 4 ? "Rất hài lòng 😄" :
+                                        star === 3 ? "Ổn nhưng có thể tốt hơn 🙂" :
+                                            star === 2 ? "Chưa hài lòng 😕" : "Không hài lòng 😣"}
+                            </span>
+                        </button>
+                    ))}
+
+                    <button
+                        onClick={resetFilter}
+                        className="w-full text-center mt-4 text-sm text-blue-600 hover:text-blue-800 hover:underline transition"
+                    >
+                        ✨ Hiển thị tất cả đánh giá
+                    </button>
+                </div>
             </div>
 
             {/* Toast */}
             {toast && (
-                <div
-                    className={`fixed bottom-5 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-xl text-white shadow-lg flex items-center gap-2 animate-slide-up ${
-                        toast.type === "success" ? "bg-green-500" : "bg-red-500"
-                    }`}
-                >
-                    {toast.type === "success" ? (
-                        <CheckCircle size={20} />
-                    ) : (
-                        <AlertTriangle size={20} />
-                    )}
+                <div className={`fixed bottom-5 left-1/2 -translate-x-1/2 px-4 py-2 rounded-xl text-white shadow-xl animate-slide-up flex items-center gap-2 ${toast.type === "success" ? "bg-green-500" : "bg-red-500"}`}>
+                    {toast.type === "success" ? <CheckCircle size={20} /> : <AlertTriangle size={20} />}
                     <span className="text-sm font-medium">{toast.message}</span>
                 </div>
             )}

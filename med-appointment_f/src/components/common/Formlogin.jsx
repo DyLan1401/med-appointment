@@ -13,34 +13,33 @@ function FormLogin() {
 
   // lấy token và thông tin user từ URL sau khi đăng nhập xã hội (Google/Facebook)
   useEffect(() => {
-  const params = new URLSearchParams(window.location.search);
-  const token = params.get("token");
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
 
-  if (token) {
-    (async () => {
-      try {
-        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-        const res = await axios.get("http://localhost:8000/api/user");
+    if (token) {
+      (async () => {
+        try {
+          axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+          const res = await axios.get("http://localhost:8000/api/user");
 
-        localStorage.setItem("user", JSON.stringify(res.data));
-        localStorage.setItem("token", token);
+          localStorage.setItem("user", JSON.stringify(res.data));
+          localStorage.setItem("token", token);
 
-        // 🔔 Bắn sự kiện để Navbar biết có user mới
-        window.dispatchEvent(new Event("storage"));
+          // 🔔 Bắn sự kiện để Navbar biết có user mới
+          window.dispatchEvent(new Event("storage"));
 
-        navigate("/");
-      } catch (err) {
-        console.error("Lỗi khi lấy thông tin user:", err);
-      }
-    })();
-  }
-}, []);
+          navigate("/");
+        } catch (err) {
+          console.error("Lỗi khi lấy thông tin user:", err);
+        }
+      })();
+    }
+  }, []);
 
 
   // ===========================
   // ✅ Hàm xử lý đăng nhập
   // ===========================
->>>>>>> DinhThanhToan-UpdateLogin
   const handleLogin = async (e) => {
     e.preventDefault();
 
@@ -81,14 +80,13 @@ function FormLogin() {
           navigate("/"); // 👉 Trang người dùng bình thường
         }
       }, 1500);
->>>>>>> DinhThanhToan-UpdateLogin
     } catch (error) {
       console.error("❌ Lỗi đăng nhập:", error);
 
       // ✅ Hiển thị thông báo lỗi
       toast.error(
         error.response?.data?.message ||
-          "❌ Có lỗi xảy ra, vui lòng thử lại!",
+        "❌ Có lỗi xảy ra, vui lòng thử lại!",
         {
           position: "top-center",
           autoClose: 3000,
@@ -98,7 +96,7 @@ function FormLogin() {
   };
 
   // 🧩 Hàm đăng nhập với Google
-=======
+
   // ===========================
   // 🧩 Đăng nhập bằng Google
   // ===========================
@@ -164,8 +162,8 @@ function FormLogin() {
         <div className="flex justify-center mt-2">
           <button
             onClick={() =>
-              (window.location.href =
-                "http://localhost:8000/auth/facebook/redirect")
+            (window.location.href =
+              "http://localhost:8000/auth/facebook/redirect")
             }
             className="flex items-center justify-center w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-all"
           >

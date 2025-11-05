@@ -72,11 +72,13 @@ export default function Header1() {
                     <img
                         key={i}
                         src={
-                            banner.image.startsWith("http")
-                                ? banner.image
-                                : `http://localhost:8000/storage/${banner.image}`
+                            banner?.image
+                                ? banner.image.startsWith("http")
+                                    ? banner.image
+                                    : `http://localhost:8000/storage/${banner.image}`
+                                : "https://via.placeholder.com/1200x400?text=No+Image" // ảnh fallback
                         }
-                        alt={banner.title}
+                        alt={banner.title || "Banner"}
                         className="w-full h-full object-cover flex-shrink-0"
                     />
                 ))}

@@ -20,11 +20,11 @@ const feedbacks = [
     },
 ];
 
-export default function FeedbackList() {
+export default function ManagerFeedBackDoctor() {
     return (
         <div className="max-w-2xl mx-auto bg-white shadow-md rounded-2xl p-6">
             <h2 className="text-xl font-semibold text-blue-600 mb-2">
-                Quản lý Feedback
+                Quản lý Feedback bác sĩ
             </h2>
             <p className="text-gray-500 text-sm mb-6">
                 Tổng quan về các phản hồi từ bệnh nhân của bạn.

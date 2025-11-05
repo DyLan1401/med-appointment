@@ -1,19 +1,20 @@
 /* ---------------------------------------------
- App.jsx
+ 🌍 App.jsx
 ----------------------------------------------*/
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 
-/* Import các component cần thiết */
+/* 🧩 Import các component cần thiết */
 import Navbar from "./components/common/Navbar";
 import Header1 from "./components/common/Header1";
 import Header2 from "./components/common/Header2";
 import Section1 from "./components/common/section1";
 import Section2 from "./components/common/Section2";
 import MiniMap from "./components/common/maps";
-import Footer from "./components/common/Footer";  
+import Footer from "./components/common/Footer";
 import FormService from "./components/common/FormService";
 import PatientNotifications from "./components/common/PatientNotifications";
+import PatientNotes from "./components/common/PatientNotes";
 
 /* Trang yêu thích bác sĩ */
 import LikeDoctor from "./components/doctor/LikeDoctor";
@@ -50,7 +51,8 @@ import ManagerService from "./components/admin/ManagerService";
 import ManagerCategoriesPost from "./components/admin/ManagerCategoriesPost";
 import ManagerPosts from "./components/admin/ManagerPosts";
 import ManagerHoaDon from "./components/admin/ManagerHoaDon";
-import ManagerFeedBack from "./components/admin/ManagerFeedBack";
+import ManagerFeedBackDoctor from "./components/admin/ManagerFeedBackDoctor";
+import ManagerFeedBackPost from "./components/admin/ManagerFeedBackPost";
 import ManagerContact from "./components/admin/ManagerContact";
 import ManagerBanners from "./components/admin/ManagerBanner";
 import ManagerWork from "./components/admin/ManagerWork";
@@ -58,174 +60,184 @@ import AppointmentStats from "./components/admin/AppointmentStats";
 import BHYTStatistics from "./components/admin/BHYTStatistics";
 import TopDoctors from "./components/doctor/TopDoctors";
 
-/* Thêm mới component hiển thị ghi chú theo ID */
-import PatientNotes from "./components/common/PatientNotes"; 
+/* Thêm Feedback (bước 3) */
+import FeedBackDoctor from "./components/common/FeedBackDoctor";
 
-/* Thêm mới Feedback (bước 3) */
-import Feedback from "./components/common/FeedBack"; 
-
+/* 💬 Chatbot nổi */
+import ChatBot from "./components/common/ChatBot";
 
 import PaymentSuccess from "./components/payment/paysuccess";
 import PaymentFailedV2 from "./components/payment/paycancel";
+
 export default function App() {
   return (
-    <Routes>
-      {/* Trang chủ */}
-      <Route
-        path="/"
-        element={
-          <div className="w-full h-full px-1 space-y-8">
-            <div className="w-full h-14">
-              <Navbar />
-            </div>
-            <Header1 />
-            <Header2 />
-            <Section1 />
-            <div className="w-full h-full px-5">
-              <Section2 />
-            </div>
-            <MiniMap />
-            <Footer />
-          </div>
-        }
-      />
-
-      {/* Trang bác sĩ */}
-      <Route
-        path="/doctor"
-        element={
-          <div className="w-full min-h-screen bg-gray-50">
-            <Navbar />
-            <div className="pt-20">
+    <>
+      <Routes>
+        {/* 🌐 Trang chủ */}
+        <Route
+          path="/"
+          element={
+            <div className="w-full h-full px-1 space-y-8">
+              <div className="w-full h-14">
+                <Navbar />
+              </div>
+              <Header1 />
+              <Header2 />
               <Section1 />
+              <div className="w-full h-full px-5">
+                <Section2 />
+              </div>
+              <MiniMap />
+              <Footer />
             </div>
-            <Footer />
-          </div>
-        }
-      />
+          }
+        />
 
-      {/* Chi tiết bác sĩ */}
-      <Route path="/doctor/:name" element={<DoctorDetail />} />
-      <Route path="/doctor/:id/profile" element={<DoctorProfile />} />
-      <Route path="/doctorschedule" element={<PageDoctorSchedule />} />
-
-      {/* Thêm Route Feedback (theo id bác sĩ) */}
-      <Route
-        path="/doctor/:id/feedback"
-        element={
-          <div className="w-full min-h-screen bg-gray-50">
-            <Navbar />
-            <div className="pt-24 px-6">
-              <Feedback />
+        {/* 👨‍⚕️ Trang bác sĩ */}
+        <Route
+          path="/doctor"
+          element={
+            <div className="w-full min-h-screen bg-gray-50">
+              <Navbar />
+              <div className="pt-20">
+                <Section1 />
+              </div>
+              <Footer />
             </div>
-            <Footer />
-          </div>
-        }
-      />
+          }
+        />
 
-      {/* 🆕 Thêm Route mới: Chi tiết bác sĩ theo ID (sửa lỗi 404 /doctor-detail/:id) */}
-      <Route
-        path="/doctor-detail/:id"
-        element={
-          <div className="w-full min-h-screen bg-gray-50">
-            <Navbar />
-            <div className="pt-24 px-6">
-              <DoctorDetail />
-              <Feedback />
+        {/* Hồ sơ bác sĩ */}
+        <Route path="/doctorprofile" element={<DoctorProfile />} />
+        <Route path="/doctorprofile/:id" element={<DoctorProfile />} />
+
+        {/* Chi tiết bác sĩ */}
+        <Route path="/doctor/:name" element={<DoctorDetail />} />
+        <Route path="/doctor/:id/profile" element={<DoctorProfile />} />
+        <Route path="/doctorschedule" element={<PageDoctorSchedule />} />
+
+        {/* Feedback bác sĩ */}
+        <Route
+          path="/doctor/:id/feedbackdoctor"
+          element={
+            <div className="w-full min-h-screen bg-gray-50">
+              <Navbar />
+              <div className="pt-24 px-6">
+                <FeedBackDoctor />
+              </div>
+              <Footer />
             </div>
-            <Footer />
-          </div>
-        }
-      />
+          }
+        />
 
-      {/* Trang yêu thích */}
-      <Route
-        path="/like-doctor"
-        element={
-          <div className="w-full min-h-screen bg-gray-50">
-            <Navbar />
-            <div className="pt-24 px-6">
-              <LikeDoctor />
+        {/* Chi tiết bác sĩ theo ID */}
+        <Route
+          path="/doctor-detail/:id"
+          element={
+            <div className="w-full min-h-screen bg-gray-50">
+              <Navbar />
+              <div className="pt-24 px-6">
+                <DoctorDetail />
+                <FeedBackDoctor />
+              </div>
+              <Footer />
             </div>
-            <Footer />
-          </div>
-        }
-      />
+          }
+        />
 
-      {/* Patient */}
-      <Route path="/deposit" element={<DepositConfirmation />} />
-      <Route path="/invoice" element={<InvoicePayment />} />
-      <Route path="/favoritedoctors" element={<PageFavoriteDoctors />} />
-      <Route path="/patientprofile" element={<PagePatientProfile />} />
-      <Route path="/patienthistory" element={<PagePatientHistory />} />
-
-      {/* Trang thông báo bệnh nhân (toàn bộ) */}
-      <Route
-        path="/notifications"
-        element={
-          <div className="w-full min-h-screen bg-gray-50">
-            <Navbar />
-            <div className="pt-24 px-6">
-              <PatientNotifications />
+        {/* 💖 Trang yêu thích bác sĩ */}
+        <Route
+          path="/like-doctor"
+          element={
+            <div className="w-full min-h-screen bg-gray-50">
+              <Navbar />
+              <div className="pt-24 px-6">
+                <LikeDoctor />
+              </div>
+              <Footer />
             </div>
-            <Footer />
-          </div>
-        }
-      />
+          }
+        />
 
-      {/* Trang hiển thị ghi chú theo ID bệnh nhân */}
-      <Route
-        path="/notifications/:id"
-        element={
-          <div className="w-full min-h-screen bg-gray-50">
-            <Navbar />
-            <div className="pt-24 px-6">
-              <PatientNotes />
+        {/* 👩‍⚕️ Trang bệnh nhân */}
+        <Route path="/deposit" element={<DepositConfirmation />} />
+        <Route path="/invoice" element={<InvoicePayment />} />
+        <Route path="/favoritedoctors" element={<PageFavoriteDoctors />} />
+        <Route path="/patientprofile" element={<PagePatientProfile />} />
+        <Route path="/patienthistory" element={<PagePatientHistory />} />
+
+        {/* 🔔 Thông báo bệnh nhân */}
+        <Route
+          path="/notifications"
+          element={
+            <div className="w-full min-h-screen bg-gray-50">
+              <Navbar />
+              <div className="pt-24 px-6">
+                <PatientNotifications />
+              </div>
+              <Footer />
             </div>
-            <Footer />
-          </div>
-        }
-      />
+          }
+        />
 
-      {/* Đặt lịch & đăng nhập */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/forgetPassword" element={<PageForgetPassword />} />
-      <Route path="/changepassword" element={<PageChangePassword />} />
-      <Route path="/register" element={<PageRegister />} />
-      <Route path="/selectschedule" element={<PageSelectSchedule />} />
-      <Route path="/datlichkhamnhanh" element={<PageDatLichKhamNhanh />} />
-      <Route path="/datlichkham" element={<PageDatLichKham />} />
-      <Route path="/selectservice" element={<FormService />} />
+        {/* 📝 Ghi chú chi tiết bệnh nhân (theo ID) */}
+        <Route
+          path="/notifications/:id"
+          element={
+            <div className="w-full min-h-screen bg-gray-50">
+              <Navbar />
+              <div className="pt-24 px-6">
+                <PatientNotes />
+              </div>
+              <Footer />
+            </div>
+          }
+        />
 
-      {/* Public pages */}
-      <Route path="/contact" element={<PageContact />} />
-      <Route path="/blog" element={<PagePosts />} />
-      <Route path="/blog/:id" element={<PostDetail />} />
+        {/* 🧾 Đặt lịch & đăng nhập */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/forgetPassword" element={<PageForgetPassword />} />
+        <Route path="/changepassword" element={<PageChangePassword />} />
+        <Route path="/register" element={<PageRegister />} />
+        <Route path="/selectschedule" element={<PageSelectSchedule />} />
+        <Route path="/datlichkhamnhanh" element={<PageDatLichKhamNhanh />} />
+        <Route path="/datlichkham" element={<PageDatLichKham />} />
+        <Route path="/selectservice" element={<FormService />} />
 
-      {/* Dashboard */}
-      <Route path="/dashboard" element={<Dashboard />}>
-        <Route index element={<FormDashboard />} />
-        <Route path="doctors" element={<ManagerDoctor />} />
-        <Route path="schedules" element={<ManagerLichHen />} />
-        <Route path="chuyenKhoas" element={<ManagerChuyenKhoa />} />
-        <Route path="painets" element={<ManagerPainet />} />
-        <Route path="users" element={<ManagerUser />} />
-        <Route path="services" element={<ManagerService />} />
-        <Route path="categories" element={<ManagerCategoriesPost />} />
-        <Route path="posts" element={<ManagerPosts />} />
-        <Route path="invoices" element={<ManagerHoaDon />} />
-        <Route path="feedbacks" element={<ManagerFeedBack />} />
-        <Route path="contacts" element={<ManagerContact />} />
-        <Route path="banners" element={<ManagerBanners />} />
-        <Route path="works" element={<ManagerWork />} />
-        <Route path="appointmentStats" element={<AppointmentStats />} />
-        <Route path="BHYTStatistics" element={<BHYTStatistics />} />
-        <Route path="TopDoctors" element={<TopDoctors />} />
-      </Route>
+        {/* 📞 Public pages */}
+        <Route path="/contact" element={<PageContact />} />
+        <Route path="/blog" element={<PagePosts />} />
+        <Route path="/blog/:id" element={<PostDetail />} />
 
+        {/* 🧭 Dashboard */}
+        <Route path="/dashboard" element={<Dashboard />}>
+          <Route index element={<FormDashboard />} />
+          <Route path="doctors" element={<ManagerDoctor />} />
+          <Route path="schedules" element={<ManagerLichHen />} />
+          <Route path="chuyenKhoas" element={<ManagerChuyenKhoa />} />
+          <Route path="painets" element={<ManagerPainet />} />
+          <Route path="users" element={<ManagerUser />} />
+          <Route path="services" element={<ManagerService />} />
+          <Route path="categories" element={<ManagerCategoriesPost />} />
+          <Route path="posts" element={<ManagerPosts />} />
+          <Route path="invoices" element={<ManagerHoaDon />} />
+          <Route path="feedbackdoctors" element={<ManagerFeedBackDoctor />} />
+          <Route path="feedbackposts" element={<ManagerFeedBackPost />} />
+          <Route path="contacts" element={<ManagerContact />} />
+          <Route path="banners" element={<ManagerBanners />} />
+          <Route path="works" element={<ManagerWork />} />
+          <Route path="appointmentStats" element={<AppointmentStats />} />
+          <Route path="BHYTStatistics" element={<BHYTStatistics />} />
+          <Route path="TopDoctors" element={<TopDoctors />} />
+        </Route>
 
-       <Route path="/payment/success" element={<PaymentSuccess />} />
-       <Route path="/payment/cancel" element={<PaymentFailedV2 />} />
-    </Routes>
+        {/* 💳 Thanh toán */}
+        <Route path="/payment/success" element={<PaymentSuccess />} />
+        <Route path="/payment/cancel" element={<PaymentFailedV2 />} />
+      </Routes>
+
+      {/* 💬 Chatbot nổi - hiển thị toàn cục */}
+      <ChatBot />
+    </>
   );
 }

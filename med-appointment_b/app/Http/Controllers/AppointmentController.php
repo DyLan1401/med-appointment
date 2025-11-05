@@ -6,6 +6,12 @@ use App\Models\Appointment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Mail\AppointmentStatusMail;
+use App\Models\Patient;
+use Illuminate\Support\Facades\Mail;
+
+
+use App\Models\Feedback;
 
 class AppointmentController extends Controller
 {
@@ -65,6 +71,34 @@ class AppointmentController extends Controller
             default => response()->json(['message' => 'Cập nhật thành công'], 200),
         };
     }
+//     public function update(Request $request, $id)
+// {
+//     $validator = Validator::make($request->all(), [
+//         'status' => 'sometimes|in:pending,confirmed,rejected,cancelled,completed',
+//         'updated_at' => 'required|date',
+//     ]);
+
+//     if ($validator->fails()) {
+//         return response()->json(['errors' => $validator->errors()], 422);
+//     }
+
+//     $appointment = Appointment::find($id);
+//     if (!$appointment) {
+//         return response()->json(['message' => 'Không tìm thấy cuộc hẹn'], 404);
+//     }
+
+//     $appointment->update($request->all());
+
+//     // 🔹 Nếu status là confirmed hoặc rejected => gửi email
+//     if (in_array($appointment->status, ['confirmed', 'rejected'])) {
+//         $patient = \App\Models\Patient::find($appointment->patient_id);
+//         if ($patient && $patient->email) {
+//             Mail::to($patient->email)->send(new AppointmentStatusMail($appointment, $appointment->status));
+//         }
+//     }
+
+//     return response()->json(['message' => 'Cập nhật thành công và đã gửi mail thông báo'], 200);
+// }
 
     public function destroy($id)
     {
@@ -86,5 +120,29 @@ class AppointmentController extends Controller
             ->setPaper('a4', 'portrait');
         return $pdf->download('completed_appointments.pdf');
     }
+
+  public function dashboard()
+{
+    try {
+        return response()->json([
+            'status' => true,
+            'data' => [
+                'total_patients' => Patient::getTotalCount(),
+                'pending_appointments' => Appointment::getPendingCount(),
+                'confirmed_appointments' => Appointment::getConfirmedCount(),
+                'feedbacks' => Feedback::getRecentFeedbacks(5),
+                'recent_appointments' => Appointment::getRecentAppointments(5),
+            ]
+        ], 200);
+
+    } catch (\Throwable $e) {
+        // Trả lỗi có msg
+        return response()->json([
+            'status' => false,
+            'msg' => 'Đã xảy ra lỗi khi tải dữ liệu dashboard.',
+            'error' => $e->getMessage(), // Có thể ẩn dòng này nếu bạn không muốn hiển thị lỗi chi tiết
+        ], 500);
+    }
 }
 
+}
