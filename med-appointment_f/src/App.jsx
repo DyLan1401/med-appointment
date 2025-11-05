@@ -69,7 +69,6 @@ import ChatBot from "./components/common/ChatBot";
 import PaymentOptions  from "./components/payment/Paymain";
 import PaymentSuccess from "./components/payment/paysuccess";
 import PaymentFailedV2 from "./components/payment/paycancel";
-import FeedBackDoctor from "./components/common/FeedBackDoctor";
 import DepositPage from "./components/payment/DepositPage";
 import PayfullPage from "./components/payment/PayfullPage";
 export default function App() {
