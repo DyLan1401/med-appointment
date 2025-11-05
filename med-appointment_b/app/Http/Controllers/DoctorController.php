@@ -279,5 +279,22 @@ class DoctorController extends Controller
      * Remove the specified resource from storage.
      */
 
+    // ✅ API lấy danh sách bác sĩ cho đặt lịch
+public function list()
+{
+    $doctors = Doctor::with('user')
+        ->select('id', 'user_id')
+        ->get()
+        ->map(function ($doctor) {
+            return [
+                'id' => $doctor->id,
+                'name' => $doctor->user->name,
+            ];
+        });
+
+    return response()->json($doctors);
+}
+
+
 
 }
