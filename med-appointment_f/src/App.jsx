@@ -1,10 +1,10 @@
 /* ---------------------------------------------
- App.jsx
+ 🌍 App.jsx
 ----------------------------------------------*/
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 
-/* Import các component cần thiết */
+/* 🧩 Import các component cần thiết */
 import Navbar from "./components/common/Navbar";
 import Header1 from "./components/common/Header1";
 import Header2 from "./components/common/Header2";
@@ -14,6 +14,7 @@ import MiniMap from "./components/common/maps";
 import Footer from "./components/common/Footer";
 import FormService from "./components/common/FormService";
 import PatientNotifications from "./components/common/PatientNotifications";
+import PatientNotes from "./components/common/PatientNotes";
 
 /* Trang yêu thích bác sĩ */
 import LikeDoctor from "./components/doctor/LikeDoctor";
@@ -59,13 +60,10 @@ import AppointmentStats from "./components/admin/AppointmentStats";
 import BHYTStatistics from "./components/admin/BHYTStatistics";
 import TopDoctors from "./components/doctor/TopDoctors";
 
-/* Thêm mới component hiển thị ghi chú theo ID */
-import PatientNotes from "./components/common/PatientNotes";
+/* Thêm Feedback (bước 3) */
+import FeedBackDoctor from "./components/common/FeedBackDoctor";
 
-/* Thêm mới Feedback (bước 3) */
-import FeedbackDoctor from "./components/common/FeedBackDoctor";
-
-/* Thêm ChatBot nổi 💬 */
+/* 💬 Chatbot nổi */
 import ChatBot from "./components/common/ChatBot";
 
 import PaymentOptions  from "./components/payment/Paymain";
@@ -78,7 +76,7 @@ export default function App() {
   return (
     <>
       <Routes>
-        {/* Trang chủ */}
+        {/* 🌐 Trang chủ */}
         <Route
           path="/"
           element={
@@ -98,7 +96,7 @@ export default function App() {
           }
         />
 
-        {/* Trang bác sĩ */}
+        {/* 👨‍⚕️ Trang bác sĩ */}
         <Route
           path="/doctor"
           element={
@@ -112,7 +110,7 @@ export default function App() {
           }
         />
 
-        {/* ✅ Hồ sơ bác sĩ */}
+        {/* Hồ sơ bác sĩ */}
         <Route path="/doctorprofile" element={<DoctorProfile />} />
         <Route path="/doctorprofile/:id" element={<DoctorProfile />} />
 
@@ -121,7 +119,7 @@ export default function App() {
         <Route path="/doctor/:id/profile" element={<DoctorProfile />} />
         <Route path="/doctorschedule" element={<PageDoctorSchedule />} />
 
-        {/* Thêm Route Feedback */}
+        {/* Feedback bác sĩ */}
         <Route
           path="/doctor/:id/feedbackdoctor"
           element={
@@ -143,14 +141,14 @@ export default function App() {
               <Navbar />
               <div className="pt-24 px-6">
                 <DoctorDetail />
-                <FeedbackDoctor />
+                <FeedBackDoctor />
               </div>
               <Footer />
             </div>
           }
         />
 
-        {/* Trang yêu thích */}
+        {/* 💖 Trang yêu thích bác sĩ */}
         <Route
           path="/like-doctor"
           element={
@@ -164,14 +162,14 @@ export default function App() {
           }
         />
 
-        {/* Patient */}
+        {/* 👩‍⚕️ Trang bệnh nhân */}
         <Route path="/deposit" element={<DepositConfirmation />} />
         <Route path="/invoice" element={<InvoicePayment />} />
         <Route path="/favoritedoctors" element={<PageFavoriteDoctors />} />
         <Route path="/patientprofile" element={<PagePatientProfile />} />
         <Route path="/patienthistory" element={<PagePatientHistory />} />
 
-        {/* Trang thông báo bệnh nhân */}
+        {/* 🔔 Thông báo bệnh nhân */}
         <Route
           path="/notifications"
           element={
@@ -185,7 +183,7 @@ export default function App() {
           }
         />
 
-        {/* Ghi chú bệnh nhân */}
+        {/* 📝 Ghi chú chi tiết bệnh nhân (theo ID) */}
         <Route
           path="/notifications/:id"
           element={
@@ -199,7 +197,7 @@ export default function App() {
           }
         />
 
-        {/* Đặt lịch & đăng nhập */}
+        {/* 🧾 Đặt lịch & đăng nhập */}
         <Route path="/login" element={<Login />} />
         <Route path="/forgetPassword" element={<PageForgetPassword />} />
         <Route path="/changepassword" element={<PageChangePassword />} />
@@ -209,12 +207,12 @@ export default function App() {
         <Route path="/datlichkham" element={<PageDatLichKham />} />
         <Route path="/selectservice" element={<FormService />} />
 
-        {/* Public pages */}
+        {/* 📞 Public pages */}
         <Route path="/contact" element={<PageContact />} />
         <Route path="/blog" element={<PagePosts />} />
         <Route path="/blog/:id" element={<PostDetail />} />
 
-        {/* Dashboard */}
+        {/* 🧭 Dashboard */}
         <Route path="/dashboard" element={<Dashboard />}>
           <Route index element={<FormDashboard />} />
           <Route path="doctors" element={<ManagerDoctor />} />
@@ -236,6 +234,7 @@ export default function App() {
           <Route path="TopDoctors" element={<TopDoctors />} />
         </Route>
 
+        {/* 💳 Thanh toán */}
         <Route path="/payment/success" element={<PaymentSuccess />} />
         <Route path="/payment/cancel" element={<PaymentFailedV2 />} />
         <Route path="/payment/options" element={<PaymentOptions />} />

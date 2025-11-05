@@ -4,10 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Note;
+use Barryvdh\DomPDF\Facade\Pdf; // 🧩 Dùng DomPDF
+use Maatwebsite\Excel\Facades\Excel; // 🧩 Dùng Excel export
+use App\Exports\NotesExport; // 🧩 Import class export
 
 class NoteController extends Controller
 {
-    // Lấy danh sách ghi chú của 1 bệnh nhân
+    // ===============================
+    // 📋 Lấy danh sách ghi chú của 1 bệnh nhân
+    // ===============================
     public function index($patientId)
     {
         $notes = Note::where('patient_id', $patientId)
@@ -17,7 +22,9 @@ class NoteController extends Controller
         return response()->json($notes);
     }
 
-    // Gửi ghi chú
+    // ===============================
+    // 📨 Gửi ghi chú
+    // ===============================
     public function store(Request $request)
     {
         $request->validate([
@@ -36,7 +43,9 @@ class NoteController extends Controller
         return response()->json($note, 201);
     }
 
-    // Đánh dấu đã đọc
+    // ===============================
+    // ✅ Đánh dấu đã đọc
+    // ===============================
     public function markAsRead($id)
     {
         $note = Note::findOrFail($id);
@@ -44,11 +53,48 @@ class NoteController extends Controller
         return response()->json(['message' => 'Đã đánh dấu là đã đọc']);
     }
 
-    // Xóa ghi chú
+    // ===============================
+    // ❌ Xóa ghi chú
+    // ===============================
     public function destroy($id)
     {
         $note = Note::findOrFail($id);
         $note->delete();
         return response()->json(['message' => 'Đã xóa ghi chú']);
+    }
+
+    // ===============================
+    // 📄 Xuất PDF danh sách ghi chú của bệnh nhân
+    // ===============================
+    public function exportPdf($id)
+    {
+        $notes = Note::where('patient_id', $id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        if ($notes->isEmpty()) {
+            return response()->json(['message' => 'Không có ghi chú nào để in'], 404);
+        }
+
+        // 🧩 Tạo view PDF (resources/views/pdf/notes.blade.php)
+        $pdf = Pdf::loadView('pdf.notes', compact('notes'));
+
+        $filename = "ghi-chu-benh-nhan-{$id}.pdf";
+        return $pdf->download($filename);
+    }
+
+    // ===============================
+    // 📊 Xuất Excel danh sách ghi chú của bệnh nhân
+    // ===============================
+    public function exportExcel($id)
+    {
+        $notes = Note::where('patient_id', $id)->exists();
+
+        if (!$notes) {
+            return response()->json(['message' => 'Không có ghi chú nào để xuất Excel'], 404);
+        }
+
+        $filename = "ghi-chu-benh-nhan-{$id}.xlsx";
+        return Excel::download(new NotesExport($id), $filename);
     }
 }

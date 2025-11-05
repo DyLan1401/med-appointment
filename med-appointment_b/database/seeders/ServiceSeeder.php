@@ -12,6 +12,7 @@ class ServiceSeeder extends Seeder
      */
     public function run(): void
     {
+        
         Service::insert([
             ['name' => 'Khám nam khoa', 'description' => 'Dịch vụ khám nam khoa chất lượng cao với đội ngũ bác sĩ chuyên nghiệp.', 'price' => 565975],
             ['name' => 'Khám nhi', 'description' => 'Dịch vụ khám nhi chất lượng cao với đội ngũ bác sĩ chuyên nghiệp.', 'price' => 367299],

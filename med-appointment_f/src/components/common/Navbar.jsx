@@ -1,9 +1,9 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Bell, X } from "lucide-react"; // thêm icon
+import { Search, Bell, X } from "lucide-react";
 import axios from "axios";
-import logo from "../../assets/logo.jpg"; // Thêm dòng này để import logo
+import logo from "../../assets/logo.jpg";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -13,7 +13,7 @@ export default function Navbar() {
   const [openUser, setOpenUser] = useState(false);
   const [openDoctor, setOpenDoctor] = useState(false);
   const [user, setUser] = useState(null);
-  const [doctorId, setDoctorId] = useState(null); // ✅ thêm state để lưu doctor_id
+  const [doctorId, setDoctorId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
   // Thông báo
@@ -58,7 +58,7 @@ export default function Navbar() {
     return () => window.removeEventListener("storage", loadUser);
   }, []);
 
-  // Lấy thông báo thật từ API Laravel
+  // Lấy thông báo từ API Laravel
   useEffect(() => {
     const fetchNotes = async () => {
       try {
@@ -111,16 +111,12 @@ console.log("user in navbar:", user);
   return (
     <div className="w-full bg-white shadow-md fixed top-0 left-0 z-50 animate-fadeIn">
       <div className="max-w-7xl mx-auto flex justify-between items-center px-6 py-3 font-semibold">
-        {/* Logo hình ảnh */}
+        {/* Logo */}
         <div
           onClick={() => navigate("/")}
           className="flex items-center cursor-pointer hover:scale-105 transition-transform"
         >
-          <img
-            src={logo}
-            alt="Logo"
-            className="w-12 h-12 object-contain mr-2"
-          />
+          <img src={logo} alt="Logo" className="w-12 h-12 object-contain mr-2" />
           <span className="text-2xl font-bold text-blue-600 hidden sm:block">
             MedCare
           </span>
@@ -181,9 +177,9 @@ console.log("user in navbar:", user);
           )}
         </div>
 
-        {/* 🔍 Search + Ngôn ngữ + User + Thông báo */}
+        {/* Search + Ngôn ngữ + Thông báo + User */}
         <div className="flex items-center space-x-5 relative">
-          {/* 🔍 Ô tìm kiếm */}
+          {/* Tìm kiếm */}
           <form
             onSubmit={handleSearch}
             className="flex items-center bg-gray-100 rounded-full px-3 py-1 shadow-sm border border-gray-200 focus-within:ring-2 focus-within:ring-blue-400 transition animate-fadeIn"
@@ -203,7 +199,7 @@ console.log("user in navbar:", user);
             </button>
           </form>
 
-          {/* 🌐 Ngôn ngữ */}
+          {/* Ngôn ngữ */}
           <div className="relative z-50">
             <button
               onClick={() => setOpenLang(!openLang)}
@@ -245,7 +241,7 @@ console.log("user in navbar:", user);
             )}
           </div>
 
-          {/* 🔔 Thông báo từ hệ thống */}
+          {/* 🔔 Thông báo */}
           <div className="relative">
             <button
               onClick={() => setShowNotifications(!showNotifications)}
@@ -282,7 +278,9 @@ console.log("user in navbar:", user);
                         key={n.id}
                         onClick={() => {
                           setShowNotifications(false);
-                          navigate("/notifications");
+                          const user = JSON.parse(localStorage.getItem("user"));
+                          if (user?.id) navigate(`/notifications/${user.id}`);
+                          else alert("Không tìm thấy thông tin bệnh nhân!");
                         }}
                         className={`px-4 py-3 hover:bg-gray-50 border-b border-gray-100 cursor-pointer ${
                           n.is_read ? "bg-gray-50" : "bg-blue-50"
@@ -299,7 +297,9 @@ console.log("user in navbar:", user);
                   <button
                     onClick={() => {
                       setShowNotifications(false);
-                      navigate("/notifications");
+                      const user = JSON.parse(localStorage.getItem("user"));
+                      if (user?.id) navigate(`/notifications/${user.id}`);
+                      else alert("Không tìm thấy thông tin bệnh nhân!");
                     }}
                     className="text-blue-600 hover:underline text-sm"
                   >
@@ -310,7 +310,7 @@ console.log("user in navbar:", user);
             )}
           </div>
 
-          {/* 👤 User / Đăng nhập */}
+          {/* 👤 User */}
           {!user ? (
             <button
               onClick={() => navigate("/login")}
@@ -332,7 +332,9 @@ console.log("user in navbar:", user);
                   <button
                     onClick={() => {
                       setOpenUser(false);
-                      navigate("/notifications");
+                      const u = JSON.parse(localStorage.getItem("user"));
+                      if (u?.id) navigate(`/notifications/${u.id}`);
+                      else alert("Không tìm thấy thông tin bệnh nhân!");
                     }}
                     className="block w-full px-4 py-2 hover:bg-gray-100 text-left text-blue-600"
                   >
@@ -362,7 +364,6 @@ console.log("user in navbar:", user);
                     </>
                   )}
 
-                  {/* 🩺 Bác sĩ */}
                   {user.role === "doctor" && (
                     <>
                       <button
@@ -375,7 +376,6 @@ console.log("user in navbar:", user);
                       >
                         Hồ sơ bác sĩ
                       </button>
-
                       <button
                         onClick={() => navigate("/doctorschedule")}
                         className="block w-full px-4 py-2 hover:bg-gray-100 text-left"
