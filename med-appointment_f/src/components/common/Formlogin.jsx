@@ -40,7 +40,6 @@ function FormLogin() {
   // ===========================
   // ✅ Hàm xử lý đăng nhập
   // ===========================
->>>>>>> DinhThanhToan-UpdateLogin
   const handleLogin = async (e) => {
     e.preventDefault();
 
@@ -81,7 +80,7 @@ function FormLogin() {
           navigate("/"); // 👉 Trang người dùng bình thường
         }
       }, 1500);
->>>>>>> DinhThanhToan-UpdateLogin
+
     } catch (error) {
       console.error("❌ Lỗi đăng nhập:", error);
 
@@ -98,7 +97,7 @@ function FormLogin() {
   };
 
   // 🧩 Hàm đăng nhập với Google
-=======
+
   // ===========================
   // 🧩 Đăng nhập bằng Google
   // ===========================
