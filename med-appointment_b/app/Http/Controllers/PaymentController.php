@@ -112,6 +112,7 @@ class PaymentController extends Controller
             "description" => "Thanh toán hóa đơn #{$invoice->id}",
             "returnUrl" => env('PAYOS_RETURN_URL'),
             "cancelUrl" => env('PAYOS_CANCEL_URL'),
+            "expiredAt" => time() + 300, // Link thanh toán hết hạn sau 5 phút
         ];
 
         try {
@@ -138,84 +139,123 @@ class PaymentController extends Controller
 
 
 
-  public function webhook(Request $request)
-{
-    \Log::info('📩 Nhận webhook từ PayOS', [
-        'data' => $request->all(),
-        'headers' => $request->headers->all()
-    ]);
-
-    $checksum_key = env('PAYOS_CHECKSUM_KEY');
-    $webhookData = json_decode($request->getContent(), true); // ✅ fix lỗi ở đây
-
-    \Log::info('🔍 Webhook data decoded', ['data' => $webhookData]);
-
-    try {
-        $transaction = $webhookData['data'] ?? [];
-        ksort($transaction);
-        $transaction_str_arr = [];
-
-        foreach ($transaction as $key => $value) {
-            if (in_array($value, ["undefined", "null"]) || gettype($value) == "NULL") {
-                $value = "";
-            }
-
-            if (is_array($value)) {
-                $valueSortedElementObj = array_map(function ($ele) {
-                    ksort($ele);
-                    return $ele;
-                }, $value);
-                $value = json_encode($valueSortedElementObj, JSON_UNESCAPED_UNICODE);
-            }
-            $transaction_str_arr[] = $key . "=" . $value;
-        }
-
-        $transaction_str = implode("&", $transaction_str_arr);
-        \Log::info($transaction_str);
-
-        $signature = hash_hmac("sha256", $transaction_str, $checksum_key);
-        $expectedSignature = $webhookData['signature'] ?? '';
-
-        \Log::info('🔍 Signature debug', [
-            'received' => $signature,
-            'expected' => $expectedSignature,
+    public function webhook(Request $request)
+    {
+        \Log::info('📩 Nhận webhook từ PayOS', [
+            'data' => $request->all(),
+            'headers' => $request->headers->all()
         ]);
 
-        if ($signature !== $expectedSignature) {
-            \Log::warning('⚠️ Signature không hợp lệ', [
+        $checksum_key = env('PAYOS_CHECKSUM_KEY');
+        $webhookData = json_decode($request->getContent(), true); // ✅ fix lỗi ở đây
+
+        \Log::info('🔍 Webhook data decoded', ['data' => $webhookData]);
+
+        try {
+            $transaction = $webhookData['data'] ?? [];
+            ksort($transaction);
+            $transaction_str_arr = [];
+
+            foreach ($transaction as $key => $value) {
+                if (in_array($value, ["undefined", "null"]) || gettype($value) == "NULL") {
+                    $value = "";
+                }
+
+                if (is_array($value)) {
+                    $valueSortedElementObj = array_map(function ($ele) {
+                        ksort($ele);
+                        return $ele;
+                    }, $value);
+                    $value = json_encode($valueSortedElementObj, JSON_UNESCAPED_UNICODE);
+                }
+                $transaction_str_arr[] = $key . "=" . $value;
+            }
+
+            $transaction_str = implode("&", $transaction_str_arr);
+            \Log::info($transaction_str);
+
+            $signature = hash_hmac("sha256", $transaction_str, $checksum_key);
+            $expectedSignature = $webhookData['signature'] ?? '';
+
+            \Log::info('🔍 Signature debug', [
                 'received' => $signature,
-                'expected' => $expectedSignature
+                'expected' => $expectedSignature,
             ]);
+
+            if ($signature !== $expectedSignature) {
+                \Log::warning('⚠️ Signature không hợp lệ', [
+                    'received' => $signature,
+                    'expected' => $expectedSignature
+                ]);
+                return response()->json(['success' => true], 200);
+            }
+
+            $payload = $webhookData['data'];
+            $orderCode = $payload['orderCode'] ?? null;
+            $status = $payload['status'] ?? 'success';
+
+            if (!$orderCode) {
+                \Log::warning('⚠️ Thiếu orderCode', ['payload' => $payload]);
+                return response()->json(['success' => true], 200);
+            }
+
+            $payment = Payment::where('transaction_code', $orderCode)->first();
+            if (!$payment) {
+                \Log::warning("⚠️ Không tìm thấy payment với orderCode {$orderCode}");
+                return response()->json(['success' => true], 200);
+            }
+
+            $payment->update(['status' => $status]);
+            \Log::info('✅ Cập nhật thanh toán thành công', [
+                'orderCode' => $orderCode,
+                'status' => $status
+            ]);
+
+            // Cập nhật trạng thái appointment và invoice
+            try {
+                // Lấy appointment từ payment
+                $appointment = $payment->appointment;
+
+                if ($appointment) {
+                    // Cập nhật trạng thái appointment thành 'pending'
+                    $appointment->update(['status' => 'pending']);
+                    \Log::info('✅ Cập nhật trạng thái appointment thành công', [
+                        'appointment_id' => $appointment->id,
+                        'status' => 'pending'
+                    ]);
+
+                    // Lấy invoice duy nhất từ appointment và cập nhật thành 'paid'
+                    $invoice = Invoice::where('appointment_id', $appointment->id)
+                        ->orderBy('id', 'desc')
+                        ->first();
+
+                    if ($invoice) {
+                        $invoice->update(['status' => 'paid']);
+                        \Log::info('✅ Cập nhật trạng thái invoice thành công', [
+                            'invoice_id' => $invoice->id,
+                            'status' => 'paid'
+                        ]);
+                    } else {
+                        \Log::warning('⚠️ Không tìm thấy invoice cho appointment', [
+                            'appointment_id' => $appointment->id
+                        ]);
+                    }
+                } else {
+                    \Log::warning('⚠️ Không tìm thấy appointment từ payment', [
+                        'payment_id' => $payment->id
+                    ]);
+                }
+            } catch (\Throwable $e) {
+                \Log::error('💥 Lỗi khi cập nhật appointment và invoice: ' . $e->getMessage(), [
+                    'trace' => $e->getTraceAsString()
+                ]);
+            }
+            return response()->json(['success' => true], 200);
+        } catch (\Throwable $e) {
+            \Log::error('💥 Lỗi webhook: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
             return response()->json(['success' => true], 200);
         }
-
-        $payload = $webhookData['data'];
-        $orderCode = $payload['orderCode'] ?? null;
-        $status = $payload['status'] ?? 'success';
-
-        if (!$orderCode) {
-            \Log::warning('⚠️ Thiếu orderCode', ['payload' => $payload]);
-            return response()->json(['success' => true], 200);
-        }
-
-        $payment = Payment::where('transaction_code', $orderCode)->first();
-        if (!$payment) {
-            \Log::warning("⚠️ Không tìm thấy payment với orderCode {$orderCode}");
-            return response()->json(['success' => true], 200);
-        }
-
-        $payment->update(['status' => $status]);
-        \Log::info('✅ Cập nhật thanh toán thành công', [
-            'orderCode' => $orderCode,
-            'status' => $status
-        ]);
-
-        return response()->json(['success' => true], 200);
-    } catch (\Throwable $e) {
-        \Log::error('💥 Lỗi webhook: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
-        return response()->json(['success' => true], 200);
     }
-}
 
 
     public function testPayOS()

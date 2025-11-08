@@ -13,9 +13,10 @@ return new class extends Migration {
             $table->unsignedBigInteger('patient_id');
             $table->unsignedBigInteger('doctor_id');
             $table->decimal('amount', 12, 2);
-            $table->enum('status', ['paid', 'unpaid', 'canceled'])->default('unpaid');
+            $table->enum('status', ['paid', 'unpaid', 'canceled', 'hidden'])->default('unpaid');
+            $table->enum('type', ['deposit', 'pay'])->default('pay');
             $table->string('file_url', 255)->nullable();
-             $table->timestamps(); 
+            $table->timestamps();
 
             $table->foreign('appointment_id')->references('id')->on('appointments')->onDelete('cascade');
             $table->foreign('patient_id')->references('id')->on('patients')->onDelete('cascade');
@@ -28,4 +29,3 @@ return new class extends Migration {
         Schema::dropIfExists('invoices');
     }
 };
-

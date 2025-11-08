@@ -145,4 +145,41 @@ class AppointmentController extends Controller
     }
 }
 
+public function shownew($id)
+{
+     try {
+            // Dùng eager loading để load các quan hệ liên quan
+            $appointment = Appointment::with(['patient', 'doctor', 'service'])
+                ->findOrFail($id);
+
+            return response()->json([
+                'status' => true,
+                'data' => [
+                    'id' => $appointment->id,
+                    'date' => $appointment->date,
+                    'time' => $appointment->time,
+                    'status' => $appointment->status,
+                    'patient' => [
+                        'id' => $appointment->patient->id,
+                        'name' => $appointment->patient->name,
+                    ],
+                    'doctor' => [
+                        'id' => $appointment->doctor->id,
+                        'name' => $appointment->doctor->name,
+                    ],
+                    'service' => [
+                        'id' => $appointment->service->id,
+                        'name' => $appointment->service->name,
+                        'price' => $appointment->service->price,
+                    ],
+                ],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Không tìm thấy cuộc hẹn!',
+                'error' => $e->getMessage(),
+            ], 404);
+        }
+    }
 }
