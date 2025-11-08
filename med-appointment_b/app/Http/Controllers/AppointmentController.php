@@ -183,11 +183,11 @@ public function shownew($id)
                     'status' => $appointment->status,
                     'patient' => [
                         'id' => $appointment->patient->id,
-                        'name' => $appointment->patient->name,
+                         'name' => $appointment->patient->user->name
                     ],
                     'doctor' => [
                         'id' => $appointment->doctor->id,
-                        'name' => $appointment->doctor->name,
+                       'name' => $appointment->doctor->user->name
                     ],
                     'service' => [
                         'id' => $appointment->service->id,
