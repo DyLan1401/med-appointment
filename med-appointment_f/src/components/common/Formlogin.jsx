@@ -80,10 +80,7 @@ function FormLogin() {
           navigate("/"); // 👉 Trang người dùng bình thường
         }
       }, 1500);
-<<<<<<< HEAD
-=======
 
->>>>>>> DinhThanhToan/5-DatLichKham
     } catch (error) {
       console.error("❌ Lỗi đăng nhập:", error);
 

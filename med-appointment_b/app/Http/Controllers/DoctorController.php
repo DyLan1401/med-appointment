@@ -25,7 +25,7 @@ class DoctorController extends Controller
             $query->where('specialization_id', $request->specialization_id);
         }
 
-//        return response()->json($query->orderBy('id', 'asc')->get());
+        //        return response()->json($query->orderBy('id', 'asc')->get());
         return response()->json($query->paginate(8));
     }
 
@@ -279,56 +279,34 @@ class DoctorController extends Controller
     /**
      * Remove the specified resource from storage.
      */
- public function list()
-{
-    $doctors = \App\Models\Doctor::with('user')
-        ->select('id', 'user_id')
-        ->get()
-        ->map(fn($doctor) => [
-            'id' => $doctor->id,
-            'name' => $doctor->user->name,
-        ]);
-
-    return response()->json($doctors);
-}
-
-<<<<<<< HEAD
-    // ✅ API lấy danh sách bác sĩ cho đặt lịch
-public function list()
-{
-    $doctors = Doctor::with('user')
-        ->select('id', 'user_id')
-        ->get()
-        ->map(function ($doctor) {
-            return [
-                'id' => $doctor->id,
-                'name' => $doctor->user->name,
-            ];
-        });
-
-    return response()->json($doctors);
-}
-
-=======
-    // public function topDoctors()
+    // public function list()
     // {
-    //     $top = Doctor::join('users', 'users.id', '=', 'doctors.user_id')
-    //         ->join('appointments', 'appointments.doctor_id', '=', 'doctors.id')
-    //         ->select(
-    //             'doctors.id as doctor_id',
-    //             'users.name as doctor_name',
-    //             'users.email',
-    //             'users.avatar',
-    //             DB::raw('COUNT(appointments.id) as total_appointments')
-    //         )
-    //         ->groupBy('doctors.id', 'users.name', 'users.email', 'users.avatar')
-    //         ->orderByDesc('total_appointments')
-    //         ->take(10)
-    //         ->get();
+    //     $doctors = \App\Models\Doctor::with('user')
+    //         ->select('id', 'user_id')
+    //         ->get()
+    //         ->map(fn($doctor) => [
+    //             'id' => $doctor->id,
+    //             'name' => $doctor->user->name,
+    //         ]);
 
-    //     return response()->json($top);
+    //     return response()->json($doctors);
     // }
 
+    // ✅ API lấy danh sách bác sĩ cho đặt lịch
+    public function list()
+    {
+        $doctors = Doctor::with('user')
+            ->select('id', 'user_id')
+            ->get()
+            ->map(function ($doctor) {
+                return [
+                    'id' => $doctor->id,
+                    'name' => $doctor->user->name,
+                ];
+            });
+
+        return response()->json($doctors);
+    }
     public function topDoctors(Request $request)
     {
         $limit = $request->get('limit', 10);
@@ -351,7 +329,27 @@ public function list()
 
         return response()->json($top);
     }
->>>>>>> origin/master
+
+    // public function topDoctors()
+    // {
+    //     $top = Doctor::join('users', 'users.id', '=', 'doctors.user_id')
+    //         ->join('appointments', 'appointments.doctor_id', '=', 'doctors.id')
+    //         ->select(
+    //             'doctors.id as doctor_id',
+    //             'users.name as doctor_name',
+    //             'users.email',
+    //             'users.avatar',
+    //             DB::raw('COUNT(appointments.id) as total_appointments')
+    //         )
+    //         ->groupBy('doctors.id', 'users.name', 'users.email', 'users.avatar')
+    //         ->orderByDesc('total_appointments')
+    //         ->take(10)
+    //         ->get();
+
+    //     return response()->json($top);
+    // }
+
+
 
 
 }
