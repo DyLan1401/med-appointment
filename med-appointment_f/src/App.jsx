@@ -236,7 +236,7 @@ export default function App() {
         {/* 💳 Thanh toán */}
         <Route path="/payment/success" element={<PaymentSuccess />} />
         <Route path="/payment/cancel" element={<PaymentFailedV2 />} />
-        <Route path="/payment/options" element={<PaymentOptions />} />
+        <Route path="/payment/options/:id" element={<PaymentOptions />} />
         <Route path="/payment/deposit/:appointmentId" element={<DepositPage />} />
         <Route path="/payment/payfull/:appointmentId" element={<PayfullPage />} />
       </Routes>

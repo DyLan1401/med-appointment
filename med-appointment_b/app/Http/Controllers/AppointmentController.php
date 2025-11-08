@@ -20,24 +20,46 @@ class AppointmentController extends Controller
         return response()->json(['data' => Appointment::getAll()], 200);
     }
 
-    public function store(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'patient_id' => 'required|exists:patients,id',
-            'doctor_id' => 'required|exists:doctors,id',
-            'service_id' => 'required|exists:services,id',
-            'appointment_date' => 'required|date',
-            'status' => 'in:pending,confirmed,rejected,cancelled,completed',
-            'notes' => 'nullable|string',
-        ]);
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
 
-        $id = Appointment::createAppointment($request->all());
-        return response()->json(['message' => 'Tạo cuộc hẹn thành công', 'id' => $id], 201);
+public function store(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'user_id' => 'required|exists:users,id',
+        'doctor_id' => 'required|exists:doctors,id',
+        'service_id' => 'required|exists:services,id',
+        'appointment_date' => 'required|date',
+        'status' => 'in:pending,confirmed,rejected,cancelled,completed,hidden',
+        'notes' => 'nullable|string',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 422);
     }
+
+    // ✅ Tìm patient theo user_id
+    $patient = Patient::where('user_id', $request->user_id)->first();
+
+    if (!$patient) {
+        return response()->json([
+            'error' => 'Không tìm thấy bệnh nhân tương ứng với user_id này.'
+        ], 404);
+    }
+
+    // ✅ Gán patient_id
+    $data = $request->all();
+    $data['patient_id'] = $patient->id;
+    unset($data['user_id']);
+
+    $id = \App\Models\Appointment::createAppointment($data);
+
+    return response()->json([
+        'message' => 'Tạo cuộc hẹn thành công',
+        'id' => $id,
+        'patient_id' => $patient->id
+    ], 201);
+}
+
 
     public function show($id)
     {

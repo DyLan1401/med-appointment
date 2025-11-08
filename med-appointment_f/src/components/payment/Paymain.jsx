@@ -1,12 +1,14 @@
 import React, { useState } from "react";
+import { useParams } from "react-router-dom";
 import { Loader2, CreditCard, Wallet } from "lucide-react";
 
 export default function PaymentOptions() {
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState(null);
 
-  // ID mẫu
-  const appointment_id = 1;
+  // ✅ Lấy appointment_id từ URL
+  const { id } = useParams();
+  const appointment_id = id;
 
 
   const handlePayment = (type) => {
@@ -36,11 +38,10 @@ export default function PaymentOptions() {
           <button
             disabled={loading}
             onClick={() => handlePayment("full")}
-            className={`flex items-center justify-center gap-3 w-full py-4 rounded-xl font-semibold text-white shadow-md transform transition-all ${
-              selected === "full"
+            className={`flex items-center justify-center gap-3 w-full py-4 rounded-xl font-semibold text-white shadow-md transform transition-all ${selected === "full"
                 ? "bg-blue-700 scale-95"
                 : "bg-blue-600 hover:bg-blue-700 hover:scale-105"
-            }`}
+              }`}
           >
             {loading && selected === "full" ? (
               <Loader2 className="animate-spin" size={20} />
@@ -56,11 +57,10 @@ export default function PaymentOptions() {
           <button
             disabled={loading}
             onClick={() => handlePayment("deposit")}
-            className={`flex items-center justify-center gap-3 w-full py-4 rounded-xl font-semibold text-white shadow-md transform transition-all ${
-              selected === "deposit"
+            className={`flex items-center justify-center gap-3 w-full py-4 rounded-xl font-semibold text-white shadow-md transform transition-all ${selected === "deposit"
                 ? "bg-amber-600 scale-95"
                 : "bg-amber-500 hover:bg-amber-600 hover:scale-105"
-            }`}
+              }`}
           >
             {loading && selected === "deposit" ? (
               <Loader2 className="animate-spin" size={20} />
