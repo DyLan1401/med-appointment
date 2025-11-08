@@ -280,33 +280,25 @@ class DoctorController extends Controller
      * Remove the specified resource from storage.
      */
     // public function list()
-    // {
-    //     $doctors = \App\Models\Doctor::with('user')
-    //         ->select('id', 'user_id')
-    //         ->get()
-    //         ->map(fn($doctor) => [
-    //             'id' => $doctor->id,
-    //             'name' => $doctor->user->name,
-    //         ]);
 
-    //     return response()->json($doctors);
-    // }
 
     // ✅ API lấy danh sách bác sĩ cho đặt lịch
-    public function list()
-    {
-        $doctors = Doctor::with('user')
-            ->select('id', 'user_id')
-            ->get()
-            ->map(function ($doctor) {
-                return [
-                    'id' => $doctor->id,
-                    'name' => $doctor->user->name,
-                ];
-            });
+public function list()
+{
+    $doctors = Doctor::with('user')
+        ->select('id', 'user_id')
+        ->get()
+        ->map(function ($doctor) {
+            return [
+                'id' => $doctor->id,
+                'name' => $doctor->user->name,
+            ];
+        });
 
-        return response()->json($doctors);
-    }
+    return response()->json($doctors);
+}
+
+ 
     public function topDoctors(Request $request)
     {
         $limit = $request->get('limit', 10);
