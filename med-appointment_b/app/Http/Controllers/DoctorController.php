@@ -280,7 +280,7 @@ class DoctorController extends Controller
      * Remove the specified resource from storage.
      */
 
-<<<<<<< HEAD
+
     // ✅ API lấy danh sách bác sĩ cho đặt lịch
 public function list()
 {
@@ -297,7 +297,7 @@ public function list()
     return response()->json($doctors);
 }
 
-=======
+
     // public function topDoctors()
     // {
     //     $top = Doctor::join('users', 'users.id', '=', 'doctors.user_id')
@@ -339,7 +339,7 @@ public function list()
 
         return response()->json($top);
     }
->>>>>>> origin/master
+
 
 
 }
