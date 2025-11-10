@@ -7,58 +7,61 @@ use App\Models\Patient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Spatie\SimpleExcel\SimpleExcelWriter;
+use Spatie\SimpleExcel\SimpleExcel;
 
 class PatientController extends Controller
 {
     // API 1: Lấy thống kê bệnh nhân
- public function getStatistics(Request $request)
-{
-    $period = $request->query('period'); // "this_month" | "this_quarter" | "this_year"
-    $from = null;
-    $to = null;
+    public function getStatistics(Request $request)
+    {
+        $period = $request->query('period'); // "this_month" | "this_quarter" | "this_year"
+        $from = null;
+        $to = null;
 
-    if ($period) {
-        switch ($period) {
-            case 'this_month':
-                $from = Carbon::now()->startOfMonth();
-                $to = Carbon::now()->endOfMonth();
-                break;
-            case 'this_quarter':
-                $from = Carbon::now()->firstOfQuarter();
-                $to = Carbon::now()->lastOfQuarter();
-                break;
-            case 'this_year':
-                $from = Carbon::now()->startOfYear();
-                $to = Carbon::now()->endOfYear();
-                break;
+        if ($period) {
+            switch ($period) {
+                case 'this_month':
+                    $from = Carbon::now()->startOfMonth();
+                    $to = Carbon::now()->endOfMonth();
+                    break;
+                case 'this_quarter':
+                    $from = Carbon::now()->firstOfQuarter();
+                    $to = Carbon::now()->lastOfQuarter();
+                    break;
+                case 'this_year':
+                    $from = Carbon::now()->startOfYear();
+                    $to = Carbon::now()->endOfYear();
+                    break;
+            }
+        } else {
+            $from = $request->query('from');
+            $to = $request->query('to');
         }
-    } else {
-        $from = $request->query('from');
-        $to = $request->query('to');
+
+        $query = Patient::query();
+
+        if ($from && $to) {
+            $query->whereBetween('created_at', [$from, $to]);
+        }
+
+        $total = $query->count();
+        $withInsurance = (clone $query)
+            ->whereNotNull('health_insurance')
+            ->where('health_insurance', '!=', '')
+            ->count();
+        $withoutInsurance = $total - $withInsurance;
+
+        return response()->json([
+            'total_patients' => $total,
+            'with_insurance' => $withInsurance,
+            'without_insurance' => $withoutInsurance,
+            'from' => $from,
+            'to' => $to,
+            'period' => $period,
+        ]);
     }
-
-    $query = Patient::query();
-
-    if ($from && $to) {
-        $query->whereBetween('created_at', [$from, $to]);
-    }
-
-    $total = $query->count();
-    $withInsurance = (clone $query)
-        ->whereNotNull('health_insurance')
-        ->where('health_insurance', '!=', '')
-        ->count();
-    $withoutInsurance = $total - $withInsurance;
-
-    return response()->json([
-        'total_patients' => $total,
-        'with_insurance' => $withInsurance,
-        'without_insurance' => $withoutInsurance,
-        'from' => $from,
-        'to' => $to,
-        'period' => $period,
-    ]);
-}
     // API 2: Lấy 3 bệnh nhân mới nhất
     public function getNewest()
     {
@@ -210,5 +213,77 @@ class PatientController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    // 🔹 MỚI: Export bệnh nhân ra Excel hoặc PDF
+    public function export(Request $request)
+    {
+        $type = $request->query('type', 'all'); // all, this_month, this_quarter, this_year, custom
+        $format = $request->query('format', 'excel'); // excel, pdf
+        $start = $request->query('start');
+        $end = $request->query('end');
+
+        $query = Patient::with('user');
+        $now = Carbon::now();
+
+        // Filter theo khoảng thời gian
+        switch ($type) {
+            case 'this_month':
+                $query->whereYear('created_at', $now->year)
+                    ->whereMonth('created_at', $now->month);
+                break;
+            case 'this_quarter':
+                $quarter = ceil($now->month / 3);
+                $startMonth = ($quarter - 1) * 3 + 1;
+                $endMonth = $startMonth + 2;
+                $query->whereYear('created_at', $now->year)
+                    ->whereMonth('created_at', '>=', $startMonth)
+                    ->whereMonth('created_at', '<=', $endMonth);
+                break;
+            case 'this_year':
+                $query->whereYear('created_at', $now->year);
+                break;
+            case 'custom':
+                if ($start && $end) {
+                    $query->whereBetween('created_at', [$start, $end]);
+                }
+                break;
+            case 'all':
+            default:
+                // không filter
+                break;
+        }
+
+        // Map dữ liệu ra mảng thuần
+        $patients = $query->get()->map(function ($p) {
+            return [
+                'ID' => $p->id,
+                'Name' => $p->user->name ?? '',
+                'Email' => $p->user->email ?? '',
+                'Phone' => $p->user->phone ?? '',
+                'Date of Birth' => $p->date_of_birth,
+                'Gender' => $p->gender,
+                'Address' => $p->address,
+                'Health Insurance' => $p->health_insurance,
+                'Created At' => $p->created_at->format('Y-m-d H:i:s'),
+            ];
+        });
+
+        $fileName = 'patients_' . now()->format('Ymd_His');
+
+        if ($format === 'pdf') {
+            $pdf = Pdf::loadView('exports.patients', ['patients' => $patients]);
+            return $pdf->download($fileName . '.pdf');
+        }
+
+        // Mặc định là Excel
+        $fileName = 'patients_'.now()->format('Ymd_His').'.xlsx';
+        $tempFile = storage_path('app/'.$fileName); // tạo file trong storage
+
+        SimpleExcelWriter::create($tempFile)
+            ->addRows($patients)
+            ->close();
+
+        return response()->download($tempFile)->deleteFileAfterSend(true);
     }
 }
