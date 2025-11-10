@@ -511,3 +511,6 @@ Route::post('/appointments', [AppointmentController::class, 'store']);
 
 
 Route::get('/doctors/list', [DoctorController::class, 'list']);  
+
+
+Route::get('/test-email/{id?}', [PaymentController::class, 'testSendInvoiceEmail']);
