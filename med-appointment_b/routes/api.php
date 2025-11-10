@@ -118,10 +118,7 @@ Route::prefix('doctors')->group(function () {
 // Doctor Schedule
 Route::get('/schedules/getbyid/{doctor_id}', [ScheduleController::class, 'getScheduleById']);
 
-// ================================
-// 🧍 PATIENTS
-// ================================
-Route::apiResource('patients', PatientController::class);
+
 
 // ================================
 // 👤 USERS
@@ -130,18 +127,12 @@ Route::apiResource('patients', PatientController::class);
 
 
 
-// PATIENTS
-Route::apiResource('patients', PatientController::class);
 
 // USERS (CRUD + PROFILE)
 
 // Doctor Schedule
 Route::get('/schedules/getbyid/{doctor_id}', [ScheduleController::class, 'getScheduleById']);
 
-// ================================
-// 🧍 PATIENTS
-// ================================
-Route::apiResource('patients', PatientController::class);
 
 
 
@@ -154,6 +145,10 @@ Route::get('/schedules/getbyid/{doctor_id}', [ScheduleController::class, 'getSch
 // hai route này phải đặt trước route resource để không bị nhầm với {patient}
 Route::get('/patients/statistics', [PatientController::class, 'getStatistics']);
 Route::get('/patients/newest', [PatientController::class, 'getNewest']);
+// Route::prefix('/patients')->group(function () {
+//     Route::get('export', [PatientController::class, 'export']);
+// });
+Route::get('/patients/export', [PatientController::class, 'export']);
 Route::apiResource('patients', PatientController::class);
 
 
@@ -460,9 +455,6 @@ Route::post('/chatbot', [ChatbotController::class, 'getReply']);
 
 
 
-
-// PATIENTS
- Route::apiResource('patients', PatientController::class);
 
 
 // USERS (CRUD + PROFILE)

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer } from "recharts";
-import { RefreshCw, User2, CheckCircle, XCircle, Clock } from "lucide-react";
+import { RefreshCw, User2, CheckCircle, XCircle, Clock, Download, Loader } from "lucide-react";
 import API from "../../api/axios";
 
 export default function BHYTStatistics() {
@@ -11,9 +11,9 @@ export default function BHYTStatistics() {
   });
   const [newestPatients, setNewestPatients] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [exporting, setExporting] = useState(false); // 🔹 trạng thái export
 
-  // Lọc theo thời gian
-  const [period, setPeriod] = useState("all"); // all | this_month | this_quarter | this_year | custom
+  const [period, setPeriod] = useState("all");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
 
@@ -46,7 +46,6 @@ export default function BHYTStatistics() {
     fetchData();
   }, [period]);
 
-  // Khi người dùng chọn khoảng thời gian custom
   useEffect(() => {
     if (period === "custom" && from && to) {
       fetchData();
@@ -63,20 +62,79 @@ export default function BHYTStatistics() {
   ];
   const COLORS = ["#22c55e", "#ef4444"];
 
+  // 🔹 export file với loader
+  const handleExport = async (format) => {
+    try {
+      setExporting(true);
+
+      const params = { format };
+      if (period !== "all" && period !== "custom") params.type = period;
+      if (period === "custom" && from && to) {
+        params.type = "custom";
+        params.start = from;
+        params.end = to;
+      }
+
+      const response = await API.get("/patients/export", {
+        params,
+        responseType: "blob",
+      });
+
+      const blob = new Blob([response.data]);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `patients_${new Date().toISOString()}.${format === "pdf" ? "pdf" : "xlsx"}`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+    } catch (error) {
+      console.error("⚠️ Xuất file thất bại:", error);
+    } finally {
+      setExporting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex justify-center p-6">
       <div className="bg-white w-full max-w-6xl rounded-2xl shadow-md p-6">
         {/* Header */}
-        <div className="mb-4">
-          <h1 className="text-2xl font-semibold text-gray-800 flex items-center gap-2">
-            📊 Thống Kê BHYT Bệnh Nhân
-          </h1>
-          <p className="text-gray-500 text-sm">
-            Phân tích tỷ lệ bệnh nhân có và không có Bảo hiểm Y tế trong hệ thống.
-          </p>
+        <div className="mb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-800 flex items-center gap-2">
+              📊 Thống Kê BHYT Bệnh Nhân
+            </h1>
+            <p className="text-gray-500 text-sm">
+              Phân tích tỷ lệ bệnh nhân có và không có Bảo hiểm Y tế trong hệ thống.
+            </p>
+          </div>
+
+          {/* Nút export */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => handleExport("excel")}
+              disabled={exporting}
+              className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm text-white ${
+                exporting ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
+              }`}
+            >
+              {exporting ? <Loader size={16} className="animate-spin" /> : <Download size={16} />} 
+              Export Excel
+            </button>
+            <button
+              onClick={() => handleExport("pdf")}
+              disabled={exporting}
+              className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm text-white ${
+                exporting ? "bg-gray-400 cursor-not-allowed" : "bg-red-600 hover:bg-red-700"
+              }`}
+            >
+              {exporting ? <Loader size={16} className="animate-spin" /> : <Download size={16} />}
+              Export PDF
+            </button>
+          </div>
         </div>
 
-        {/* Bộ lọc + thời gian cập nhật */}
+        {/* Bộ lọc + thời gian */}
         <div className="flex flex-wrap justify-between items-center bg-gray-50 p-4 rounded-xl mb-6">
           <div className="flex flex-col gap-2">
             <label className="text-gray-600 text-sm">Khoảng thời gian:</label>
