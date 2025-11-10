@@ -6,7 +6,9 @@ use App\Models\Payment;
 use Illuminate\Http\Request;
 use App\Models\Invoice;
 use PayOS\PayOS;
-
+use Illuminate\Support\Facades\Mail;
+use App\Mail\PaymentInvoiceMail;
+use App\Models\Appointment;
 class PaymentController extends Controller
 {
     protected $payOS;
@@ -138,125 +140,188 @@ class PaymentController extends Controller
     }
 
 
+public function webhook(Request $request)
+{
+    \Log::info('📩 Nhận webhook từ PayOS', [
+        'data' => $request->all(),
+        'headers' => $request->headers->all()
+    ]);
 
-    public function webhook(Request $request)
-    {
-        \Log::info('📩 Nhận webhook từ PayOS', [
-            'data' => $request->all(),
-            'headers' => $request->headers->all()
+    $checksum_key = env('PAYOS_CHECKSUM_KEY');
+    $webhookData = json_decode($request->getContent(), true);
+
+    \Log::info('🔍 Webhook data decoded', ['data' => $webhookData]);
+
+    try {
+        $transaction = $webhookData['data'] ?? [];
+        ksort($transaction);
+        $transaction_str_arr = [];
+
+        foreach ($transaction as $key => $value) {
+            if (in_array($value, ["undefined", "null"]) || gettype($value) == "NULL") {
+                $value = "";
+            }
+
+            if (is_array($value)) {
+                $valueSortedElementObj = array_map(function ($ele) {
+                    ksort($ele);
+                    return $ele;
+                }, $value);
+                $value = json_encode($valueSortedElementObj, JSON_UNESCAPED_UNICODE);
+            }
+            $transaction_str_arr[] = $key . "=" . $value;
+        }
+
+        $transaction_str = implode("&", $transaction_str_arr);
+        \Log::info($transaction_str);
+
+        $signature = hash_hmac("sha256", $transaction_str, $checksum_key);
+        $expectedSignature = $webhookData['signature'] ?? '';
+
+        if ($signature !== $expectedSignature) {
+            \Log::warning('⚠️ Signature không hợp lệ', [
+                'received' => $signature,
+                'expected' => $expectedSignature
+            ]);
+            return response()->json(['success' => true], 200);
+        }
+
+        $payload = $webhookData['data'];
+        $orderCode = $payload['orderCode'] ?? null;
+        $status = $payload['status'] ?? 'success';
+
+        if (!$orderCode) {
+            \Log::warning('⚠️ Thiếu orderCode', ['payload' => $payload]);
+            return response()->json(['success' => true], 200);
+        }
+
+        $payment = Payment::where('transaction_code', $orderCode)->first();
+        if (!$payment) {
+            \Log::warning("⚠️ Không tìm thấy payment với orderCode {$orderCode}");
+            return response()->json(['success' => true], 200);
+        }
+
+        $payment->update(['status' => $status]);
+        \Log::info('✅ Cập nhật thanh toán thành công', [
+            'orderCode' => $orderCode,
+            'status' => $status
         ]);
 
-        $checksum_key = env('PAYOS_CHECKSUM_KEY');
-        $webhookData = json_decode($request->getContent(), true); // ✅ fix lỗi ở đây
-
-        \Log::info('🔍 Webhook data decoded', ['data' => $webhookData]);
-
+        // Cập nhật appointment và invoice
         try {
-            $transaction = $webhookData['data'] ?? [];
-            ksort($transaction);
-            $transaction_str_arr = [];
+            $appointment = $payment->appointment;
 
-            foreach ($transaction as $key => $value) {
-                if (in_array($value, ["undefined", "null"]) || gettype($value) == "NULL") {
-                    $value = "";
-                }
-
-                if (is_array($value)) {
-                    $valueSortedElementObj = array_map(function ($ele) {
-                        ksort($ele);
-                        return $ele;
-                    }, $value);
-                    $value = json_encode($valueSortedElementObj, JSON_UNESCAPED_UNICODE);
-                }
-                $transaction_str_arr[] = $key . "=" . $value;
-            }
-
-            $transaction_str = implode("&", $transaction_str_arr);
-            \Log::info($transaction_str);
-
-            $signature = hash_hmac("sha256", $transaction_str, $checksum_key);
-            $expectedSignature = $webhookData['signature'] ?? '';
-
-            \Log::info('🔍 Signature debug', [
-                'received' => $signature,
-                'expected' => $expectedSignature,
-            ]);
-
-            if ($signature !== $expectedSignature) {
-                \Log::warning('⚠️ Signature không hợp lệ', [
-                    'received' => $signature,
-                    'expected' => $expectedSignature
+            if ($appointment) {
+                $appointment->update(['status' => 'pending']);
+                \Log::info('✅ Cập nhật trạng thái appointment thành công', [
+                    'appointment_id' => $appointment->id,
+                    'status' => 'pending'
                 ]);
-                return response()->json(['success' => true], 200);
-            }
 
-            $payload = $webhookData['data'];
-            $orderCode = $payload['orderCode'] ?? null;
-            $status = $payload['status'] ?? 'success';
+                $invoice = Invoice::where('appointment_id', $appointment->id)
+                    ->orderBy('id', 'desc')
+                    ->first();
 
-            if (!$orderCode) {
-                \Log::warning('⚠️ Thiếu orderCode', ['payload' => $payload]);
-                return response()->json(['success' => true], 200);
-            }
-
-            $payment = Payment::where('transaction_code', $orderCode)->first();
-            if (!$payment) {
-                \Log::warning("⚠️ Không tìm thấy payment với orderCode {$orderCode}");
-                return response()->json(['success' => true], 200);
-            }
-
-            $payment->update(['status' => $status]);
-            \Log::info('✅ Cập nhật thanh toán thành công', [
-                'orderCode' => $orderCode,
-                'status' => $status
-            ]);
-
-            // Cập nhật trạng thái appointment và invoice
-            try {
-                // Lấy appointment từ payment
-                $appointment = $payment->appointment;
-
-                if ($appointment) {
-                    // Cập nhật trạng thái appointment thành 'pending'
-                    $appointment->update(['status' => 'pending']);
-                    \Log::info('✅ Cập nhật trạng thái appointment thành công', [
-                        'appointment_id' => $appointment->id,
-                        'status' => 'pending'
+                if ($invoice) {
+                    $invoice->update(['status' => 'paid']);
+                    \Log::info('✅ Cập nhật trạng thái invoice thành công', [
+                        'invoice_id' => $invoice->id,
+                        'status' => 'paid'
                     ]);
 
-                    // Lấy invoice duy nhất từ appointment và cập nhật thành 'paid'
-                    $invoice = Invoice::where('appointment_id', $appointment->id)
-                        ->orderBy('id', 'desc')
-                        ->first();
+                    /**
+                     * 🚀 GỬI EMAIL HÓA ĐƠN CHO BỆNH NHÂN - ĐÃ SỬA LỖI
+                     */
+                    try {
+                        // Load relationships với kiểm tra null
+                        $appointment->load(['patient.user', 'doctor.user', 'service']);
+                        
+                        // Kiểm tra các relationship tồn tại
+                        if (!$appointment->patient || !$appointment->patient->user) {
+                            \Log::warning('⚠️ Không tìm thấy thông tin bệnh nhân', [
+                                'appointment_id' => $appointment->id
+                            ]);
+                            return response()->json(['success' => true], 200);
+                        }
 
-                    if ($invoice) {
-                        $invoice->update(['status' => 'paid']);
-                        \Log::info('✅ Cập nhật trạng thái invoice thành công', [
-                            'invoice_id' => $invoice->id,
-                            'status' => 'paid'
+                        if (!$appointment->doctor || !$appointment->doctor->user) {
+                            \Log::warning('⚠️ Không tìm thấy thông tin bác sĩ', [
+                                'appointment_id' => $appointment->id
+                            ]);
+                            return response()->json(['success' => true], 200);
+                        }
+
+                        // Lấy thông tin từ relationships
+                        $doctorName = $appointment->doctor->user->name;
+                        $patientName = $appointment->patient->user->name;
+                        $patientEmail = $appointment->patient->user->email;
+                        $serviceName = $appointment->service->name ?? 'Dịch vụ khám bệnh';
+                        $originalAmount = $appointment->service->price ?? 0;
+                        $paidAmount = $payload['amount'] ?? $originalAmount;
+                        $paymentType = $payment->method ?? 'PayOS';
+
+                        \Log::info('📧 Thông tin gửi email từ webhook:', [
+                            'appointment_id' => $appointment->id,
+                            'patient_email' => $patientEmail,
+                            'patient_name' => $patientName,
+                            'doctor_name' => $doctorName,
+                            'service_name' => $serviceName,
+                            'amount' => $paidAmount
                         ]);
-                    } else {
-                        \Log::warning('⚠️ Không tìm thấy invoice cho appointment', [
+
+                        // Kiểm tra email hợp lệ
+                        if (!$patientEmail || !filter_var($patientEmail, FILTER_VALIDATE_EMAIL)) {
+                            \Log::warning('⚠️ Email bệnh nhân không hợp lệ', [
+                                'patient_email' => $patientEmail,
+                                'patient_id' => $appointment->patient->id
+                            ]);
+                            return response()->json(['success' => true], 200);
+                        }
+
+                        // Gửi email - SỬA LẠI DÒNG NÀY
+                        Mail::to($patientEmail)->send(new PaymentInvoiceMail(
+                            $doctorName,
+                            $patientName,
+                            $serviceName,
+                            (float)$originalAmount,
+                            (float)$paidAmount,
+                            $paymentType
+                        ));
+
+                        \Log::info('✅ Đã gửi email hóa đơn cho bệnh nhân thành công', [
+                            'email' => $patientEmail,
+                            'appointment_id' => $appointment->id,
+                            'patient_name' => $patientName
+                        ]);
+
+                    } catch (\Throwable $e) {
+                        \Log::error('💥 Lỗi khi gửi email hóa đơn: ' . $e->getMessage(), [
+                            'trace' => $e->getTraceAsString(),
                             'appointment_id' => $appointment->id
                         ]);
                     }
                 } else {
-                    \Log::warning('⚠️ Không tìm thấy appointment từ payment', [
-                        'payment_id' => $payment->id
+                    \Log::warning('⚠️ Không tìm thấy invoice cho appointment', [
+                        'appointment_id' => $appointment->id
                     ]);
                 }
-            } catch (\Throwable $e) {
-                \Log::error('💥 Lỗi khi cập nhật appointment và invoice: ' . $e->getMessage(), [
-                    'trace' => $e->getTraceAsString()
+            } else {
+                \Log::warning('⚠️ Không tìm thấy appointment từ payment', [
+                    'payment_id' => $payment->id
                 ]);
             }
-            return response()->json(['success' => true], 200);
         } catch (\Throwable $e) {
-            \Log::error('💥 Lỗi webhook: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
-            return response()->json(['success' => true], 200);
+            \Log::error('💥 Lỗi khi cập nhật appointment và invoice: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
         }
-    }
 
+        return response()->json(['success' => true], 200);
+    } catch (\Throwable $e) {
+        \Log::error('💥 Lỗi webhook: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+        return response()->json(['success' => true], 200);
+    }
+}
 
     public function testPayOS()
     {
@@ -298,4 +363,106 @@ class PaymentController extends Controller
             ], 500);
         }
     }
-}
+
+  public function testSendInvoiceEmail($appointmentId = null)
+{
+    try {
+        // SỬA LẠI PHẦN NÀY: Thêm ->first() để lấy model instance
+        $appointment = Appointment::with([
+            'patient.user', 
+            'doctor.user', 
+            'service'
+        ])->when($appointmentId, function($query, $appointmentId) {
+            return $query->where('id', $appointmentId);
+        }, function($query) {
+            return $query->first();
+        })->first(); // ← THÊM DÒNG NÀY
+
+        if (!$appointment) {
+            return response()->json([
+                'message' => '❌ Không tìm thấy appointment'
+            ], 404);
+        }
+
+        \Log::info('🔍 Appointment data:', [
+            'appointment_id' => $appointment->id,
+            'has_patient' => !is_null($appointment->patient),
+            'has_doctor' => !is_null($appointment->doctor),
+            'has_service' => !is_null($appointment->service)
+        ]);
+
+        // Lấy thông tin từ relationship với kiểm tra null
+        $doctorName = $appointment->doctor && $appointment->doctor->user 
+            ? $appointment->doctor->user->name 
+            : 'Không rõ';
+
+        $patientName = $appointment->patient && $appointment->patient->user 
+            ? $appointment->patient->user->name 
+            : 'Không rõ';
+
+        $patientEmail = $appointment->patient && $appointment->patient->user 
+            ? $appointment->patient->user->email 
+            : null;
+
+        $serviceName = $appointment->service 
+            ? $appointment->service->name 
+            : 'Dịch vụ khám bệnh';
+
+        $originalAmount = $appointment->service 
+            ? $appointment->service->price 
+            : 0;
+
+        $paidAmount = $originalAmount;
+        $paymentType = 'PayOS';
+
+        // Kiểm tra email
+        if (!$patientEmail) {
+            return response()->json([
+                'message' => '❌ Bệnh nhân không có email',
+                'patient_info' => [
+                    'id' => $appointment->patient->id ?? null,
+                    'name' => $patientName,
+                    'user_id' => $appointment->patient->user_id ?? null
+                ]
+            ], 400);
+        }
+
+        \Log::info('📧 Thông tin email:', [
+            'patient_email' => $patientEmail,
+            'patient_name' => $patientName,
+            'doctor_name' => $doctorName,
+            'service_name' => $serviceName,
+            'amount' => $originalAmount
+        ]);
+
+        // Gửi email
+        Mail::to($patientEmail)->send(new PaymentInvoiceMail(
+            $doctorName,
+            $patientName,
+            $serviceName,
+            (float)$originalAmount,
+            (float)$paidAmount,
+            $paymentType
+        ));
+
+        return response()->json([
+            'message' => '✅ Đã gửi mail test hóa đơn thành công!',
+            'appointment_id' => $appointment->id,
+            'sent_to' => $patientEmail,
+            'patient' => $patientName,
+            'doctor' => $doctorName,
+            'service' => $serviceName,
+            'amount' => $originalAmount
+        ]);
+
+    } catch (\Throwable $e) {
+        \Log::error('💥 Lỗi khi gửi mail test: ' . $e->getMessage(), [
+            'trace' => $e->getTraceAsString()
+        ]);
+        return response()->json([
+            'message' => '❌ Gửi mail thất bại',
+            'error' => $e->getMessage(),
+            'appointment_id' => $appointmentId ?? 'N/A'
+        ], 500);
+    }
+}}
