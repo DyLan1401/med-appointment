@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('google_id')->nullable()->default(null);
             $table->string('facebook_id')->nullable()->default(null);
 
-            $table->enum('role', ['user', 'doctor', 'admin'])->default('user');
+            $table->enum('role', ['user','patient', 'doctor', 'admin'])->default('user');
 
             // ✅ Thêm cả hai trường avatar và avatar_url để tương thích với Seeder và linh hoạt hơn
             $table->string('avatar')->nullable();

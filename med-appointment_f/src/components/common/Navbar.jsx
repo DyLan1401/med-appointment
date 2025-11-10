@@ -62,7 +62,7 @@ export default function Navbar() {
   useEffect(() => {
     const fetchNotes = async () => {
       try {
-        const user = JSON.parse(localStorage.getItem("user"));
+        const user = JSON.parse(localStorage.getItem("patient"));
         const patientId =
           (user && user.id) || localStorage.getItem("patient_id_temp");
 
@@ -341,7 +341,7 @@ console.log("user in navbar:", user);
                     🔔 Thông báo từ hệ thống
                   </button>
 
-                  {user.role === "user" && (
+                  {user.role === "patient" && (
                     <>
                       <button
                         onClick={() => navigate("/patientprofile")}

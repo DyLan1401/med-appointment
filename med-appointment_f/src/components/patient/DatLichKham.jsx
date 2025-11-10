@@ -48,12 +48,14 @@ export default function DatLichKham() {
             date,
             time,
             note,
-            status: "Đang chờ đặt cọc",
+            status: "hidden",
             service: selectedService,
             total: selectedService?.price || 0,
             deposit: Math.round((selectedService?.price || 0) * 0.1),
         };
         console.log("✅ appointment: ", newAppointment);
+        console.log("User ID từ localStorage:", user_id);
+
         try {
             const res = await axios.post("http://localhost:8000/api/appointments", {
                 user_id: user_id,

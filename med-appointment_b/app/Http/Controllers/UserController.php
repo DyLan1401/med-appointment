@@ -134,8 +134,18 @@ class UserController extends Controller
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
-                'role' => 'user',
+                'role' => 'patient',
             ]);
+            
+        // ✅ Tạo luôn record patient liên kết với user
+        \App\Models\Patient::create([
+            'user_id' => $user->id,
+            'date_of_birth' => null,
+            'gender' => null,
+            'address' => null,
+            'health_insurance' => null,
+        ]);
+
 
             $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -373,7 +383,17 @@ class UserController extends Controller
             'name' => $pending->name,
             'email' => $pending->email,
             'password' => $pending->password,
+                'role' => 'patient',
+
         ]);
+        // ✅ Tạo record patient liên kết với user
+Patient::create([
+    'user_id' => $user->id,
+    'date_of_birth' => null,
+    'gender' => null,
+    'address' => null,
+    'health_insurance' => null,
+]);
 
         // Xóa dữ liệu tạm sau khi xác minh thành công
         $record->delete();

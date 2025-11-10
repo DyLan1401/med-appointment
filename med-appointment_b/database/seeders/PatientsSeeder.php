@@ -14,7 +14,7 @@ class PatientsSeeder extends Seeder
         $faker = Faker::create('vi_VN');
 
         // Chỉ tạo bản ghi Patient cho những user có role = 'user'
-        $users = User::where('role', 'user')->get();
+        $users = User::where('role', 'patient')->get();
 
         foreach ($users as $user) {
             Patient::create([
