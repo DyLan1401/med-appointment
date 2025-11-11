@@ -462,6 +462,8 @@ Route::get('/dashboard', [AppointmentController::class, 'dashboard']);
 // ===============================
 Route::get('/appointments/show/{id}', [AppointmentController::class, 'shownew']);
 
+//tải hóa đơn
+Route::get('/invoices/{id}/download', [InvoiceController::class, 'download']);
 
 
 Route::get('/doctors/list', [DoctorController::class, 'list']);

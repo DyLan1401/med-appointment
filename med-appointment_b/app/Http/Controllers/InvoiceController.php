@@ -9,6 +9,8 @@ use Illuminate\Validation\ValidationException;
 use Exception;
 use App\Models\Payment;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
+
 class InvoiceController extends Controller
 {
     /**
@@ -225,4 +227,25 @@ class InvoiceController extends Controller
             ], 500);
         }
     }
+
+
+
+public function download($id)
+{
+    $invoice = Invoice::with([
+        'appointment.doctor',
+        'appointment.patient',
+        'appointment.service'
+    ])->findOrFail($id);
+
+    if ($invoice->status !== 'paid') {
+        return response()->json(['message' => 'Hóa đơn chưa được thanh toán!'], 403);
+    }
+\Log::info('🧾 Invoice debug', [
+    'invoice' => $invoice->toArray(),
+]);
+    $pdf = Pdf::loadView('pdf.invoice', compact('invoice'));
+    return $pdf->download("invoice_{$invoice->id}.pdf");
+}
+
 }
