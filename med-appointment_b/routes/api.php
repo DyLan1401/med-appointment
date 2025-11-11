@@ -464,13 +464,16 @@ Route::get('/appointments/show/{id}', [AppointmentController::class, 'shownew'])
 
 
 
-
 Route::get('/doctors/list', [DoctorController::class, 'list']);
 
 
 
 // Tạo lịch hẹn (đặt lịch khám)
 Route::post('/appointments', [AppointmentController::class, 'store']);
+
+//đặt tái lịch khám
+Route::post('/appointments/rebook/{id}', [AppointmentController::class, 'rebook'])
+    ->middleware('auth:sanctum');
 
 
 Route::get('/doctors/list', [DoctorController::class, 'list']);  

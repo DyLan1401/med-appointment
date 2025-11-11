@@ -10,6 +10,7 @@ use App\Mail\AppointmentStatusMail;
 use App\Models\Patient;
 use Illuminate\Support\Facades\Mail;
 
+use Illuminate\Support\Facades\Auth;
 
 use App\Models\Feedback;
 
@@ -235,4 +236,42 @@ class AppointmentController extends Controller
 
         return response()->json($result);
     }
+
+      public function rebook(Request $request, $appointmentId)
+{\Log::info('Auth user:', [Auth::user()]);
+
+    $patient = Auth::user()->patient ?? null;
+    if (!$patient) {
+        return response()->json(['message' => 'Không tìm thấy bệnh nhân'], 404);
+    }
+
+    $old = Appointment::where('id', $appointmentId)
+        ->where('patient_id', $patient->id)
+        // ->where('status', 'completed')
+        ->first();
+
+    if (!$old) {
+        return response()->json(['message' => 'Không tìm thấy lịch đã hoàn thành để tái khám'], 404);
+    }
+
+    $validated = $request->validate([
+        'appointment_date' => 'required|date|after:today',
+        'notes' => 'nullable|string|max:500',
+    ]);
+
+    $new = Appointment::create([
+        'patient_id' => $patient->id,
+        'doctor_id' => $old->doctor_id,
+        'service_id' => $old->service_id,
+        'appointment_date' => $validated['appointment_date'],
+        'notes' => $validated['notes'] ?? null,
+        'status' => 'pending',
+    ]);
+
+    return response()->json([
+        'message' => '✅ Đặt lịch tái khám thành công!',
+        'appointment' => $new,
+    ]);
+}
+
 }
