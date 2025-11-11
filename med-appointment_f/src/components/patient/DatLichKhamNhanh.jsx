@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import API from "../../api/axios";
 import dt2 from "../../assets/dt2.jpg";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function DatLichKhamNhanh() {
     const [date, setDate] = useState("");
     const [time, setTime] = useState("");
     const [note, setNote] = useState("");
+    const navigate = useNavigate();
 
     // ✅ Lấy dữ liệu appointment được truyền từ trang trước
     const { state } = useLocation();
@@ -36,7 +37,8 @@ export default function DatLichKhamNhanh() {
                 }
             );
 
-
+            const appointmentId = res.data.appointment.id;
+            navigate(`/payment/options/${appointmentId}`);
             // ✅ Hiển thị thông báo kết quả
             alert(res.data.message);
 
