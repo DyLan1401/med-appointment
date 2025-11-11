@@ -277,13 +277,34 @@ class PatientController extends Controller
         }
 
         // Mặc định là Excel
-        $fileName = 'patients_'.now()->format('Ymd_His').'.xlsx';
-        $tempFile = storage_path('app/'.$fileName); // tạo file trong storage
+        $fileName = 'patients_' . now()->format('Ymd_His') . '.xlsx';
+        $tempFile = storage_path('app/' . $fileName); // tạo file trong storage
 
         SimpleExcelWriter::create($tempFile)
             ->addRows($patients)
             ->close();
 
         return response()->download($tempFile)->deleteFileAfterSend(true);
+    }
+
+    public function countPatients()
+    {
+        $count = Patient::count();
+
+        return response()->json([
+            'count' => $count
+        ]);
+    }
+
+    public function dailySummary()
+    {
+        $result = \DB::table('patients')
+            ->selectRaw('DATE(created_at) as day, COUNT(*) as count')
+            ->where('created_at', '>=', now()->subDays(6)) // 7 ngày gần nhất tính cả hôm nay
+            ->groupBy('day')
+            ->orderBy('day')
+            ->get();
+
+        return response()->json($result);
     }
 }

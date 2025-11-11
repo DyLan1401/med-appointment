@@ -136,15 +136,15 @@ class UserController extends Controller
                 'password' => Hash::make($request->password),
                 'role' => 'patient',
             ]);
-            
-        // ✅ Tạo luôn record patient liên kết với user
-        \App\Models\Patient::create([
-            'user_id' => $user->id,
-            'date_of_birth' => null,
-            'gender' => null,
-            'address' => null,
-            'health_insurance' => null,
-        ]);
+
+            // ✅ Tạo luôn record patient liên kết với user
+            \App\Models\Patient::create([
+                'user_id' => $user->id,
+                'date_of_birth' => null,
+                'gender' => null,
+                'address' => null,
+                'health_insurance' => null,
+            ]);
 
 
             $token = $user->createToken('auth_token')->plainTextToken;
@@ -166,31 +166,31 @@ class UserController extends Controller
 
     // API Đăng nhập
     public function login(Request $request)
-{
-    $request->validate([
-        'email' => 'required|email',
-        'password' => 'required|string|min:6',
-    ]);
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string|min:6',
+        ]);
 
-    $user = User::where('email', $request->email)->first();
+        $user = User::where('email', $request->email)->first();
 
-    if (!$user || !Hash::check($request->password, $user->password)) {
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Email hoặc mật khẩu không chính xác!',
+            ], 401);
+        }
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
         return response()->json([
-            'success' => false,
-            'message' => 'Email hoặc mật khẩu không chính xác!',
-        ], 401);
+            'success' => true,
+            'message' => 'Đăng nhập thành công!',
+            'user' => $user,
+            'token' => $token,
+            'role' => $user->role, // ✅ thêm để frontend biết role
+        ]);
     }
-
-    $token = $user->createToken('auth_token')->plainTextToken;
-
-    return response()->json([
-        'success' => true,
-        'message' => 'Đăng nhập thành công!',
-        'user' => $user,
-        'token' => $token,
-        'role' => $user->role, // ✅ thêm để frontend biết role
-    ]);
-}
 
 
     // API Đăng xuất
@@ -289,7 +289,7 @@ class UserController extends Controller
         return filter_var($path, FILTER_VALIDATE_URL) !== false;
     }
 
-    
+
     public function forgotPassword(Request $request)
     {
         $request->validate(['email' => 'required|email']);
@@ -311,7 +311,7 @@ class UserController extends Controller
         // Gửi email
         Mail::raw("Mật khẩu mới của bạn là: {$newPassword}", function ($message) use ($user) {
             $message->to($user->email)
-                    ->subject('Cấp lại mật khẩu mới');
+                ->subject('Cấp lại mật khẩu mới');
         });
 
         return response()->json(['message' => 'Mật khẩu mới đã được gửi đến email của bạn']);
@@ -383,17 +383,17 @@ class UserController extends Controller
             'name' => $pending->name,
             'email' => $pending->email,
             'password' => $pending->password,
-                'role' => 'patient',
+            'role' => 'patient',
 
         ]);
         // ✅ Tạo record patient liên kết với user
-Patient::create([
-    'user_id' => $user->id,
-    'date_of_birth' => null,
-    'gender' => null,
-    'address' => null,
-    'health_insurance' => null,
-]);
+        Patient::create([
+            'user_id' => $user->id,
+            'date_of_birth' => null,
+            'gender' => null,
+            'address' => null,
+            'health_insurance' => null,
+        ]);
 
         // Xóa dữ liệu tạm sau khi xác minh thành công
         $record->delete();
