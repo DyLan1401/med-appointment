@@ -10,6 +10,8 @@ use Exception;
 use App\Models\Payment;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Mail\ThankYouMail;
+use Illuminate\Support\Facades\Mail;
 
 class InvoiceController extends Controller
 {
@@ -246,6 +248,23 @@ public function download($id)
 ]);
     $pdf = Pdf::loadView('pdf.invoice', compact('invoice'));
     return $pdf->download("invoice_{$invoice->id}.pdf");
+}
+
+
+
+public function updateStatus(Request $request, $id)
+{
+    $invoice = Invoice::with('appointment.patient.user', 'appointment.doctor.user', 'appointment.service')->findOrFail($id);
+
+    $invoice->status = $request->status;
+    $invoice->save();
+
+    // ✅ Khi chuyển sang paid thì gửi mail cảm ơn
+    if ($invoice->status === 'paid') {
+        Mail::to($invoice->appointment->patient->user->email)->send(new ThankYouMail($invoice));
+    }
+
+    return response()->json(['message' => 'Cập nhật trạng thái thành công', 'invoice' => $invoice]);
 }
 
 }
