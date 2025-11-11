@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Star } from "lucide-react";
 import API from "../../api/axios";
-
+import { Link } from "react-router-dom";
 export default function PatientHistory() {
     const [appointments, setAppointments] = useState([]);
 
@@ -13,8 +13,8 @@ export default function PatientHistory() {
                 Authorization: `Bearer ${localStorage.getItem("token")}`, // nếu dùng Sanctum/JWT
             },
         })
-        .then(res => setAppointments(res.data))
-        .catch(err => console.error("Lỗi tải lịch sử:", err));
+            .then(res => setAppointments(res.data))
+            .catch(err => console.error("Lỗi tải lịch sử:", err));
     }, []);
 
     return (
@@ -59,6 +59,12 @@ export default function PatientHistory() {
                         {item.comment && (
                             <p className="text-gray-600 italic mb-4">Bình luận: {item.comment}</p>
                         )}
+                        <Link to={`/rebook/${item.id}`} state={{ appointment: item }}>
+                            <button className="bg-green-500 text-white px-4 py-2 rounded-md">
+                                Tái khám
+                            </button>
+                        </Link>
+
                     </div>
                 ))
             )}

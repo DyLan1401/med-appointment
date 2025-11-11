@@ -66,7 +66,7 @@ import FeedBackDoctor from "./components/common/FeedBackDoctor";
 /* 💬 Chatbot nổi */
 import ChatBot from "./components/common/ChatBot";
 
-import PaymentOptions  from "./components/payment/Paymain";
+import PaymentOptions from "./components/payment/Paymain";
 import PaymentSuccess from "./components/payment/paysuccess";
 import PaymentFailedV2 from "./components/payment/paycancel";
 import DepositPage from "./components/payment/DepositPage";
@@ -202,7 +202,7 @@ export default function App() {
         <Route path="/changepassword" element={<PageChangePassword />} />
         <Route path="/register" element={<PageRegister />} />
         <Route path="/selectschedule" element={<PageSelectSchedule />} />
-        <Route path="/datlichkhamnhanh" element={<PageDatLichKhamNhanh />} />
+        <Route path="/rebook/:id" element={<PageDatLichKhamNhanh />} />
         <Route path="/datlichkham" element={<PageDatLichKham />} />
         <Route path="/selectservice" element={<FormService />} />
 
