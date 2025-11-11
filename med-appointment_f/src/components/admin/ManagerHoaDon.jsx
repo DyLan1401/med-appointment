@@ -96,7 +96,7 @@
 //     );
 // }
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "../../api/axios";
 
 export default function InvoicePayment() {
     const [invoices, setInvoices] = useState([]);
@@ -123,6 +123,44 @@ export default function InvoicePayment() {
             setLoading(false);
         }
     };
+    const handleDownload = async (invoiceId, status) => {
+        if (status !== "paid") {
+            alert("❌ Chỉ có thể tải hóa đơn đã thanh toán!");
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem("token");
+            const response = await axios.get(
+                `http://localhost:8000/api/invoices/${invoiceId}/download`,
+                {
+                    headers: { Authorization: `Bearer ${token}` },
+                    responseType: "blob", // Quan trọng để tải file
+                }
+            );
+
+            // Tạo file từ blob
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", `invoice_${invoiceId}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+
+            // Dọn dẹp URL
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("❌ Lỗi tải hóa đơn:", error);
+            if (error.response?.status === 403) {
+                alert("⚠️ Hóa đơn chưa thanh toán, không thể tải!");
+            } else if (error.response?.status === 404) {
+                alert("⚠️ Không tìm thấy hóa đơn!");
+            } else {
+                alert("Đã xảy ra lỗi khi tải hóa đơn!");
+            }
+        }
+    };
+
 
     useEffect(() => {
         fetchInvoices(pagination.current_page);
@@ -133,8 +171,8 @@ export default function InvoicePayment() {
 
     return (
         <>
-          <div className="min-h-screen bg-gray-50 p-4">
-     
+            <div className="min-h-screen bg-gray-50 p-4">
+
                 <div className="w-full h-full  flex flex-col p-3">
                     <h1 className="text-blue-500 text-xl font-semibold py-5">Quản lí Hóa đơn</h1>
                     <div className="py-5">Đây là danh sách hóa đơn của bạn. Vui lòng xem và có thể tải xuống khi cần.</div>
@@ -150,11 +188,11 @@ export default function InvoicePayment() {
                                 <input type="search" id="default-search" class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-200" placeholder="Tìm kiếm Hóa đơn" />
                             </div>
                         </form>
-                        
+
                     </div>
 
 
-                     <div className="bg-white rounded-2xl shadow-md w-full max-w-4xl mx-auto p-6">
+                    <div className="bg-white rounded-2xl shadow-md w-full max-w-4xl mx-auto p-6">
                         <h2 className="text-2xl font-bold text-blue-600 mb-4">Danh sách hóa đơn</h2>
 
                         {/* Bảng giữ nguyên giao diện cũ */}
@@ -168,6 +206,7 @@ export default function InvoicePayment() {
                                     <th className="border p-2">Loại</th>
                                     <th className="border p-2">Trạng thái</th>
                                     <th className="border p-2">Ngày tạo</th>
+                                    <th className="border p-2">Tải hóa đơn</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -182,14 +221,26 @@ export default function InvoicePayment() {
                                         <td className="border p-2">{invoice.type}</td>
                                         <td
                                             className={`border p-2 font-semibold ${invoice.status === "paid"
-                                                    ? "text-green-600"
-                                                    : "text-red-600"
+                                                ? "text-green-600"
+                                                : "text-red-600"
                                                 }`}
                                         >
                                             {invoice.status}
                                         </td>
                                         <td className="border p-2">
                                             {new Date(invoice.created_at).toLocaleDateString()}
+                                        </td>
+                                        <td className="border p-2">
+                                            <button
+                                                onClick={() => handleDownload(invoice.id, invoice.status)}
+                                                disabled={invoice.status !== "paid"}
+                                                className={`px-3 py-1 rounded text-white font-medium transition ${invoice.status === "paid"
+                                                    ? "bg-blue-600 hover:bg-blue-700"
+                                                    : "bg-gray-400 cursor-not-allowed"
+                                                    }`}
+                                            >
+                                                ⬇ Tải Hóa Đơn
+                                            </button>
                                         </td>
                                     </tr>
                                 ))}
@@ -227,13 +278,13 @@ export default function InvoicePayment() {
                             </button>
                         </div>
                     </div>
-                    </div>
+                </div>
 
-                    </div>
+            </div>
 
-                   
-                
+
+
         </>
-      
-                );
+
+    );
 }
