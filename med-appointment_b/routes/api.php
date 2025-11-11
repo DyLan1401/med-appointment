@@ -29,39 +29,6 @@ use App\Http\Controllers\InvoiceController;
 use App\Models\Appointment;
 
 
-// ================================
-// 🔐 LOGIN GOOGLE
-// ================================
-Route::get('/auth/google/redirect', [SocialAuthController::class, 'redirectToGoogle']);
-Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
-
-
-
-
-
-
-// ================================
-// 🔐 LOGIN GOOGLE
-// ================================
-Route::get('/auth/google/redirect', [SocialAuthController::class, 'redirectToGoogle']);
-Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
-
-
-Route::apiResource('banners', BannerController::class);
-
-
-// đăng nhập với google
-// ================================
-// 🩺 DOCTORS
-// ================================
-
-
-// ===============================
-// 🌐 Xác thực Google
-// ===============================
-
-Route::get('/auth/google/redirect', [SocialAuthController::class, 'redirectToGoogle']);
-Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
 
 // ================================
 // 📢 BANNER
@@ -71,11 +38,13 @@ Route::apiResource('banners', BannerController::class);
 
 
 // ===============================
-// 🌐 Xác thực Google
+// 🌐 Xác thực Google, Facebook
 // ===============================
 Route::get('/auth/google/redirect', [SocialAuthController::class, 'redirectToGoogle']);
 Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
 
+Route::get('/auth/facebook/redirect', [SocialAuthController::class, 'redirectToFacebook']);
+Route::get('/auth/facebook/callback', [SocialAuthController::class, 'handleFacebookCallback']);
 // ===============================
 // 🧑‍⚕️ DOCTORS
 // ===============================
@@ -142,13 +111,13 @@ Route::get('/schedules/getbyid/{doctor_id}', [ScheduleController::class, 'getSch
 Route::get('/schedules/getbyid/{doctor_id}', [ScheduleController::class, 'getScheduleById']);
 
 // PATIENTS
-// hai route này phải đặt trước route resource để không bị nhầm với {patient}
+// Các route này phải đặt trước route resource để không bị nhầm với {patient}
 Route::get('/patients/statistics', [PatientController::class, 'getStatistics']);
 Route::get('/patients/newest', [PatientController::class, 'getNewest']);
-// Route::prefix('/patients')->group(function () {
-//     Route::get('export', [PatientController::class, 'export']);
-// });
+Route::get('/patients/count', [PatientController::class, 'countPatients']);
 Route::get('/patients/export', [PatientController::class, 'export']);
+Route::get('/patients/daily-summary', [PatientController::class, 'dailySummary']);
+Route::get('/appointments/completed/daily-summary', [AppointmentController::class, 'completedDailySummary']);
 Route::apiResource('patients', PatientController::class);
 
 
@@ -192,6 +161,8 @@ Route::apiResource('services', ServiceController::class);
 // ================================
 // 📅 APPOINTMENTS (Booking)
 // ================================
+// Đếm lịch hẹn đã hoàn thành
+Route::get('/appointments/completed/count', [AppointmentController::class, 'countCompleted']);
 Route::apiResource('appointments', AppointmentController::class);
 
 
