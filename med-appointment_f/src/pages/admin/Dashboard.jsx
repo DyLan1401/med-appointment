@@ -15,7 +15,7 @@ export default function Dashboard() {
         { path: "categories", label: "Quản lí danh mục bài viết" },
         { path: "posts", label: "Quản lí bài viết" },
         { path: "invoices", label: "Quản lí hóa đơn" },
-        { path: "feedbackdoctors", label: "Quản lí phản hồi bác sĩ" },
+        { path: "feedbackdoctors", label: "Quản lí phản hồi từ bệnh nhân" },
         { path: "feedbackposts", label: "Quản lí phản hồi bài viết" },
         { path: "contacts", label: "Quản lí liên hệ" },
         { path: "banners", label: "Quản lí banners" },

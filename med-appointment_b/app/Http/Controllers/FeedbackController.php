@@ -4,9 +4,41 @@ namespace App\Http\Controllers;
 
 use App\Models\Feedback;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class FeedbackController extends Controller
 {
+    public function index(Request $request)
+    {
+        $query = DB::table('feedbacks')
+            ->join('users as patients', 'feedbacks.user_id', '=', 'patients.id')
+            ->join('doctors', 'feedbacks.doctor_id', '=', 'doctors.id')
+            ->join('users as doctors_user', 'doctors.user_id', '=', 'doctors_user.id')
+            ->leftJoin('departments', 'doctors.specialization_id', '=', 'departments.id')
+            ->select(
+                'patients.name as patient_name',
+                'doctors_user.name as doctor_name',
+                'departments.name as department_name',
+                'feedbacks.comment',
+                'feedbacks.rating',
+                'feedbacks.created_at'
+            )
+            ->orderByDesc('feedbacks.created_at');
+
+        // ✅ Lọc theo rating nếu có (ví dụ ?rating=5)
+        if ($request->filled('rating')) {
+            $query->where('feedbacks.rating', $request->rating);
+        }
+
+        // ✅ Phân trang (10 dòng mỗi trang)
+        $perPage = $request->get('per_page', 10);
+        $feedbacks = $query->paginate($perPage);
+
+        return response()->json($feedbacks);
+
+        //return response()->json($query->get());
+    }
+
     // Lấy feedback theo bác sĩ + LỌC SAO nếu có truyền rating
     public function getByDoctor(Request $request, $doctor_id)
     {

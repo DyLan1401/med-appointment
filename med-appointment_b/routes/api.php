@@ -359,7 +359,8 @@ Route::apiResource('invoices', InvoiceController::class);
 // ===============================
 // ⭐ FEEDBACK (Đánh giá bác sĩ)
 // ===============================
-
+// Lấy tất cả feedback (có thể lọc theo bác sĩ hoặc bệnh nhân)
+Route::get('/feedbacks', [FeedbackController::class, 'index']);
 Route::get('/feedbacks/{doctor_id}', [FeedbackController::class, 'getByDoctor']);
 Route::post('/feedbacks', [FeedbackController::class, 'store']);
 Route::delete('/feedbacks/{id}', [FeedbackController::class, 'destroy']);
