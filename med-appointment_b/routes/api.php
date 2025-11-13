@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
 
 // ===============================
 // 📦 Controllers
@@ -483,3 +484,11 @@ Route::get('/doctors/list', [DoctorController::class, 'list']);
 
 
 Route::get('/test-email/{id?}', [PaymentController::class, 'testSendInvoiceEmail']);
+
+Route::get('/test/remind', function () {
+    Artisan::call('appointments:remind');
+    return response()->json([
+        'status' => 'ok',
+        'message' => 'Đã chạy command gửi mail nhắc lịch (giả lập 00:00).'
+    ]);
+});
