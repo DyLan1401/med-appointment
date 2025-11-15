@@ -33,7 +33,7 @@ class DoctorSeeder extends Seeder
                 'user_id' => $userId,
                 'specialization_id' => $faker->randomElement([1, 2, 3, 4, 5]),
                 'status' => 'active',
-                'bio' => $faker->sentence(8),
+                'bio' => $faker->sentence(20),
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);

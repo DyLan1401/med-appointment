@@ -13,6 +13,7 @@ return new class extends Migration {
             $table->time('start_time')->nullable();
             $table->time('end_time')->nullable();
             $table->enum('status', ['available', 'unavailable'])->default('available');
+    $table->timestamps(); // ✅ thêm created_at và updated_at
 
             $table->foreign('doctor_id')->references('id')->on('doctors');
         });

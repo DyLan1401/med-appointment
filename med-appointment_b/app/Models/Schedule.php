@@ -14,14 +14,18 @@ class Schedule extends Model
     ];
 
 
+
+
         // 🔹 Lấy lịch làm việc theo ID bác sĩ
-    public static function getByDoctorId($doctor_id)
-    {
-        return self::where('doctor_id', $doctor_id)
-            ->orderBy('date', 'asc')
-            ->orderBy('start_time', 'asc')
-            ->get();
-    }
+ public static function getByDoctorId($doctor_id)
+{
+    return self::with('doctor.user') // đây là key quan trọng
+        ->where('doctor_id', $doctor_id)
+        ->orderBy('date', 'asc')
+        ->orderBy('start_time', 'asc')
+        ->get();
+}
+
 
  public function doctor()
 {
@@ -36,4 +40,8 @@ public function service()
     protected $casts = [
         'date' => 'date',
     ];
+
+
 }
+
+
