@@ -39,6 +39,7 @@ class SocialAuthController extends Controller
                 'email' => $googleUser->getEmail(),
                 'google_id' => $googleUser->getId(),
                 'password' => bcrypt(Str::random(16)), // tạo mật khẩu tạm
+                'role' => 'patient', // Gán role mặc định là 'patient'
             ]);
         } else {
             if (empty($user->google_id)) {
