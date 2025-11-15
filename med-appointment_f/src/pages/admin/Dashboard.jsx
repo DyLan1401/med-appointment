@@ -5,7 +5,7 @@ export default function Dashboard() {
     const location = useLocation();
 
     const menus = [
-        { path: "/dashboard", label: "Dashboard" },
+        { path: "", label: "Dashboard" },
         { path: "doctors", label: "Quản lí bác sĩ" },
         { path: "schedules", label: "Quản lí lịch hẹn" },
         { path: "chuyenKhoas", label: "Quản lí chuyên khoa" },
@@ -23,6 +23,10 @@ export default function Dashboard() {
         { path: "appointmentStats", label: "Thống kê lịch khám" },
         { path: "BHYTStatistics", label: "Thống kê BHYT" },
         { path: "TopDoctors", label: "Thống kê bác sĩ" },
+
+        // ✅ Trang Chat Admin
+        { path: "chat", label: "Quản lí nhóm Chat" },
+
         { path: "/", label: "Thoát" },
     ];
 
@@ -36,18 +40,20 @@ export default function Dashboard() {
 
                 <div className="flex-1 flex flex-col justify-start">
                     {menus.map((item, i) => {
+                        const targetPath = `/dashboard/${item.path}`;
                         const active =
-                            location.pathname === `/dashboard/${item.path}` ||
-                            (item.path === "/dashboard" && location.pathname === "/dashboard");
+                            location.pathname === targetPath ||
+                            (item.path === "" && location.pathname === "/dashboard");
 
                         return (
                             <Link
                                 key={i}
-                                to={item.path}
-                                className={`py-3 px-4 border-b text-center font-semibold transition-all ${active
-                                    ? "bg-blue-600 text-white"
-                                    : "bg-blue-500 hover:bg-blue-600 text-white"
-                                    }`}
+                                to={targetPath}
+                                className={`py-3 px-4 border-b text-center font-semibold transition-all ${
+                                    active
+                                        ? "bg-blue-600 text-white"
+                                        : "bg-blue-500 hover:bg-blue-600 text-white"
+                                }`}
                             >
                                 {item.label}
                             </Link>
@@ -57,8 +63,7 @@ export default function Dashboard() {
             </div>
 
             {/* NỘI DUNG BÊN PHẢI */}
-            <div className="flex-1 h-full bg-gray-50 p-6  overflow-y-auto">
-                <div className=""></div>
+            <div className="flex-1 h-full bg-gray-50 p-6 overflow-y-auto">
                 <Outlet />
             </div>
         </div>

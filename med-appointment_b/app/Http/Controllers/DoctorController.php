@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Doctor;
 use App\Models\DoctorCertificate;
+use App\Models\ChatGroup;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -12,13 +13,19 @@ use Illuminate\Support\Facades\Hash;
 
 class DoctorController extends Controller
 {
-    //   CRUD DOCTOR
+    // ==========================
+    // LIST DOCTOR
+    // ==========================
     public function index(Request $request)
     {
-        $query = Doctor::with(['user', 'certificates', 'specialization']);
+        $query = Doctor::with(['user', 'department', 'specialization', 'certificates']);
 
         if ($request->filled('name')) {
             $query->whereHas('user', fn($q) => $q->where('name', 'like', '%' . $request->name . '%'));
+        }
+
+        if ($request->filled('department_id')) {
+            $query->where('department_id', $request->department_id);
         }
 
         if ($request->filled('specialization_id')) {
@@ -26,23 +33,31 @@ class DoctorController extends Controller
         }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         //        return response()->json($query->orderBy('id', 'asc')->get());
 =======
 >>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
+=======
+>>>>>>> DangThanhPhong/15-ChatRealtime
         return response()->json($query->paginate(8));
     }
 
+    // ==========================
+    // CREATE DOCTOR
+    // ==========================
     public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:100',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6',
-            'specialization_id' => 'required|integer|exists:departments,id',
+            'department_id' => 'nullable|exists:departments,id',
+            'specialization_id' => 'nullable|exists:departments,id',
             'bio' => 'nullable|string',
             'phone' => 'nullable|string|max:20',
         ]);
 
+        // Create user
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -51,19 +66,30 @@ class DoctorController extends Controller
             'phone' => $request->phone,
         ]);
 
+        // Create doctor
         $doctor = Doctor::create([
             'user_id' => $user->id,
+            'department_id' => $request->department_id,
             'specialization_id' => $request->specialization_id,
-            'status' => 'offline',
             'bio' => $request->bio,
+            'status' => 'offline',
         ]);
+
+        // MAP vào group chat chuyên khoa
+        $group = ChatGroup::where('specialty_name', $doctor->specialization?->name)->first();
+        if ($group) {
+            $group->users()->syncWithoutDetaching($doctor->user_id);
+        }
 
         return response()->json([
             'message' => 'Doctor created successfully',
-            'doctor' => $doctor->load(['user', 'specialization']),
+            'doctor' => $doctor->load(['user', 'department', 'specialization']),
         ], 201);
     }
 
+    // ==========================
+    // UPDATE DOCTOR
+    // ==========================
     public function update(Request $request, $id)
     {
         $doctor = Doctor::with('user')->findOrFail($id);
@@ -74,8 +100,9 @@ class DoctorController extends Controller
             'email' => 'required|email|unique:users,email,' . $user->id,
             'phone' => 'nullable|string|max:20',
             'bio' => 'nullable|string',
-            'specialization_id' => 'nullable|integer|exists:departments,id',
-            'status' => 'nullable|string|in:online,offline',
+            'department_id' => 'nullable|exists:departments,id',
+            'specialization_id' => 'nullable|exists:departments,id',
+            'status' => 'nullable|string|in:online,offline,active,inactive',
         ]);
 
         $user->update([
@@ -86,26 +113,28 @@ class DoctorController extends Controller
 
         $doctor->update([
             'bio' => $request->bio,
+            'department_id' => $request->department_id,
             'specialization_id' => $request->specialization_id,
             'status' => $request->status ?? $doctor->status,
         ]);
 
         return response()->json([
             'message' => 'Doctor updated successfully',
-            'doctor' => $doctor->load(['user', 'specialization']),
+            'doctor' => $doctor->load(['user', 'department', 'specialization']),
         ]);
     }
 
+    // ==========================
+    // DELETE
+    // ==========================
     public function destroy($id)
     {
-        $doctor = Doctor::with('user', 'certificates')->findOrFail($id);
+        $doctor = Doctor::with(['user', 'certificates'])->findOrFail($id);
 
-        // Xóa avatar nếu có
         if ($doctor->user->avatar && Storage::disk('public')->exists($doctor->user->avatar)) {
             Storage::disk('public')->delete($doctor->user->avatar);
         }
 
-        // Xóa chứng chỉ
         foreach ($doctor->certificates as $cert) {
             if ($cert->image && Storage::disk('public')->exists($cert->image)) {
                 Storage::disk('public')->delete($cert->image);
@@ -119,15 +148,26 @@ class DoctorController extends Controller
         return response()->json(['message' => 'Doctor deleted successfully']);
     }
 
+<<<<<<< HEAD
     //   PROFILE (HIỂN THỊ + CẬP NHẬT)
+=======
+    // ==========================
+    // SHOW PROFILE
+    // ==========================
+>>>>>>> DangThanhPhong/15-ChatRealtime
     public function showProfile($doctor_id)
     {
-        $doctor = Doctor::with(['user', 'specialization', 'certificates'])->find($doctor_id);
+        $doctor = Doctor::with(['user', 'department', 'specialization', 'certificates'])->find($doctor_id);
+
         if (!$doctor) {
             return response()->json(['message' => 'Không tìm thấy bác sĩ'], 404);
         }
 
+<<<<<<< HEAD
         $doctor->user->avatar_url_full = $doctor->user->avatar_url;
+=======
+        $doctor->user->avatar_url_full = $doctor->user->avatar ? asset('storage/' . $doctor->user->avatar) : null;
+>>>>>>> DangThanhPhong/15-ChatRealtime
 
         foreach ($doctor->certificates as $cert) {
             $cert->file_url = $cert->image ? asset('storage/' . $cert->image) : null;
@@ -136,6 +176,9 @@ class DoctorController extends Controller
         return response()->json($doctor);
     }
 
+    // ==========================
+    // UPDATE PROFILE
+    // ==========================
     public function updateProfile(Request $request, $doctor_id)
     {
         $doctor = Doctor::with('user')->findOrFail($doctor_id);
@@ -146,7 +189,8 @@ class DoctorController extends Controller
             'email' => 'required|email|unique:users,email,' . $user->id,
             'phone' => 'nullable|string|max:20',
             'bio' => 'nullable|string',
-            'specialization_id' => 'nullable|integer|exists:departments,id',
+            'department_id' => 'nullable|exists:departments,id',
+            'specialization_id' => 'nullable|exists:departments,id',
         ]);
 
         $user->update([
@@ -157,16 +201,24 @@ class DoctorController extends Controller
 
         $doctor->update([
             'bio' => $request->bio,
+            'department_id' => $request->department_id,
             'specialization_id' => $request->specialization_id,
         ]);
 
         return response()->json([
             'message' => 'Cập nhật hồ sơ bác sĩ thành công!',
-            'doctor' => $doctor->load(['user', 'specialization']),
+            'doctor' => $doctor->load(['user', 'department', 'specialization']),
         ]);
     }
 
+<<<<<<< HEAD
     //   UPLOAD AVATAR
+=======
+
+    // ==========================
+    // UPLOAD AVATAR
+    // ==========================
+>>>>>>> DangThanhPhong/15-ChatRealtime
     public function uploadAvatar(Request $request, $doctor_id)
     {
         $doctor = Doctor::with('user')->findOrFail($doctor_id);
@@ -189,7 +241,13 @@ class DoctorController extends Controller
         ]);
     }
 
+<<<<<<< HEAD
     //   UPLOAD CHỨNG CHỈ / BẰNG CẤP
+=======
+    // ==========================
+    // UPLOAD CERTIFICATE
+    // ==========================
+>>>>>>> DangThanhPhong/15-ChatRealtime
     public function uploadCertificate(Request $request, $doctor_id)
     {
         $doctor = Doctor::findOrFail($doctor_id);
@@ -220,6 +278,9 @@ class DoctorController extends Controller
         ], 201);
     }
 
+    // ==========================
+    // GET CERTIFICATES
+    // ==========================
     public function getCertificates($doctor_id)
     {
         $certificates = DoctorCertificate::where('doctor_id', $doctor_id)->get();
@@ -231,6 +292,9 @@ class DoctorController extends Controller
         return response()->json($certificates);
     }
 
+    // ==========================
+    // DELETE CERTIFICATE
+    // ==========================
     public function deleteCertificate($id)
     {
         $certificate = DoctorCertificate::findOrFail($id);
@@ -244,7 +308,13 @@ class DoctorController extends Controller
         return response()->json(['message' => 'Xóa chứng chỉ thành công!']);
     }
 
+<<<<<<< HEAD
     // 🔍 Tìm kiếm bác sĩ theo tên hoặc chuyên khoa
+=======
+    // ==========================
+    // SEARCH DOCTOR
+    // ==========================
+>>>>>>> DangThanhPhong/15-ChatRealtime
     public function search(Request $request)
     {
         $query = $request->input('query');
@@ -253,13 +323,19 @@ class DoctorController extends Controller
             return response()->json(['message' => 'Thiếu từ khóa tìm kiếm.'], 400);
         }
 
-        $doctors = Doctor::with(['user', 'specialization'])
+        $doctors = Doctor::with(['user', 'department', 'specialization'])
             ->where(function ($q) use ($query) {
                 $q->whereHas('user', function ($q2) use ($query) {
                     $q2->where('name', 'like', "%$query%");
                 })
                 ->orWhereHas('specialization', function ($q2) use ($query) {
                     $q2->where('name', 'like', "%$query%");
+<<<<<<< HEAD
+=======
+                })
+                ->orWhereHas('department', function ($q2) use ($query) {
+                    $q2->where('name', 'like', "%$query%");
+>>>>>>> DangThanhPhong/15-ChatRealtime
                 });
             })
             ->get();
@@ -270,6 +346,7 @@ class DoctorController extends Controller
 
         return response()->json($doctors);
     }
+<<<<<<< HEAD
 <<<<<<< HEAD
     /**
      * Remove the specified resource from storage.
@@ -314,6 +391,28 @@ public function list()
 
     // ✅ Top bác sĩ
 >>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
+=======
+
+    // ==========================
+    // SIMPLE LIST
+    // ==========================
+    public function list()
+    {
+        return response()->json(
+            Doctor::with('user')
+                ->select('id', 'user_id')
+                ->get()
+                ->map(fn($doctor) => [
+                    'id' => $doctor->id,
+                    'name' => $doctor->user->name,
+                ])
+        );
+    }
+
+    // ==========================
+    // TOP DOCTORS
+    // ==========================
+>>>>>>> DangThanhPhong/15-ChatRealtime
     public function topDoctors(Request $request)
     {
         $limit = $request->get('limit', 10);
@@ -337,6 +436,7 @@ public function list()
         return response()->json($top);
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     // public function topDoctors()
     // {
@@ -356,10 +456,42 @@ public function list()
 
     //     return response()->json($top);
     // }
+=======
+>>>>>>> DangThanhPhong/15-ChatRealtime
 
+    // ==========================
+    // AUTH: WHO AM I? /doctor/me
+    // ==========================
+    public function me(Request $request)
+    {
+        $user = $request->user();
 
+<<<<<<< HEAD
 
 
 =======
 >>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
 }
+=======
+        $doctor = Doctor::with(['department', 'specialization'])
+            ->where('user_id', $user->id)
+            ->first();
+
+        return response()->json([
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role,
+            'doctor' => $doctor ? [
+                'id' => $doctor->id,
+                'department_id' => $doctor->department_id,
+                'department_name' => $doctor->department?->name,
+                'specialization_id' => $doctor->specialization_id,
+                'specialization_name' => $doctor->specialization?->name,
+                'bio' => $doctor->bio,
+            ] : null
+        ]);
+    }
+
+}
+>>>>>>> DangThanhPhong/15-ChatRealtime

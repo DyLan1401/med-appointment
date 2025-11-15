@@ -1,8 +1,6 @@
 <?php
 
-
 use Laravel\Sanctum\Sanctum;
-
 
 return [
 
@@ -11,14 +9,23 @@ return [
     | Stateful Domains
     |--------------------------------------------------------------------------
     |
-    | Requests from the following domains / hosts will receive stateful API
-    | authentication cookies. Typically, these should include your local
-    | and production domains which access your API via a frontend SPA.
+    | Các domain / host sau sẽ được coi là "stateful", nghĩa là
+    | các request từ đó sẽ nhận được cookie xác thực của Sanctum.
+    |
+    | ⚙️ Dành cho môi trường local:
+    | - BE chạy ở 127.0.0.1:8000
+    | - FE chạy ở localhost:5173
+    |
+    | Việc liệt kê cả localhost & 127.0.0.1 là bắt buộc
+    | để tránh lỗi cookie không khớp domain.
+    |
+    | ⚠️ Nếu bạn deploy lên server thật, hãy thay dòng dưới bằng:
+    | 'yourdomain.com,www.yourdomain.com'
     |
     */
 
-    'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', 
-        'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1'
+    'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS',
+        'localhost,127.0.0.1,localhost:5173,127.0.0.1:5173'
     )),
 
     /*
@@ -26,10 +33,9 @@ return [
     | Sanctum Guards
     |--------------------------------------------------------------------------
     |
-    | This array contains the authentication guards that will be checked when
-    | Sanctum is trying to authenticate a request. If none of these guards
-    | are able to authenticate the request, Sanctum will use the bearer
-    | token that's present on an incoming request for authentication.
+    | Danh sách các guard Sanctum sẽ dùng để xác thực người dùng.
+    | Mặc định là "web", tương ứng với session/cookie.
+    | Nếu bạn sử dụng API token thủ công, vẫn giữ nguyên "web" để tránh lỗi.
     |
     */
 
@@ -40,22 +46,23 @@ return [
     | Expiration Minutes
     |--------------------------------------------------------------------------
     |
-    | This value controls the number of minutes until an issued token will be
-    | considered expired. This will override any values set in the token's
-    | "expires_at" attribute, but first-party sessions are not affected.
+    | Thời gian sống của token (phút).
+    | Nếu để null => token sẽ không tự hết hạn (phù hợp cho môi trường dev).
+    |
+    | 👉 Khi deploy production, bạn có thể đổi thành 43200 (30 ngày)
+    | để người dùng đăng nhập lâu dài mà vẫn an toàn.
     |
     */
 
-    'expiration' => 60,
+    'expiration' => env('SANCTUM_EXPIRATION', null), // ✅ Không tự hết hạn khi dev local
 
     /*
     |--------------------------------------------------------------------------
     | Token Prefix
     |--------------------------------------------------------------------------
     |
-    | Sanctum can prefix new tokens in order to take advantage of numerous
-    | security scanning initiatives maintained by open source platforms
-    | that notify developers if they commit tokens into repositories.
+    | Tiền tố thêm vào trước các token cá nhân (optional).
+    | Có thể đặt ENV SANCTUM_TOKEN_PREFIX trong .env nếu muốn.
     |
     */
 
@@ -66,9 +73,8 @@ return [
     | Sanctum Middleware
     |--------------------------------------------------------------------------
     |
-    | When authenticating your first-party SPA with Sanctum you may need to
-    | customize some of the middleware Sanctum uses while processing the
-    | request. You may change the middleware listed below as required.
+    | Các middleware mà Sanctum sử dụng khi xử lý request.
+    | KHÔNG nên sửa trừ khi bạn hiểu rõ mục đích.
     |
     */
 
@@ -77,4 +83,16 @@ return [
         'encrypt_cookies' => Illuminate\Cookie\Middleware\EncryptCookies::class,
         'validate_csrf_token' => Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Personal Access Token Model
+    |--------------------------------------------------------------------------
+    |
+    | Đây là model được Sanctum sử dụng cho token cá nhân.
+    | Mặc định là model của Sanctum, không cần đổi trong hầu hết trường hợp.
+    |
+    */
+
+    'personal_access_token_model' => Laravel\Sanctum\PersonalAccessToken::class,
 ];

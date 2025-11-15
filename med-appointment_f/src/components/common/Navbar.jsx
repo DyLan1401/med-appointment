@@ -2,8 +2,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, Bell, X } from "lucide-react";
-import axios from "axios";
+import dayjs from "dayjs";
+import { socket } from "../../socket.js";
 import logo from "../../assets/logo.jpg";
+import { API } from "../../api/axios";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -15,34 +17,18 @@ export default function Navbar() {
   const [user, setUser] = useState(null);
   const [doctorId, setDoctorId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-
-  // Thông báo
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState([]);
 
-  // 🩺 Lấy doctor_id tương ứng nếu user là bác sĩ
+  // =====================================================
+  // 1️⃣ LẤY USER ĐÚNG TỪ LOCALSTORAGE
+  // =====================================================
   useEffect(() => {
-    const loadDoctorId = async () => {
-      const storedUser = JSON.parse(localStorage.getItem("user"));
-      if (storedUser?.role === "doctor") {
-        try {
-          const res = await axios.get(
-            `http://localhost:8000/api/doctors?email=${storedUser.email}`
-          );
-          if (res.data?.data && res.data.data.length > 0) {
-            const doctor = res.data.data.find(
-              (d) => d.user.email === storedUser.email
-            );
-            if (doctor) setDoctorId(doctor.id);
-          }
-        } catch (error) {
-          console.error("Lỗi khi tải doctor_id:", error);
-        }
-      }
-    };
-    loadDoctorId();
-  }, []);
+    const doctorUser = JSON.parse(localStorage.getItem("doctor_user") || "null");
+    const adminUser = JSON.parse(localStorage.getItem("admin_user") || "null");
+    const normalUser = JSON.parse(localStorage.getItem("user") || "null");
 
+<<<<<<< HEAD
   // Lấy thông tin user
   useEffect(() => {
     const loadUser = () => {
@@ -51,283 +37,247 @@ export default function Navbar() {
    
       if (storedUser) setUser(JSON.parse(storedUser));
       else setUser(null);
+=======
+    const currentUser = doctorUser || adminUser || normalUser;
+    setUser(currentUser?.user || null);
+
+    const handleStorage = () => {
+      const d = JSON.parse(localStorage.getItem("doctor_user") || "null");
+      const a = JSON.parse(localStorage.getItem("admin_user") || "null");
+      const u = JSON.parse(localStorage.getItem("user") || "null");
+      setUser((d?.user || a?.user || u?.user) || null);
+>>>>>>> DangThanhPhong/15-ChatRealtime
     };
 
-    loadUser();
-    window.addEventListener("storage", loadUser);
-    return () => window.removeEventListener("storage", loadUser);
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
   }, []);
 
-  // Lấy thông báo từ API Laravel
+  // =====================================================
+  // 2️⃣ LOAD DOCTOR ID
+  // =====================================================
   useEffect(() => {
-    const fetchNotes = async () => {
+    const doctorUser = JSON.parse(localStorage.getItem("doctor_user") || "null");
+    if (doctorUser?.doctor?.id) setDoctorId(doctorUser.doctor.id);
+  }, []);
+
+  // =====================================================
+  // 3️⃣ LOAD THÔNG BÁO — THEO USER ROLE
+  // =====================================================
+  useEffect(() => {
+    const loadNotifications = async () => {
       try {
+<<<<<<< HEAD
         const user = JSON.parse(localStorage.getItem("patient"));
         const patientId =
           (user && user.id) || localStorage.getItem("patient_id_temp");
+=======
+        const doctorUser = JSON.parse(localStorage.getItem("doctor_user") || "null");
+        const adminUser = JSON.parse(localStorage.getItem("admin_user") || "null");
+        const normalUser = JSON.parse(localStorage.getItem("user") || "null");
+>>>>>>> DangThanhPhong/15-ChatRealtime
 
-        if (!patientId) return;
+        const current = doctorUser || adminUser || normalUser;
+        if (!current?.token || !current?.user?.id) return;
 
-        const res = await axios.get(
-          `http://localhost:8000/api/notes/${patientId}`
-        );
+        // Gắn token đúng theo role
+        API.defaults.headers.common["Authorization"] = `Bearer ${current.token}`;
 
-        const mapped = res.data.map((note) => ({
-          id: note.id,
-          title: note.title || "Ghi chú từ Admin",
-          time: new Date(note.created_at).toLocaleString(),
-          is_read: note.is_read,
+        const patientId = current.user.id;
+        const res = await API.get(`/notes/${patientId}`);
+
+        const mapped = res.data.map((n) => ({
+          id: n.id,
+          title: n.title || "Thông báo mới",
+          time: new Date(n.created_at).toLocaleString(),
+          is_read: n.is_read,
         }));
 
         setNotifications(mapped);
       } catch (err) {
-        console.error("Lỗi khi tải thông báo:", err);
+        console.error("Lỗi khi load thông báo:", err);
       }
     };
 
-    fetchNotes();
-    const interval = setInterval(fetchNotes, 30000);
+    loadNotifications();
+    const interval = setInterval(loadNotifications, 15000);
     return () => clearInterval(interval);
   }, []);
 
+  // =====================================================
+  // 4️⃣ SOCKET CHO BÁC SĨ THEO NHÓM CHUYÊN KHOA
+  // =====================================================
+  useEffect(() => {
+    if (!user || user.role !== "doctor") return;
+
+    const groups = JSON.parse(localStorage.getItem("doctor_groups") || "[]");
+    const channels = groups.map((gid) => socket.channel(`chat-group.${gid}`));
+
+    channels.forEach((ch) => {
+      ch.listen(".message.new", (payload) => {
+        setNotifications((prev) => [
+          {
+            id: payload.id,
+            title: `${payload.sender_name}: ${payload.content}`,
+            time: dayjs(payload.created_at).format("HH:mm DD/MM"),
+            is_read: false,
+          },
+          ...prev,
+        ]);
+      });
+    });
+
+    return () => channels.forEach((c) => c.stopListening(".message.new"));
+  }, [user]);
+
+  // =====================================================
+  // 5️⃣ LOGOUT CHUẨN — XÓA TOKEN ĐÚNG ROLE
+  // =====================================================
   const handleLogout = () => {
+    localStorage.removeItem("doctor_user");
+    localStorage.removeItem("admin_user");
     localStorage.removeItem("user");
+
+    // Token bác sĩ
+    localStorage.removeItem("doctor_token");
+    localStorage.removeItem("doctor_groups");
+
     setUser(null);
     navigate("/login");
   };
 
-  const handleLanguageChange = (lang) => {
-    setLanguage(lang);
-    setOpenLang(false);
-  };
-
+  // =====================================================
+  // 6️⃣ SEARCH BÁC SĨ
+  // =====================================================
   const handleSearch = (e) => {
     e.preventDefault();
-    if (searchTerm.trim() === "") return;
+    if (!searchTerm.trim()) return;
     navigate(`/doctor?search=${encodeURIComponent(searchTerm.trim())}`);
-    setSearchTerm("");
   };
+<<<<<<< HEAD
 console.log("user in navbar:", user);
+=======
+
+  // =====================================================
+  // 7️⃣ MỞ NHÓM CHAT CHUYÊN KHOA
+  // =====================================================
+  const handleOpenGroupChat = () => {
+    const doctorUser = JSON.parse(localStorage.getItem("doctor_user") || "null");
+
+    const departmentId = doctorUser?.user?.id;
+
+    if (!departmentId) {
+      alert("Không tìm thấy chuyên khoa của bác sĩ!");
+      return;
+    }
+
+    navigate(`/doctor/group-chat?department_id=${departmentId}`);
+  };
+
+  // =====================================================
+  // 8️⃣ JSX RENDER
+  // =====================================================
+>>>>>>> DangThanhPhong/15-ChatRealtime
   return (
-    <div className="w-full bg-white shadow-md fixed top-0 left-0 z-50 animate-fadeIn">
-      <div className="max-w-7xl mx-auto flex justify-between items-center px-6 py-3 font-semibold">
-        {/* Logo */}
+    <div className="w-full bg-white shadow-md fixed top-0 left-0 z-50">
+      <div className="max-w-7xl mx-auto flex justify-between items-center px-6 py-3">
+
+        {/* LOGO */}
         <div
           onClick={() => navigate("/")}
-          className="flex items-center cursor-pointer hover:scale-105 transition-transform"
+          className="flex items-center cursor-pointer hover:scale-105 transition"
         >
-          <img src={logo} alt="Logo" className="w-12 h-12 object-contain mr-2" />
+          <img src={logo} className="w-12 h-12 object-contain mr-2" />
           <span className="text-2xl font-bold text-blue-600 hidden sm:block">
             MedCare
           </span>
         </div>
 
-        {/* Menu trung tâm */}
+        {/* MENU */}
         <div className="flex items-center space-x-8">
-          {["Trang chủ", "Liên hệ", "Bài viết", "Bác sĩ", "Đặt lịch khám"].map(
-            (label, i) => {
-              if (label === "Bác sĩ") {
-                return (
-                  <div
-                    key={i}
-                    className="relative"
-                    onMouseEnter={() => setOpenDoctor(true)}
-                    onMouseLeave={() => setOpenDoctor(false)}
-                  >
-                    <button className="text-gray-700 hover:text-blue-500 cursor-pointer transition">
-                      {label} ▾
-                    </button>
+          <div onClick={() => navigate("/")} className="cursor-pointer hover:text-blue-500">Trang chủ</div>
+          <div onClick={() => navigate("/contact")} className="cursor-pointer hover:text-blue-500">Liên hệ</div>
+          <div onClick={() => navigate("/blog")} className="cursor-pointer hover:text-blue-500">Bài viết</div>
 
-                    {openDoctor && (
-                      <div className="absolute top-full left-0 bg-white shadow-lg border rounded-lg w-48 z-50 animate-fadeIn">
-                        <button
-                          onClick={() => navigate("/doctor")}
-                          className="block w-full text-left px-4 py-2 hover:bg-gray-100"
-                        >
-                          Tất cả bác sĩ
-                        </button>
-                        <button
-                          onClick={() => navigate("/favoritedoctors")}
-                          className="block w-full text-left px-4 py-2 hover:bg-gray-100"
-                        >
-                          Bác sĩ yêu thích
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                );
-              }
-
-              return (
-                <div
-                  key={i}
-                  onClick={() => {
-                    if (label === "Trang chủ") navigate("/");
-                    else if (label === "Liên hệ") navigate("/contact");
-                    else if (label === "Bài viết") navigate("/blog");
-                    else if (label === "Đặt lịch khám")
-                      navigate("/selectschedule");
-                  }}
-                  className="text-gray-700 hover:text-blue-500 cursor-pointer transition"
-                >
-                  {label}
-                </div>
-              );
-            }
-          )}
-        </div>
-
-        {/* Search + Ngôn ngữ + Thông báo + User */}
-        <div className="flex items-center space-x-5 relative">
-          {/* Tìm kiếm */}
-          <form
-            onSubmit={handleSearch}
-            className="flex items-center bg-gray-100 rounded-full px-3 py-1 shadow-sm border border-gray-200 focus-within:ring-2 focus-within:ring-blue-400 transition animate-fadeIn"
+          {/* Dropdown Bác sĩ */}
+          <div
+            className="relative"
+            onMouseEnter={() => setOpenDoctor(true)}
+            onMouseLeave={() => setOpenDoctor(false)}
           >
-            <input
-              type="text"
-              placeholder="Tìm bác sĩ hoặc chuyên khoa..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="bg-transparent outline-none text-sm px-2 w-44 sm:w-56"
-            />
-            <button
-              type="submit"
-              className="text-gray-500 hover:text-blue-600 transition"
-            >
-              <Search size={18} />
-            </button>
-          </form>
-
-          {/* Ngôn ngữ */}
-          <div className="relative z-50">
-            <button
-              onClick={() => setOpenLang(!openLang)}
-              className="p-2 bg-gray-500 text-white rounded-2xl flex items-center space-x-1 hover:bg-gray-600 transition"
-            >
-              <span>{language}</span>
-              <svg
-                className={`w-4 h-4 transition-transform duration-200 ${
-                  openLang ? "rotate-180" : ""
-                }`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </button>
-
-            {openLang && (
-              <div className="absolute right-0 mt-2 w-24 bg-white rounded-lg shadow-lg border border-gray-200 animate-fadeIn">
-                <button
-                  onClick={() => handleLanguageChange("EN")}
-                  className="block w-full text-left px-4 py-2 hover:bg-gray-100"
-                >
-                  English
-                </button>
-                <button
-                  onClick={() => handleLanguageChange("VI")}
-                  className="block w-full text-left px-4 py-2 hover:bg-gray-100"
-                >
-                  Tiếng Việt
-                </button>
+            <button className="hover:text-blue-500">Bác sĩ ▾</button>
+            {openDoctor && (
+              <div className="absolute bg-white shadow-xl w-48 rounded-md border z-50">
+                <button onClick={() => navigate("/doctor")} className="w-full text-left px-4 py-2 hover:bg-gray-100">Tất cả bác sĩ</button>
+                <button onClick={() => navigate("/favoritedoctors")} className="w-full text-left px-4 py-2 hover:bg-gray-100">Bác sĩ yêu thích</button>
               </div>
             )}
           </div>
 
-          {/* 🔔 Thông báo */}
+          <div onClick={() => navigate("/selectschedule")} className="cursor-pointer hover:text-blue-500">Đặt lịch khám</div>
+        </div>
+
+        {/* SEARCH + USER */}
+        <div className="flex items-center space-x-5 relative">
+
+          {/* SEARCH */}
+          <form onSubmit={handleSearch} className="bg-gray-100 border px-3 py-1 rounded-full flex items-center">
+            <input
+              className="bg-transparent outline-none px-2"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Tìm bác sĩ..."
+            />
+            <Search size={18} />
+          </form>
+
+          {/* NOTIFICATIONS */}
           <div className="relative">
-            <button
-              onClick={() => setShowNotifications(!showNotifications)}
-              className="relative p-2 rounded-full hover:bg-gray-200 transition"
-            >
-              <Bell className="w-6 h-6 text-gray-700" />
-              {notifications.length > 0 && (
-                <span className="absolute top-1 right-1 bg-red-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center">
+            <button onClick={() => setShowNotifications(!showNotifications)} className="p-2 hover:bg-gray-200 rounded-full">
+              <Bell />
+              {notifications.filter((n) => !n.is_read).length > 0 && (
+                <span className="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full px-1">
                   {notifications.filter((n) => !n.is_read).length}
                 </span>
               )}
             </button>
 
             {showNotifications && (
-              <div className="absolute right-0 mt-2 w-80 bg-white shadow-xl rounded-lg overflow-hidden border border-gray-200 z-50 animate-fadeIn">
-                <div className="flex justify-between items-center px-4 py-2 bg-blue-600 text-white">
-                  <span className="font-semibold">Thông báo từ hệ thống</span>
-                  <button
-                    onClick={() => setShowNotifications(false)}
-                    className="hover:text-gray-200"
-                  >
-                    <X size={18} />
-                  </button>
+              <div className="absolute right-0 bg-white w-80 shadow-xl rounded-lg border z-50">
+                <div className="flex justify-between px-4 py-2 bg-blue-600 text-white">
+                  <span>Thông báo</span>
+                  <X onClick={() => setShowNotifications(false)} className="cursor-pointer" />
                 </div>
 
                 {notifications.length === 0 ? (
-                  <div className="p-4 text-gray-500 text-center">
-                    Không có thông báo
-                  </div>
+                  <div className="p-4 text-gray-500">Không có thông báo</div>
                 ) : (
                   <ul className="max-h-64 overflow-y-auto">
                     {notifications.map((n) => (
-                      <li
-                        key={n.id}
-                        onClick={() => {
-                          setShowNotifications(false);
-                          const user = JSON.parse(localStorage.getItem("user"));
-                          if (user?.id) navigate(`/notifications/${user.id}`);
-                          else alert("Không tìm thấy thông tin bệnh nhân!");
-                        }}
-                        className={`px-4 py-3 hover:bg-gray-50 border-b border-gray-100 cursor-pointer ${
-                          n.is_read ? "bg-gray-50" : "bg-blue-50"
-                        }`}
-                      >
-                        <p className="text-gray-800 font-medium">{n.title}</p>
-                        <p className="text-gray-500 text-xs">{n.time}</p>
+                      <li key={n.id} className="px-4 py-2 border-b hover:bg-gray-100 cursor-pointer">
+                        <div className="font-medium">{n.title}</div>
+                        <div className="text-xs text-gray-500">{n.time}</div>
                       </li>
                     ))}
                   </ul>
                 )}
-
-                <div className="px-4 py-2 text-center bg-gray-50 border-t">
-                  <button
-                    onClick={() => {
-                      setShowNotifications(false);
-                      const user = JSON.parse(localStorage.getItem("user"));
-                      if (user?.id) navigate(`/notifications/${user.id}`);
-                      else alert("Không tìm thấy thông tin bệnh nhân!");
-                    }}
-                    className="text-blue-600 hover:underline text-sm"
-                  >
-                    Xem tất cả thông báo
-                  </button>
-                </div>
               </div>
             )}
           </div>
 
-          {/* 👤 User */}
+          {/* USER MENU */}
           {!user ? (
-            <button
-              onClick={() => navigate("/login")}
-              className="px-4 py-2 rounded-2xl bg-blue-600 text-white hover:bg-blue-700 transition animate-fadeIn"
-            >
+            <button onClick={() => navigate("/login")} className="px-4 py-2 bg-blue-600 text-white rounded-xl">
               Đăng nhập
             </button>
           ) : (
-            <div className="relative z-50">
-              <button
-                onClick={() => setOpenUser(!openUser)}
-                className="p-2 bg-blue-500 text-white rounded-2xl"
-              >
+            <div className="relative">
+              <button onClick={() => setOpenUser(!openUser)} className="px-4 py-2 bg-blue-500 rounded-xl text-white">
                 {user.name}
               </button>
 
               {openUser && (
+<<<<<<< HEAD
                 <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg border border-gray-200 animate-fadeIn">
                   <button
                     onClick={() => {
@@ -363,42 +313,54 @@ console.log("user in navbar:", user);
                       </button>
                     </>
                   )}
+=======
+                <div className="absolute right-0 w-48 bg-white shadow-lg rounded-lg border">
+>>>>>>> DangThanhPhong/15-ChatRealtime
 
                   {user.role === "doctor" && (
                     <>
                       <button
-                        onClick={() => {
-                          setOpenUser(false);
-                          if (doctorId) navigate(`/doctorprofile/${doctorId}`);
-                          else navigate("/doctorprofile");
-                        }}
-                        className="block w-full px-4 py-2 hover:bg-gray-100 text-left"
+                        onClick={() => navigate(`/doctorprofile/${doctorId}`)}
+                        className="w-full px-4 py-2 hover:bg-gray-100 text-left"
                       >
-                        Hồ sơ bác sĩ
+                        🩺 Hồ sơ bác sĩ
                       </button>
+
                       <button
                         onClick={() => navigate("/doctorschedule")}
-                        className="block w-full px-4 py-2 hover:bg-gray-100 text-left"
+                        className="w-full px-4 py-2 hover:bg-gray-100 text-left"
                       >
-                        Lịch làm việc
+                        🗓️ Lịch làm việc
+                      </button>
+
+                      <button
+                        onClick={handleOpenGroupChat}
+                        className="w-full px-4 py-2 hover:bg-gray-100 text-left text-blue-600"
+                      >
+                        💬 Nhóm Chat Chuyên Khoa
+                      </button>
+                    </>
+                  )}
+
+                  {user.role === "user" && (
+                    <>
+                      <button onClick={() => navigate("/patientprofile")} className="w-full px-4 py-2 hover:bg-gray-100 text-left">
+                        👤 Hồ sơ cá nhân
+                      </button>
+                      <button onClick={() => navigate("/patienthistory")} className="w-full px-4 py-2 hover:bg-gray-100 text-left">
+                        📋 Lịch sử khám
                       </button>
                     </>
                   )}
 
                   {user.role === "admin" && (
-                    <button
-                      onClick={() => navigate("/dashboard")}
-                      className="block w-full px-4 py-2 hover:bg-gray-100 text-left"
-                    >
-                      Vào Dashboard
+                    <button onClick={() => navigate("/dashboard")} className="w-full px-4 py-2 hover:bg-gray-100 text-left">
+                      📊 Dashboard
                     </button>
                   )}
 
-                  <button
-                    onClick={handleLogout}
-                    className="block w-full px-4 py-2 hover:bg-gray-100 text-left text-red-600"
-                  >
-                    Thoát
+                  <button onClick={handleLogout} className="w-full px-4 py-2 hover:bg-gray-100 text-left text-red-600">
+                    ↩️ Thoát
                   </button>
                 </div>
               )}

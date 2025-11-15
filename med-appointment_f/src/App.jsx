@@ -1,7 +1,7 @@
-/* ---------------------------------------------
- 🌍 App.jsx
+/* --------------------------------------------- 
+ 🌍 App.jsx - Phiên bản hoàn chỉnh & an toàn
 ----------------------------------------------*/
-import React from "react";
+import React, { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 
 /* 🧩 Import các component cần thiết */
@@ -60,7 +60,7 @@ import AppointmentStats from "./components/admin/AppointmentStats";
 import BHYTStatistics from "./components/admin/BHYTStatistics";
 import TopDoctors from "./components/doctor/TopDoctors";
 
-/* Thêm Feedback (bước 3) */
+/* Thêm Feedback */
 import FeedBackDoctor from "./components/common/FeedBackDoctor";
 
 /* 💬 Chatbot nổi */
@@ -69,17 +69,75 @@ import ChatBot from "./components/common/ChatBot";
 import PaymentOptions from "./components/payment/Paymain";
 import PaymentSuccess from "./components/payment/paysuccess";
 import PaymentFailedV2 from "./components/payment/paycancel";
+<<<<<<< HEAD
 import DepositPage from "./components/payment/DepositPage";
 import PayfullPage from "./components/payment/PayfullPage";
+=======
+
+/* ✅✅✅ Thêm chat components */
+import AdminChat from "./components/admin/AdminChat";
+import DoctorGroupChat from "./components/common/DoctorGroupChat";
+
+/* ---------------------------------------------
+ ✅ Laravel Echo / Pusher setup (fix lỗi Pusher)
+----------------------------------------------*/
+import Echo from "laravel-echo";
+import Pusher from "pusher-js";
+
+// Tạo instance Pusher trước
+const pusher = new Pusher("local", {
+  wsHost: "127.0.0.1",
+  wsPort: 6001,
+  forceTLS: false,
+  disableStats: true
+});
+
+// Tạo Echo client
+export const EchoClient = new Echo({
+  broadcaster: "pusher",
+  key: "local", // trùng với PUSHER_APP_KEY trong .env
+  client: pusher
+});
+
+/* ---------------------------------------------
+ 🛡️ SafeRender: Chống trắng trang nếu component lỗi
+----------------------------------------------*/
+function SafeRender({ children }) {
+  try {
+    return children;
+  } catch (err) {
+    console.error("Render error:", err);
+    return (
+      <div className="text-center mt-20 text-red-600 text-lg font-semibold">
+        ⚠️ Có lỗi khi hiển thị trang. Kiểm tra console để biết thêm chi tiết.
+      </div>
+    );
+  }
+}
+
+/* --------------------------------------------- */
+>>>>>>> DangThanhPhong/15-ChatRealtime
 export default function App() {
+  useEffect(() => {
+    // Bọc trong try/catch để không làm trắng trang khi lỗi Echo
+    try {
+      EchoClient.channel("chat-doctor.1").listen("MessageSent", (e) => {
+        console.log("📨 New message:", e);
+      });
+    } catch (err) {
+      console.warn("⚠️ Echo client failed:", err);
+    }
+  }, []);
+
   return (
-    <>
+    <SafeRender>
       <Routes>
         {/* 🌐 Trang chủ */}
         <Route
           path="/"
           element={
             <div className="w-full h-full px-1 space-y-8">
+              {console.log("🏠 Render home page")}
               <div className="w-full h-14">
                 <Navbar />
               </div>
@@ -214,6 +272,7 @@ export default function App() {
         {/* 🧭 Dashboard */}
         <Route path="/dashboard" element={<Dashboard />}>
           <Route index element={<FormDashboard />} />
+          <Route path="chat" element={<AdminChat />} />
           <Route path="doctors" element={<ManagerDoctor />} />
           <Route path="schedules" element={<ManagerLichHen />} />
           <Route path="chuyenKhoas" element={<ManagerChuyenKhoa />} />
@@ -233,6 +292,9 @@ export default function App() {
           <Route path="TopDoctors" element={<TopDoctors />} />
         </Route>
 
+        {/* ✅ Route chat doctor */}
+        <Route path="/doctor/group-chat" element={<DoctorGroupChat />} />
+
         {/* 💳 Thanh toán */}
         <Route path="/payment/success" element={<PaymentSuccess />} />
         <Route path="/payment/cancel" element={<PaymentFailedV2 />} />
@@ -241,8 +303,8 @@ export default function App() {
         <Route path="/payment/payfull/:appointmentId" element={<PayfullPage />} />
       </Routes>
 
-      {/* 💬 Chatbot nổi - hiển thị toàn cục */}
+      {/* 💬 Chatbot nổi */}
       <ChatBot />
-    </>
+    </SafeRender>
   );
 }
