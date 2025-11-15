@@ -155,14 +155,16 @@ class UserController extends Controller
     }
 
     // API Đăng nhập
-    public function login(Request $request)
+  public function login(Request $request)
 {
     $request->validate([
         'email' => 'required|email',
         'password' => 'required|string|min:6',
     ]);
 
-    $user = User::where('email', $request->email)->first();
+    $user = User::where('email', $request->email)
+                ->with('doctor') // load luôn quan hệ doctor
+                ->first();
 
     if (!$user || !Hash::check($request->password, $user->password)) {
         return response()->json([
@@ -173,13 +175,20 @@ class UserController extends Controller
 
     $token = $user->createToken('auth_token')->plainTextToken;
 
-    return response()->json([
+    $response = [
         'success' => true,
         'message' => 'Đăng nhập thành công!',
         'user' => $user,
         'token' => $token,
-        'role' => $user->role, // ✅ thêm để frontend biết role
-    ]);
+        'role' => $user->role,
+    ];
+
+    // Nếu là doctor, trả thêm doctor_id
+    if ($user->role === 'doctor' && $user->doctor) {
+        $response['doctor_id'] = $user->doctor->id;
+    }
+
+    return response()->json($response);
 }
 
 

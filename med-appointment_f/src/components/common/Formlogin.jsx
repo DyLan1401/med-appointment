@@ -41,59 +41,43 @@ function FormLogin() {
   // ✅ Hàm xử lý đăng nhập
   // ===========================
   const handleLogin = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      const response = await axios.post("http://localhost:8000/api/login", {
-        email,
-        password,
-      });
+  try {
+    const response = await axios.post("http://localhost:8000/api/login", {
+      email,
+      password,
+    });
 
-      // ✅ Nhận dữ liệu từ backend (có role)
-      const { user, token, role } = response.data;
+    const { user, token, role, doctor_id } = response.data; // ✅ lấy doctor_id từ backend
 
-      // ✅ Giữ nguyên: lưu user + token vào localStorage
-      localStorage.setItem("user", JSON.stringify(user));
-      localStorage.setItem("token", token);
+    // Lưu vào localStorage
+    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("token", token);
 
-      // ✅ Gắn token vào header mặc định của axios
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
-      // ✅ Thêm mới: lưu riêng user_id và user_name để hiển thị trong feedback
-      localStorage.setItem("user_id", user?.id || "");
-      localStorage.setItem("user_name", user?.name || "Người dùng ẩn danh");
-
-      alert("Đăng nhập thành công!");
-      navigate("/"); // chuyển trang chính      // ✅ Hiển thị thông báo thành công
-      toast.success("🎉 Đăng nhập thành công!", {
-        position: "top-center",
-        autoClose: 1500,
-      });
-
-      // ✅ Điều hướng theo role
-      setTimeout(() => {
-        if (role === "admin") {
-          navigate("/dashboard"); // 👉 Trang quản trị hệ thống
-        } else if (role === "doctor") {
-          navigate("/doctor/dashboard"); // 👉 Trang quản lý của bác sĩ
-        } else {
-          navigate("/"); // 👉 Trang người dùng bình thường
-        }
-      }, 1500);
-    } catch (error) {
-      console.error("❌ Lỗi đăng nhập:", error);
-
-      // ✅ Hiển thị thông báo lỗi
-      toast.error(
-        error.response?.data?.message ||
-        "❌ Có lỗi xảy ra, vui lòng thử lại!",
-        {
-          position: "top-center",
-          autoClose: 3000,
-        }
-      );
+    // ✅ Lưu riêng doctor_id nếu role là doctor
+    if (role === "doctor" && doctor_id) {
+      localStorage.setItem("doctor_id", doctor_id);
     }
-  };
+
+    // Gắn token mặc định cho axios
+    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+    toast.success("🎉 Đăng nhập thành công!", { position: "top-center", autoClose: 1500 });
+
+    // Điều hướng theo role
+    setTimeout(() => {
+      if (role === "admin") navigate("/dashboard");
+      else if (role === "doctor") navigate("/doctor/dashboard");
+      else navigate("/");
+    }, 1500);
+  } catch (error) {
+    toast.error(error.response?.data?.message || "❌ Đăng nhập thất bại", {
+      position: "top-center",
+      autoClose: 3000,
+    });
+  }
+};
 
   // 🧩 Hàm đăng nhập với Google
 

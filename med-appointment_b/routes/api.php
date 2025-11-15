@@ -27,6 +27,16 @@ use App\Http\Controllers\PostFeedbackController;
 use App\Http\Controllers\Api\ChatbotController;
 use App\Models\Appointment;
 
+Route::prefix('schedules')->group(function () {
+    Route::get('/', [ScheduleController::class, 'index']);
+    Route::get('/{id}', [ScheduleController::class, 'show']);
+    Route::post('/', [ScheduleController::class, 'store']);
+    Route::put('/{id}', [ScheduleController::class, 'update']);
+    Route::delete('/{id}', [ScheduleController::class, 'destroy']);
+
+    // ⭐ Lấy lịch theo doctor_id
+    Route::get('/getbyid/{doctor_id}', [ScheduleController::class, 'getScheduleById']);
+});
 
 // ================================
 // 🔐 LOGIN GOOGLE
@@ -98,7 +108,7 @@ Route::prefix('doctors')->group(function () {
 
 
 // Doctor Schedule
-Route::get('/schedules/getbyid/{doctor_id}', [ScheduleController::class, 'getScheduleById']);
+// Route::get('/schedules/getbyid/{doctor_id}', [ScheduleController::class, 'getScheduleById']);
 
 // ================================
 // 🧍 PATIENTS
@@ -113,7 +123,7 @@ Route::apiResource('patients', PatientController::class);
 // ===============================
 // ⏰ Lịch làm việc bác sĩ
 // ===============================
-Route::get('/schedules/getbyid/{doctor_id}', [ScheduleController::class, 'getScheduleById']);
+// Route::get('/schedules/getbyid/{doctor_id}', [ScheduleController::class, 'getScheduleById']);
 
 
 // PATIENTS
@@ -376,3 +386,26 @@ Route::post('/chatbot', [ChatbotController::class, 'getReply']);
 // 📊 DASHBOARD
 // ===============================
 Route::get('/dashboard', [AppointmentController::class, 'dashboard']);
+
+
+Route::get('/doctors', [DoctorController::class, 'index']);
+Route::get('/doctors/list', [DoctorController::class, 'list']);
+
+// Quản lí lịch rãnh bác sĩ 
+
+Route::get('/doctors/list', [DoctorFreeTimeController::class, 'getDoctors']);
+Route::get('/doctor-free-times', [DoctorFreeTimeController::class, 'index']);
+Route::post('/doctor-free-times', [DoctorFreeTimeController::class, 'store']);
+Route::delete('/doctor-free-times/{id}', [DoctorFreeTimeController::class, 'destroy']);
+Route::put('/doctor-free-times/{id}', [DoctorFreeTimeController::class, 'update']);
+
+
+// Route::get('/schedules/getbyid/{id}', [ScheduleController::class, 'getByDoctor']);
+// Route::post('/schedules', [ScheduleController::class, 'store']);
+// Route::get('/schedules', [ScheduleController::class, 'index']);
+// Route::post('/schedules', [ScheduleController::class, 'store']);
+// Route::get('/schedules/{id}', [ScheduleController::class, 'show']);
+// Route::put('/schedules/{schedule}', [ScheduleController::class, 'update']);
+// Route::delete('/schedules/{schedule}', [ScheduleController::class, 'destroy']);
+// Route::get('/schedules/getbyid/{doctor_id}', [ScheduleController::class, 'getScheduleById']);
+

@@ -25,7 +25,6 @@ class DoctorController extends Controller
             $query->where('specialization_id', $request->specialization_id);
         }
 
-//        return response()->json($query->orderBy('id', 'asc')->get());
         return response()->json($query->paginate(8));
     }
 
@@ -80,6 +79,7 @@ class DoctorController extends Controller
             'email' => $request->email,
             'phone' => $request->phone,
         ]);
+
         $doctor->update([
             'bio' => $request->bio,
             'specialization_id' => $request->specialization_id,
@@ -91,10 +91,6 @@ class DoctorController extends Controller
             'doctor' => $doctor->load(['user', 'specialization']),
         ]);
     }
-    /**
-     * Store a newly created resource in storage.
-     */
-
 
     public function destroy($id)
     {
@@ -119,7 +115,6 @@ class DoctorController extends Controller
         return response()->json(['message' => 'Doctor deleted successfully']);
     }
 
-
     //   PROFILE (HIỂN THỊ + CẬP NHẬT)
     public function showProfile($doctor_id)
     {
@@ -128,7 +123,6 @@ class DoctorController extends Controller
             return response()->json(['message' => 'Không tìm thấy bác sĩ'], 404);
         }
 
-        // Không cần nối asset() thêm lần nữa
         $doctor->user->avatar_url_full = $doctor->user->avatar_url;
 
         foreach ($doctor->certificates as $cert) {
@@ -168,7 +162,6 @@ class DoctorController extends Controller
         ]);
     }
 
-
     //   UPLOAD AVATAR
     public function uploadAvatar(Request $request, $doctor_id)
     {
@@ -179,12 +172,10 @@ class DoctorController extends Controller
             'avatar' => 'required|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
-        // Xóa avatar cũ
         if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
             Storage::disk('public')->delete($user->avatar);
         }
 
-        // Upload mới
         $path = $request->file('avatar')->store('avatars', 'public');
         $user->update(['avatar' => $path]);
 
@@ -193,7 +184,6 @@ class DoctorController extends Controller
             'avatar_url' => asset('storage/' . $path),
         ]);
     }
-
 
     //   UPLOAD CHỨNG CHỈ / BẰNG CẤP
     public function uploadCertificate(Request $request, $doctor_id)
@@ -250,7 +240,7 @@ class DoctorController extends Controller
         return response()->json(['message' => 'Xóa chứng chỉ thành công!']);
     }
 
-    // Tìm kiếm bác sĩ theo tên hoặc chuyên khoa
+    // 🔍 Tìm kiếm bác sĩ theo tên hoặc chuyên khoa
     public function search(Request $request)
     {
         $query = $request->input('query');
@@ -264,9 +254,9 @@ class DoctorController extends Controller
                 $q->whereHas('user', function ($q2) use ($query) {
                     $q2->where('name', 'like', "%$query%");
                 })
-                    ->orWhereHas('specialization', function ($q2) use ($query) {
-                        $q2->where('name', 'like', "%$query%");
-                    });
+                ->orWhereHas('specialization', function ($q2) use ($query) {
+                    $q2->where('name', 'like', "%$query%");
+                });
             })
             ->get();
 
@@ -276,47 +266,24 @@ class DoctorController extends Controller
 
         return response()->json($doctors);
     }
-    /**
-     * Remove the specified resource from storage.
-     */
 
+    // ✅ API lấy danh sách bác sĩ (cho form chọn bác sĩ)
+    public function list()
+    {
+        $doctors = Doctor::with('user')
+            ->select('id', 'user_id')
+            ->get()
+            ->map(function ($doctor) {
+                return [
+                    'id' => $doctor->id,
+                    'name' => $doctor->user->name,
+                ];
+            });
 
-    // ✅ API lấy danh sách bác sĩ cho đặt lịch
-public function list()
-{
-    $doctors = Doctor::with('user')
-        ->select('id', 'user_id')
-        ->get()
-        ->map(function ($doctor) {
-            return [
-                'id' => $doctor->id,
-                'name' => $doctor->user->name,
-            ];
-        });
+        return response()->json($doctors);
+    }
 
-    return response()->json($doctors);
-}
-
-
-    // public function topDoctors()
-    // {
-    //     $top = Doctor::join('users', 'users.id', '=', 'doctors.user_id')
-    //         ->join('appointments', 'appointments.doctor_id', '=', 'doctors.id')
-    //         ->select(
-    //             'doctors.id as doctor_id',
-    //             'users.name as doctor_name',
-    //             'users.email',
-    //             'users.avatar',
-    //             DB::raw('COUNT(appointments.id) as total_appointments')
-    //         )
-    //         ->groupBy('doctors.id', 'users.name', 'users.email', 'users.avatar')
-    //         ->orderByDesc('total_appointments')
-    //         ->take(10)
-    //         ->get();
-
-    //     return response()->json($top);
-    // }
-
+    // ✅ Top bác sĩ
     public function topDoctors(Request $request)
     {
         $limit = $request->get('limit', 10);
@@ -339,7 +306,4 @@ public function list()
 
         return response()->json($top);
     }
-
-
-
 }

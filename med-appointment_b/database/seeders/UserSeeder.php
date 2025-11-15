@@ -35,18 +35,7 @@ class UserSeeder extends Seeder
             'avatar_url' => 'https://i.pravatar.cc/150?img=1',
         ]);
 
-        // 5 bác sĩ
-        for ($i = 1; $i <= 5; $i++) {
-            User::create([
-                'name' => fake()->name(),
-                'email' => fake()->unique()->safeEmail(),
-                'password' => Hash::make('123456'),
-                'role' => 'doctor',
-                'phone' => fake()->phoneNumber(),
-                'insurance_info' => 'Bác sĩ chuyên khoa ' . fake()->word(),
-                'avatar_url' => "https://i.pravatar.cc/150?img=" . rand(2, 50),
-            ]);
-        }
+      
 
 
         // 10 bệnh nhân (role = user)
