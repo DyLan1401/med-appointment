@@ -5,31 +5,56 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class Doctor extends Model
 {
-    use HasFactory;
+    use HasApiTokens, Notifiable, HasFactory;
 
+    /**
+     * Các trường có thể gán hàng loạt
+     */
     protected $fillable = [
         'user_id',
+        'department_id',
         'specialization_id',
         'status',
         'bio',
-        'experience_years',      
-        'education',             
-        'clinic_address',        
-        'avatar',                
+        'experience_years',
+        'education',
+        'clinic_address',
+        'avatar',
     ];
 
-    
-    public $timestamps = false;
+    /**
+     * Migration mới có timestamps()
+     */
+    public $timestamps = true;
 
+    // ===============================
+    // 🔥 RELATIONSHIPS
+    // ===============================
 
+    /**
+     * User (owner) của doctor
+     */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Quan hệ department chính dùng cho chat/group
+     */
+    public function department()
+    {
+        return $this->belongsTo(Department::class, 'department_id');
+    }
+
+    /**
+     * Nếu bạn vẫn giữ specialization (đôi khi khác với department)
+     */
     public function specialization()
     {
         return $this->belongsTo(Department::class, 'specialization_id');
@@ -52,10 +77,12 @@ class Doctor extends Model
 
     public function feedbacks()
     {
-    return $this->hasMany(Feedback::class);
+        return $this->hasMany(Feedback::class);
     }
 
-    
+    // ===============================
+    // Avatar helpers
+    // ===============================
 
     public function getAvatarUrlAttribute()
     {
@@ -63,26 +90,23 @@ class Doctor extends Model
             return asset('storage/' . $this->avatar);
         }
 
-        // Nếu không có avatar, lấy avatar mặc định
         return asset('images/default-avatar.png');
     }
 
-    // Khi set avatar mới, tự động lưu file vào storage.
     public function setAvatarAttribute($value)
     {
-        // Nếu là file upload
+        // Nếu upload file trực tiếp (instance của UploadedFile)
         if (is_file($value)) {
             $path = $value->store('avatars', 'public');
             $this->attributes['avatar'] = $path;
-        }
-        // Nếu chỉ là chuỗi đường dẫn (giữ nguyên)
-        else {
+        } else {
             $this->attributes['avatar'] = $value;
         }
     }
 
-    // HỒ SƠ BÁC SĨ (PROFILE)
-
+    // ===============================
+    // Full profile trả về cho FE
+    // ===============================
     public function getFullProfileAttribute()
     {
         return [
@@ -91,10 +115,17 @@ class Doctor extends Model
             'email' => $this->user->email ?? null,
             'phone' => $this->user->phone ?? null,
             'avatar' => $this->avatar,
-            'avatar_url' => $this->avatar_url, // ảnh đại diện đầy đủ URL
-            'bio' => $this->bio,
+            'avatar_url' => $this->avatar_url,
+
+            // TRẢ VỀ CHO FE DÙNG CHAT / NHÓM CHUYÊN KHOA
+            'department_id' => $this->department_id,
+            'department_name' => $this->department->name ?? null,
+
+            // Nếu vẫn giữ specialization
             'specialization_id' => $this->specialization_id,
             'specialization_name' => $this->specialization->name ?? null,
+
+            'bio' => $this->bio,
             'education' => $this->education,
             'experience_years' => $this->experience_years,
             'clinic_address' => $this->clinic_address,
@@ -103,8 +134,9 @@ class Doctor extends Model
         ];
     }
 
-    // CHỨNG CHỈ (CERTIFICATES)
-
+    // ===============================
+    // Certificate helpers
+    // ===============================
     public function getCertificateCountAttribute()
     {
         return $this->certificates()->count();
@@ -122,23 +154,21 @@ class Doctor extends Model
                 'id' => $cert->id,
                 'name' => $cert->certificate_name,
                 'type' => $cert->certificate_type,
-                'file_url' => $cert->image
-                    ? asset('storage/' . $cert->image)
-                    : null,
+                'file_url' => $cert->image ? asset('storage/' . $cert->image) : null,
             ];
         });
     }
 
-    // XOÁ FILE KHI XOÁ BÁC SĨ
+    // ===============================
+    // Delete files when removing doctor
+    // ===============================
     protected static function booted()
     {
         static::deleting(function ($doctor) {
-            // Xoá avatar nếu có
             if ($doctor->avatar && Storage::disk('public')->exists($doctor->avatar)) {
                 Storage::disk('public')->delete($doctor->avatar);
             }
 
-            // Xoá chứng chỉ kèm file
             foreach ($doctor->certificates as $cert) {
                 if ($cert->image && Storage::disk('public')->exists($cert->image)) {
                     Storage::disk('public')->delete($cert->image);

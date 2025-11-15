@@ -13,8 +13,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        
-
         $this->call([
             UserSeeder::class,
             PatientsSeeder::class,
@@ -30,15 +28,17 @@ class DatabaseSeeder extends Seeder
             InvoiceSeeder::class,
             FeedbackSeeder::class,
             ChatbotMessageSeeder::class,
+            ChatGroupSeeder::class,
         ]);
-        // Tạo tài khoản admin cố định
-         User::updateOrCreate(
-        ['email' => 'admin@gmail.com'],
-        [
-            'name' => 'admin',
-            'password' => Hash::make('admin123'),
-            'role' => 'admin',
-        ]
-    );
+
+        // 🔥 Tạo hoặc cập nhật admin cố định
+        User::updateOrCreate(
+            ['email' => 'admin@gmail.com'],
+            [
+                'name' => 'admin',
+                'password' => Hash::make('admin123'),
+                'role' => 'admin',
+            ]
+        );
     }
 }
