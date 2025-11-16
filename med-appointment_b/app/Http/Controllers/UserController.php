@@ -113,7 +113,7 @@ class UserController extends Controller
     }
 
 
-<<<<<<< HEAD
+
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
@@ -149,7 +149,7 @@ class UserController extends Controller
     }
 
     // API Đăng nhập
-<<<<<<< HEAD
+
     public function login(Request $request)
     {
         $request->validate([
@@ -167,7 +167,7 @@ class UserController extends Controller
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;
-=======
+
   public function login(Request $request)
 {
     $request->validate([
@@ -178,7 +178,6 @@ class UserController extends Controller
     $user = User::where('email', $request->email)
                 ->with('doctor') // load luôn quan hệ doctor
                 ->first();
->>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
 
         return response()->json([
             'success' => true,
@@ -189,8 +188,6 @@ class UserController extends Controller
         ]);
     }
 
-<<<<<<< HEAD
-=======
     $token = $user->createToken('auth_token')->plainTextToken;
 
     $response = [
@@ -209,17 +206,15 @@ class UserController extends Controller
     return response()->json($response);
 }
 
->>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
 
     // API Đăng xuất
     public function logout(Request $request)
-=======
+
     // ======================================================
     // LOGIN (WEB)
     // ======================================================
 
     public function login(Request $request)
->>>>>>> DangThanhPhong/15-ChatRealtime
     {
         $request->validate([
             'email' => 'required|email',
@@ -320,7 +315,6 @@ class UserController extends Controller
     // OTP / RESET PASSWORD
     // ======================================================
 
-<<<<<<< HEAD
         if ($this->isFullUrl($path)) {
             return $path;
         }
@@ -342,8 +336,6 @@ class UserController extends Controller
     }
 
 
-=======
->>>>>>> DangThanhPhong/15-ChatRealtime
     public function forgotPassword(Request $request)
     {
         $request->validate(['email' => 'required|email']);
@@ -358,12 +350,9 @@ class UserController extends Controller
         $user->save();
 
         Mail::raw("Mật khẩu mới của bạn là: {$newPassword}", function ($message) use ($user) {
-<<<<<<< HEAD
+
             $message->to($user->email)
                 ->subject('Cấp lại mật khẩu mới');
-=======
-            $message->to($user->email)->subject('Cấp lại mật khẩu mới');
->>>>>>> DangThanhPhong/15-ChatRealtime
         });
 
         return response()->json(['message' => 'Mật khẩu mới đã được gửi đến email của bạn']);

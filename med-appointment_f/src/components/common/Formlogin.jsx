@@ -57,7 +57,7 @@ export default function FormLogin() {
   const handleLogin = async (e) => {
   e.preventDefault();
 
-<<<<<<< HEAD
+
   try {
     const response = await axios.post("http://localhost:8000/api/login", {
       email,
@@ -70,10 +70,10 @@ export default function FormLogin() {
     localStorage.setItem("user", JSON.stringify(user));
     localStorage.setItem("token", token);
 
-<<<<<<< HEAD
+
       // ✅ Gắn token vào header mặc định của axios
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-=======
+
     try {
       const res = await login(email, password);
 
@@ -101,7 +101,7 @@ export default function FormLogin() {
             token,
           })
         );
->>>>>>> DangThanhPhong/15-ChatRealtime
+
 
         localStorage.setItem("doctor_token", token);
       } else if (user.role === "admin") {
@@ -135,7 +135,7 @@ export default function FormLogin() {
         autoClose: 1200,
       });
 
-<<<<<<< HEAD
+
       // ✅ Điều hướng theo role
       setTimeout(() => {
         if (role === "admin") {
@@ -149,14 +149,14 @@ export default function FormLogin() {
 
     } catch (error) {
       console.error("❌ Lỗi đăng nhập:", error);
-=======
+
       // =====================================================
       // 📡 DOCTOR — LẤY DANH SÁCH GROUP CHAT
       // =====================================================
       if (user.role === "doctor") {
         try {
           const doctorToken = localStorage.getItem("doctor_token");
->>>>>>> DangThanhPhong/15-ChatRealtime
+
 
           API.defaults.headers.common["Authorization"] = `Bearer ${doctorToken}`;
 
@@ -185,7 +185,7 @@ export default function FormLogin() {
         err.response?.data?.message || "Sai email hoặc mật khẩu!",
         { position: "top-center", autoClose: 2000 }
       );
-=======
+
     // ✅ Lưu riêng doctor_id nếu role là doctor
     if (role === "doctor" && doctor_id) {
       localStorage.setItem("doctor_id", doctor_id);

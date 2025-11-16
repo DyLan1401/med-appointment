@@ -32,13 +32,9 @@ class DoctorController extends Controller
             $query->where('specialization_id', $request->specialization_id);
         }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
+
         //        return response()->json($query->orderBy('id', 'asc')->get());
-=======
->>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
-=======
->>>>>>> DangThanhPhong/15-ChatRealtime
+
         return response()->json($query->paginate(8));
     }
 
@@ -148,13 +144,13 @@ class DoctorController extends Controller
         return response()->json(['message' => 'Doctor deleted successfully']);
     }
 
-<<<<<<< HEAD
+
     //   PROFILE (HIỂN THỊ + CẬP NHẬT)
-=======
+
     // ==========================
     // SHOW PROFILE
     // ==========================
->>>>>>> DangThanhPhong/15-ChatRealtime
+
     public function showProfile($doctor_id)
     {
         $doctor = Doctor::with(['user', 'department', 'specialization', 'certificates'])->find($doctor_id);
@@ -163,11 +159,10 @@ class DoctorController extends Controller
             return response()->json(['message' => 'Không tìm thấy bác sĩ'], 404);
         }
 
-<<<<<<< HEAD
+
         $doctor->user->avatar_url_full = $doctor->user->avatar_url;
-=======
+
         $doctor->user->avatar_url_full = $doctor->user->avatar ? asset('storage/' . $doctor->user->avatar) : null;
->>>>>>> DangThanhPhong/15-ChatRealtime
 
         foreach ($doctor->certificates as $cert) {
             $cert->file_url = $cert->image ? asset('storage/' . $cert->image) : null;
@@ -211,14 +206,14 @@ class DoctorController extends Controller
         ]);
     }
 
-<<<<<<< HEAD
+
     //   UPLOAD AVATAR
-=======
+
 
     // ==========================
     // UPLOAD AVATAR
     // ==========================
->>>>>>> DangThanhPhong/15-ChatRealtime
+
     public function uploadAvatar(Request $request, $doctor_id)
     {
         $doctor = Doctor::with('user')->findOrFail($doctor_id);
@@ -241,13 +236,13 @@ class DoctorController extends Controller
         ]);
     }
 
-<<<<<<< HEAD
+
     //   UPLOAD CHỨNG CHỈ / BẰNG CẤP
-=======
+
     // ==========================
     // UPLOAD CERTIFICATE
     // ==========================
->>>>>>> DangThanhPhong/15-ChatRealtime
+
     public function uploadCertificate(Request $request, $doctor_id)
     {
         $doctor = Doctor::findOrFail($doctor_id);
@@ -308,13 +303,12 @@ class DoctorController extends Controller
         return response()->json(['message' => 'Xóa chứng chỉ thành công!']);
     }
 
-<<<<<<< HEAD
+
     // 🔍 Tìm kiếm bác sĩ theo tên hoặc chuyên khoa
-=======
     // ==========================
     // SEARCH DOCTOR
     // ==========================
->>>>>>> DangThanhPhong/15-ChatRealtime
+
     public function search(Request $request)
     {
         $query = $request->input('query');
@@ -330,12 +324,10 @@ class DoctorController extends Controller
                 })
                 ->orWhereHas('specialization', function ($q2) use ($query) {
                     $q2->where('name', 'like', "%$query%");
-<<<<<<< HEAD
-=======
                 })
                 ->orWhereHas('department', function ($q2) use ($query) {
                     $q2->where('name', 'like', "%$query%");
->>>>>>> DangThanhPhong/15-ChatRealtime
+
                 });
             })
             ->get();
@@ -346,8 +338,7 @@ class DoctorController extends Controller
 
         return response()->json($doctors);
     }
-<<<<<<< HEAD
-<<<<<<< HEAD
+
     /**
      * Remove the specified resource from storage.
      */
@@ -371,7 +362,7 @@ public function list()
 }
 
  
-=======
+
 
     // ✅ API lấy danh sách bác sĩ (cho form chọn bác sĩ)
     public function list()
@@ -390,8 +381,7 @@ public function list()
     }
 
     // ✅ Top bác sĩ
->>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
-=======
+
 
     // ==========================
     // SIMPLE LIST
@@ -412,7 +402,7 @@ public function list()
     // ==========================
     // TOP DOCTORS
     // ==========================
->>>>>>> DangThanhPhong/15-ChatRealtime
+
     public function topDoctors(Request $request)
     {
         $limit = $request->get('limit', 10);
@@ -435,8 +425,7 @@ public function list()
 
         return response()->json($top);
     }
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 
     // public function topDoctors()
     // {
@@ -456,42 +445,8 @@ public function list()
 
     //     return response()->json($top);
     // }
-=======
->>>>>>> DangThanhPhong/15-ChatRealtime
-
-    // ==========================
-    // AUTH: WHO AM I? /doctor/me
-    // ==========================
-    public function me(Request $request)
-    {
-        $user = $request->user();
-
-<<<<<<< HEAD
 
 
-=======
->>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
-}
-=======
-        $doctor = Doctor::with(['department', 'specialization'])
-            ->where('user_id', $user->id)
-            ->first();
 
-        return response()->json([
-            'id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-            'role' => $user->role,
-            'doctor' => $doctor ? [
-                'id' => $doctor->id,
-                'department_id' => $doctor->department_id,
-                'department_name' => $doctor->department?->name,
-                'specialization_id' => $doctor->specialization_id,
-                'specialization_name' => $doctor->specialization?->name,
-                'bio' => $doctor->bio,
-            ] : null
-        ]);
-    }
 
-}
->>>>>>> DangThanhPhong/15-ChatRealtime
+

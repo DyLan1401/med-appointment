@@ -28,7 +28,7 @@ export default function Navbar() {
     const adminUser = JSON.parse(localStorage.getItem("admin_user") || "null");
     const normalUser = JSON.parse(localStorage.getItem("user") || "null");
 
-<<<<<<< HEAD
+
   // Lấy thông tin user
   useEffect(() => {
     const loadUser = () => {
@@ -37,7 +37,7 @@ export default function Navbar() {
    
       if (storedUser) setUser(JSON.parse(storedUser));
       else setUser(null);
-=======
+
     const currentUser = doctorUser || adminUser || normalUser;
     setUser(currentUser?.user || null);
 
@@ -46,7 +46,7 @@ export default function Navbar() {
       const a = JSON.parse(localStorage.getItem("admin_user") || "null");
       const u = JSON.parse(localStorage.getItem("user") || "null");
       setUser((d?.user || a?.user || u?.user) || null);
->>>>>>> DangThanhPhong/15-ChatRealtime
+
     };
 
     window.addEventListener("storage", handleStorage);
@@ -67,15 +67,15 @@ export default function Navbar() {
   useEffect(() => {
     const loadNotifications = async () => {
       try {
-<<<<<<< HEAD
+
         const user = JSON.parse(localStorage.getItem("patient"));
         const patientId =
           (user && user.id) || localStorage.getItem("patient_id_temp");
-=======
+
         const doctorUser = JSON.parse(localStorage.getItem("doctor_user") || "null");
         const adminUser = JSON.parse(localStorage.getItem("admin_user") || "null");
         const normalUser = JSON.parse(localStorage.getItem("user") || "null");
->>>>>>> DangThanhPhong/15-ChatRealtime
+
 
         const current = doctorUser || adminUser || normalUser;
         if (!current?.token || !current?.user?.id) return;
@@ -154,9 +154,9 @@ export default function Navbar() {
     if (!searchTerm.trim()) return;
     navigate(`/doctor?search=${encodeURIComponent(searchTerm.trim())}`);
   };
-<<<<<<< HEAD
+
 console.log("user in navbar:", user);
-=======
+
 
   // =====================================================
   // 7️⃣ MỞ NHÓM CHAT CHUYÊN KHOA
@@ -177,7 +177,7 @@ console.log("user in navbar:", user);
   // =====================================================
   // 8️⃣ JSX RENDER
   // =====================================================
->>>>>>> DangThanhPhong/15-ChatRealtime
+
   return (
     <div className="w-full bg-white shadow-md fixed top-0 left-0 z-50">
       <div className="max-w-7xl mx-auto flex justify-between items-center px-6 py-3">
@@ -277,7 +277,6 @@ console.log("user in navbar:", user);
               </button>
 
               {openUser && (
-<<<<<<< HEAD
                 <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg border border-gray-200 animate-fadeIn">
                   <button
                     onClick={() => {
@@ -313,9 +312,6 @@ console.log("user in navbar:", user);
                       </button>
                     </>
                   )}
-=======
-                <div className="absolute right-0 w-48 bg-white shadow-lg rounded-lg border">
->>>>>>> DangThanhPhong/15-ChatRealtime
 
                   {user.role === "doctor" && (
                     <>

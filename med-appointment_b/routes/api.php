@@ -2,9 +2,9 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-<<<<<<< HEAD
+
 use Illuminate\Support\Facades\Artisan;
-=======
+
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 
@@ -68,7 +68,7 @@ Route::middleware('auth:sanctum')->get('/token-protected', function (Request $re
         'user' => $request->user(),
     ]);
 });
->>>>>>> DangThanhPhong/15-ChatRealtime
+
 
 // ===============================
 // 📦 Controllers
@@ -97,10 +97,8 @@ use App\Models\Appointment;
 use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\DoctorChatController;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
+
 Route::prefix('schedules')->group(function () {
     Route::get('/', [ScheduleController::class, 'index']);
     Route::get('/{id}', [ScheduleController::class, 'show']);
@@ -112,29 +110,24 @@ Route::prefix('schedules')->group(function () {
     Route::get('/getbyid/{doctor_id}', [ScheduleController::class, 'getScheduleById']);
 });
 
-=======
->>>>>>> DangThanhPhong/15-ChatRealtime
+
 // ================================
 // 🔐 LOGIN GOOGLE
 // ================================
 Route::get('/auth/google/redirect', [SocialAuthController::class, 'redirectToGoogle']);
 Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
->>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
+
 
 // ================================
 // 📢 BANNER
 // ================================
 Route::apiResource('banners', BannerController::class);
 
-<<<<<<< HEAD
 
-=======
 // ================================
 // 🩺 DOCTORS
 // ================================
-<<<<<<< HEAD
->>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
-=======
+
 // =======================================
 // Doctor login bằng user table (email nằm ở bảng users)
 Route::post('/doctor/login', function (Request $request) {
@@ -181,7 +174,7 @@ Route::post('/doctor/login', function (Request $request) {
     ], 200);
 });
 
->>>>>>> DangThanhPhong/15-ChatRealtime
+
 
 // ===============================
 // 🌐 Xác thực Google, Facebook
@@ -195,13 +188,6 @@ Route::get('/auth/facebook/callback', [SocialAuthController::class, 'handleFaceb
 // 🧑‍⚕️ DOCTORS
 // ===============================
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-=======
->>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
-=======
->>>>>>> DangThanhPhong/15-ChatRealtime
 Route::prefix('doctors')->group(function () {
     // CRUD DOCTOR
     Route::get('/', [DoctorController::class, 'index']);
@@ -210,27 +196,14 @@ Route::prefix('doctors')->group(function () {
     Route::delete('/{id}', [DoctorController::class, 'destroy']);
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
     // Hồ sơ bác sĩ
 
-=======
->>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
-=======
->>>>>>> DangThanhPhong/15-ChatRealtime
+
     Route::get('/{doctor_id}/profile', [DoctorController::class, 'showProfile']);
     Route::post('/{doctor_id}/profile', [DoctorController::class, 'updateProfile']);
 
     Route::post('/{doctor_id}/avatar', [DoctorController::class, 'uploadAvatar']);
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-
->>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
-=======
-
->>>>>>> DangThanhPhong/15-ChatRealtime
     // HỒ SƠ BÁC SĨ
     Route::get('/{doctor_id}/profile', [DoctorController::class, 'showProfile']);
     Route::post('/{doctor_id}/profile', [DoctorController::class, 'updateProfile']);
@@ -239,45 +212,33 @@ Route::prefix('doctors')->group(function () {
     Route::post('/{doctor_id}/avatar', [DoctorController::class, 'uploadAvatar']);
 
     // CHỨNG CHỈ / BẰNG CẤP
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 
->>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
-=======
-
->>>>>>> DangThanhPhong/15-ChatRealtime
     Route::get('/{doctor_id}/certificates', [DoctorController::class, 'getCertificates']);
     Route::post('/{doctor_id}/certificates', [DoctorController::class, 'uploadCertificate']);
     Route::delete('/certificates/{id}', [DoctorController::class, 'deleteCertificate']);
 
-<<<<<<< HEAD
-<<<<<<< HEAD
+
     // TÌM KIẾM BÁC SĨ
-=======
-=======
+
 
 
     // TÌM KIẾM BÁC SĨ
 
     Route::get('/search', [DoctorController::class, 'search']);
->>>>>>> DangThanhPhong/15-ChatRealtime
 
     // TÌM KIẾM BÁC SĨ
 
     Route::get('/search', [DoctorController::class, 'search']);
->>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
 
     Route::get('/search', [DoctorController::class, 'search']);
 
 });
 
-<<<<<<< HEAD
-=======
+
 
 // Doctor Schedule
 Route::get('/schedules/getbyid/{doctor_id}', [ScheduleController::class, 'getScheduleById']);
->>>>>>> DangThanhPhong/15-ChatRealtime
+
 
 // Doctor Schedule
 // Route::get('/schedules/getbyid/{doctor_id}', [ScheduleController::class, 'getScheduleById']);
@@ -288,8 +249,6 @@ Route::get('/schedules/getbyid/{doctor_id}', [ScheduleController::class, 'getSch
 // 👤 USERS
 // ================================
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 
 
 
@@ -301,10 +260,7 @@ Route::get('/schedules/getbyid/{doctor_id}', [ScheduleController::class, 'getSch
 
 
 
-=======
->>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
-=======
->>>>>>> DangThanhPhong/15-ChatRealtime
+
 
 // ===============================
 // ⏰ Lịch làm việc bác sĩ
@@ -312,15 +268,12 @@ Route::get('/schedules/getbyid/{doctor_id}', [ScheduleController::class, 'getSch
 // Route::get('/schedules/getbyid/{doctor_id}', [ScheduleController::class, 'getScheduleById']);
 
 
-<<<<<<< HEAD
-// PATIENTS
-<<<<<<< HEAD
-// Các route này phải đặt trước route resource để không bị nhầm với {patient}
-=======
-=======
 
 // PATIENTS
->>>>>>> DangThanhPhong/15-ChatRealtime
+// Các route này phải đặt trước route resource để không bị nhầm với {patient}
+
+// PATIENTS
+
 // hai route này phải đặt trước route resource để không bị nhầm với {patient}
 
 
@@ -329,10 +282,7 @@ Route::get('/schedules/getbyid/{doctor_id}', [ScheduleController::class, 'getSch
 // ===============================
 // Hai route này phải đặt trước route resource để không bị nhầm với {patient}
 
-<<<<<<< HEAD
->>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
-=======
->>>>>>> DangThanhPhong/15-ChatRealtime
+
 Route::get('/patients/statistics', [PatientController::class, 'getStatistics']);
 Route::get('/patients/newest', [PatientController::class, 'getNewest']);
 Route::get('/patients/count', [PatientController::class, 'countPatients']);
@@ -342,20 +292,10 @@ Route::get('/appointments/completed/daily-summary', [AppointmentController::clas
 Route::apiResource('patients', PatientController::class);
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// ===============================
-// 👤 USERS (CRUD + Hồ sơ + Chứng chỉ)
-// ===============================
-=======
-// USERS (CRUD + Profile + Ảnh + Chứng chỉ)
 
 // ===============================
 // 👤 USERS (CRUD + Hồ sơ + Chứng chỉ)
 // ===============================
-
->>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
-=======
 
 // USERS (CRUD + Profile + Ảnh + Chứng chỉ)
 
@@ -363,7 +303,15 @@ Route::apiResource('patients', PatientController::class);
 // 👤 USERS (CRUD + Hồ sơ + Chứng chỉ)
 // ===============================
 
->>>>>>> DangThanhPhong/15-ChatRealtime
+
+
+// USERS (CRUD + Profile + Ảnh + Chứng chỉ)
+
+// ===============================
+// 👤 USERS (CRUD + Hồ sơ + Chứng chỉ)
+// ===============================
+
+
 Route::apiResource('users', UserController::class);
 Route::get('/users/{id}/profile', [UserController::class, 'showProfile']);
 Route::post('/users/{id}/profile', [UserController::class, 'updateProfile']);
@@ -372,16 +320,11 @@ Route::post('/users/{id}/certificates', [UserController::class, 'uploadCertifica
 Route::delete('/users/certificates/{id}', [UserController::class, 'deleteCertificate']);
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 
 // DEPARTMENTS
 Route::get('/departments', [DepartmentController::class, 'index']);
 
-=======
->>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
-=======
->>>>>>> DangThanhPhong/15-ChatRealtime
+
 // ================================
 // 🏥 DEPARTMENTS
 // ================================
@@ -434,15 +377,7 @@ Route::get('/test-payos', [PaymentController::class, 'testPayOS']);
 // ================================
 // 🔐 AUTH & OTP
 // ================================
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
 
->>>>>>> DangThanhPhong/15-ChatRealtime
-
-
->>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
 // ===============================
 // 🏥 DEPARTMENTS
 // ===============================
@@ -478,59 +413,36 @@ Route::apiResource('appointments', AppointmentController::class);
 // ===============================
 // 🔐 AUTH (Đăng ký + Đăng nhập + OTP + Mật khẩu)
 // ===============================
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 
->>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
-=======
-
->>>>>>> DangThanhPhong/15-ChatRealtime
 Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
 Route::post('/forgot-password', [UserController::class, 'forgotPassword']);
 Route::post('/register/send-otp', [UserController::class, 'sendOtp']);
 Route::post('/register/verify-otp', [UserController::class, 'verifyOtp']);
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-=======
->>>>>>> DangThanhPhong/15-ChatRealtime
-
-// ================================
-// ❤️ FAVORITES
-// ================================
-<<<<<<< HEAD
-=======
 // ================================
 // ❤️ FAVORITES
 // ================================
 
->>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
-=======
+// ================================
+// ❤️ FAVORITES
+// ================================
 
->>>>>>> DangThanhPhong/15-ChatRealtime
+
 
 // ===============================
 // ❤️ BÁC SĨ YÊU THÍCH (Favorites)
 // ===============================
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 
 
-=======
->>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
-=======
->>>>>>> DangThanhPhong/15-ChatRealtime
+
 Route::get('/favorites/{user_id?}', [FavoriteController::class, 'index']);
 Route::get('/favorites/doctor/{doctor_id}', [FavoriteController::class, 'getDoctor']);
 Route::get('/doctors/top', [DoctorController::class, 'topDoctors']);
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 
 // ================================
 // 🗒️ NOTES
@@ -538,16 +450,14 @@ Route::get('/doctors/top', [DoctorController::class, 'topDoctors']);
 // Các route yêu cầu đăng nhập (token Sanctum)
 
 
-=======
+
 // ================================
 // 🗒️ NOTES
 // ================================
->>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
-=======
+
 // ================================
 // 🗒️ NOTES
 // ================================
->>>>>>> DangThanhPhong/15-ChatRealtime
 
 
 // ===============================
@@ -560,15 +470,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [UserController::class, 'logout']);
     Route::post('/change-password', [UserController::class, 'changePassword']);
 
-<<<<<<< HEAD
-<<<<<<< HEAD
     // Quản lý bác sĩ yêu thích
-=======
 
->>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
-=======
 
->>>>>>> DangThanhPhong/15-ChatRealtime
+
     // ===============================
     // 👥 USER thông tin & kiểm tra đăng nhập
     // ===============================
@@ -576,23 +481,20 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user/{id}', [UserController::class, 'getUserById']);
 
     // 📝 Quản lý phản hồi bài viết
-<<<<<<< HEAD
-<<<<<<< HEAD
+
+    // 📝 Phản hồi bài viết
+
+
+
+
+
+
     // 📝 Phản hồi bài viết
 
 
 
-
-=======
-
     // 📝 Phản hồi bài viết
 
->>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
-=======
-
-    // 📝 Phản hồi bài viết
-
->>>>>>> DangThanhPhong/15-ChatRealtime
     Route::prefix('feedbacks')->group(function () {
         Route::get('/', [PostFeedbackController::class, 'index']);
         Route::put('/{id}', [PostFeedbackController::class, 'update']);
@@ -633,20 +535,11 @@ Route::post('/notes', [NoteController::class, 'store']);
 Route::put('/notes/{note}/read', [NoteController::class, 'markAsRead']);
 Route::delete('/notes/{note}', [NoteController::class, 'destroy']);
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> DangThanhPhong/15-ChatRealtime
 
 // ================================
 // 💬 FEEDBACKS
 // ================================
 
-<<<<<<< HEAD
->>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
-=======
->>>>>>> DangThanhPhong/15-ChatRealtime
 // ⚙️ Xuất PDF cho ghi chú
 Route::get('/notes/{id}/export-pdf', [NoteController::class, 'exportPdf']);
 
@@ -688,16 +581,12 @@ Route::apiResource('invoices', InvoiceController::class);
 // ===============================
 // ⭐ FEEDBACK (Đánh giá bác sĩ)
 // ===============================
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 // Lấy tất cả feedback (có thể lọc theo bác sĩ hoặc bệnh nhân)
 Route::get('/feedbacks', [FeedbackController::class, 'index']);
-=======
 
->>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
-=======
 
->>>>>>> DangThanhPhong/15-ChatRealtime
+
 Route::get('/feedbacks/{doctor_id}', [FeedbackController::class, 'getByDoctor']);
 Route::post('/feedbacks', [FeedbackController::class, 'store']);
 Route::delete('/feedbacks/{id}', [FeedbackController::class, 'destroy']);
@@ -728,8 +617,6 @@ Route::get('/user/{id}', [UserController::class, 'getUserById']);
 
 Route::get('/doctors/list', [DoctorController::class, 'list']);
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 
 // DOCTORS (CRUD + PROFILE + Ảnh + Chứng chỉ)
 // Route::prefix('doctors')->group(function () {
@@ -759,10 +646,7 @@ Route::get('/doctors/list', [DoctorController::class, 'list']);
     Route::get('/search', [DoctorController::class, 'search']);
 
 Route::get('/doctors/list', [DoctorController::class, 'list']);
-=======
->>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
-=======
->>>>>>> DangThanhPhong/15-ChatRealtime
+
 // ===============================
 // 🤖 CHATBOT hỗ trợ bệnh nhân
 // ===============================
@@ -801,8 +685,6 @@ Route::apiResource('services', ServiceController::class);
 // ===============================
 Route::get('/dashboard', [AppointmentController::class, 'dashboard']);
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 // ===============================
 // 📊 Appointment
 // ===============================
@@ -837,7 +719,7 @@ Route::get('/test/remind', function () {
         'message' => 'Đã chạy command gửi mail nhắc lịch (giả lập 00:00).'
     ]);
 });
-=======
+
 
 Route::get('/doctors', [DoctorController::class, 'index']);
 Route::get('/doctors/list', [DoctorController::class, 'list']);
@@ -861,51 +743,3 @@ Route::put('/doctor-free-times/{id}', [DoctorFreeTimeController::class, 'update'
 // Route::get('/schedules/getbyid/{doctor_id}', [ScheduleController::class, 'getScheduleById']);
 
 >>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
-=======
-
-// ============================================================
-// 💬 CHAT REALTIME NHÓM BÁC SĨ (ADMIN QUẢN LÝ)
-// ============================================================
-Route::middleware('auth:sanctum')->prefix('chat')->group(function () {
-    // Danh sách nhóm chat (Admin)
-    Route::get('/groups', [ChatController::class, 'groups']);
-
-    // Thành viên trong nhóm
-    Route::get('/groups/{id}/members', [ChatController::class, 'members']);
-
-    // Tin nhắn trong nhóm
-    Route::get('/groups/{id}/messages', [ChatController::class, 'messages']);
-
-    // Gửi tin nhắn
-    Route::post('/groups/{id}/messages', [ChatController::class, 'send']);
-
-    // Kick thành viên (chỉ admin)
-    Route::post('/groups/{id}/kick', [ChatController::class, 'kick']);
-
-    // Upload file trong chat
-    Route::post('/upload', [ChatController::class, 'upload']);
-});
-
-
-// ============================================================
-// 🌐 API CÔNG KHAI — LỌC NHÓM THEO CHUYÊN KHOA
-// ============================================================
-// Dành cho FE gọi: /api/chat/groups?specialty=Tim mạch
-Route::get('/chat/groups', [ChatController::class, 'index']);
-
-
-// ============================================================
-// 👨‍⚕️ API RIÊNG CHO BÁC SĨ (DoctorChatController)
-// ============================================================
-// Dành cho FE gọi: /api/doctor/groups
-// ⚠️ Quan trọng: Đặt ngoài tất cả group khác, có middleware Sanctum
-Route::middleware('auth:sanctum')->prefix('doctor')->group(function () {
-    Route::get('/groups', [DoctorChatController::class, 'groups']);
-});
-
-
-
-Route::middleware(['auth:sanctum'])->group(function () {
-    Route::get('/doctor/me', [\App\Http\Controllers\DoctorController::class, 'me']);
-});
->>>>>>> DangThanhPhong/15-ChatRealtime

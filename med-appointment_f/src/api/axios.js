@@ -6,31 +6,13 @@
 
 import axios from "axios";
 
-<<<<<<< HEAD
+
 
 
 // ✅ Tạo một instance axios riêng biệt cho API
 const API = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000/api",
   timeout: 30000, // ⏱️ Giới hạn thời gian chờ (15 giây)
-=======
-// =====================================================
-// 🌐 CẤU HÌNH CƠ BẢN TOÀN CỤC
-// =====================================================
-
-// Cho phép gửi cookie cross-origin
-axios.defaults.withCredentials = true;
-
-// Base URL backend Laravel
-export const API_BASE_URL = "http://127.0.0.1:8000";
-
-// =====================================================
-// ⚙️ TẠO INSTANCE CHÍNH CHO /api
-// =====================================================
-export const API = axios.create({
-  baseURL: `${API_BASE_URL}/api`,
-  timeout: 30000,
->>>>>>> DangThanhPhong/15-ChatRealtime
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
