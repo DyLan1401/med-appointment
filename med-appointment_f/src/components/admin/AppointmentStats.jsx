@@ -8,7 +8,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { API } from "../../api/axios"; // <--- chỉnh đúng đường dẫn axios của bạn
+import API from "../../api/axios"; // <--- chỉnh đúng đường dẫn axios của bạn
 
 export default function AppointmentStats() {
   const [data, setData] = useState([]);

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Star } from "lucide-react";
-import { API } from "../../api/axios";
+import  API  from "../../api/axios";
 
 export default function ManagerFeedBackDoctor() {
   const [feedbacks, setFeedbacks] = useState([]);

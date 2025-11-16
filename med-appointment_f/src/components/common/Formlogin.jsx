@@ -174,12 +174,14 @@ export default function FormLogin() {
       // 🚀 ĐIỀU HƯỚNG
       // =====================================================
       setTimeout(() => {
-        if (user.role === "admin") navigate("/dashboard");
+       
+         if (user.role === "admin") navigate("/dashboard");
         else if (user.role === "doctor") navigate("/doctor/dashboard");
         else navigate("/");
       }, 1200);
-    } catch (err) {
-      console.error("❌ Login Error:", err);
+       }
+    //  catch (err) {
+    //   console.error("❌ Login Error:", err);
 
       toast.error(
         err.response?.data?.message || "Sai email hoặc mật khẩu!",
@@ -189,7 +191,6 @@ export default function FormLogin() {
     // ✅ Lưu riêng doctor_id nếu role là doctor
     if (role === "doctor" && doctor_id) {
       localStorage.setItem("doctor_id", doctor_id);
->>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
     }
 
     // Gắn token mặc định cho axios

@@ -69,10 +69,10 @@ import ChatBot from "./components/common/ChatBot";
 import PaymentOptions from "./components/payment/Paymain";
 import PaymentSuccess from "./components/payment/paysuccess";
 import PaymentFailedV2 from "./components/payment/paycancel";
-<<<<<<< HEAD
+
 import DepositPage from "./components/payment/DepositPage";
 import PayfullPage from "./components/payment/PayfullPage";
-=======
+
 
 /* ✅✅✅ Thêm chat components */
 import AdminChat from "./components/admin/AdminChat";
@@ -116,7 +116,7 @@ function SafeRender({ children }) {
 }
 
 /* --------------------------------------------- */
->>>>>>> DangThanhPhong/15-ChatRealtime
+
 export default function App() {
   useEffect(() => {
     // Bọc trong try/catch để không làm trắng trang khi lỗi Echo

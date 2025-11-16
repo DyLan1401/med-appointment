@@ -16,15 +16,12 @@
         "laravel/socialite": "*",
         "laravel/tinker": "^2.10.1",
         "maatwebsite/excel": "^3.1",
-<<<<<<< HEAD
-        "payos/payos": "^2.0",
-        "spatie/simple-excel": "^3.8"
-=======
+
         "payos/payos": "^1.0",
         "predis/predis": "^3.2",
         "pusher/pusher-php-server": "^7.2",
         "spatie/simple-excel": "^3.7"
->>>>>>> DangThanhPhong/15-ChatRealtime
+
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

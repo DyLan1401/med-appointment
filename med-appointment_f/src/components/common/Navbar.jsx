@@ -5,7 +5,7 @@ import { Search, Bell, X } from "lucide-react";
 import dayjs from "dayjs";
 import { socket } from "../../socket.js";
 import logo from "../../assets/logo.jpg";
-import { API } from "../../api/axios";
+import  API  from "../../api/axios.js";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -23,11 +23,14 @@ export default function Navbar() {
   // =====================================================
   // 1️⃣ LẤY USER ĐÚNG TỪ LOCALSTORAGE
   // =====================================================
-  useEffect(() => {
-    const doctorUser = JSON.parse(localStorage.getItem("doctor_user") || "null");
-    const adminUser = JSON.parse(localStorage.getItem("admin_user") || "null");
-    const normalUser = JSON.parse(localStorage.getItem("user") || "null");
+  // useEffect(() => {
+  //   const doctorUser = JSON.parse(localStorage.getItem("doctor_user") || "null");
+  //   const adminUser = JSON.parse(localStorage.getItem("admin_user") || "null");
+  //   const normalUser = JSON.parse(localStorage.getItem("user") || "null");
+  //   const patientId = (user && user.id) || localStorage.getItem("patient_id_temp");
+  //   const user = JSON.parse(localStorage.getItem("patient"));
 
+  // })
 
   // Lấy thông tin user
   useEffect(() => {
@@ -40,7 +43,7 @@ export default function Navbar() {
 
     const currentUser = doctorUser || adminUser || normalUser;
     setUser(currentUser?.user || null);
-
+    }
     const handleStorage = () => {
       const d = JSON.parse(localStorage.getItem("doctor_user") || "null");
       const a = JSON.parse(localStorage.getItem("admin_user") || "null");
@@ -52,6 +55,7 @@ export default function Navbar() {
     window.addEventListener("storage", handleStorage);
     return () => window.removeEventListener("storage", handleStorage);
   }, []);
+
 
   // =====================================================
   // 2️⃣ LOAD DOCTOR ID
@@ -66,11 +70,9 @@ export default function Navbar() {
   // =====================================================
   useEffect(() => {
     const loadNotifications = async () => {
+
       try {
 
-        const user = JSON.parse(localStorage.getItem("patient"));
-        const patientId =
-          (user && user.id) || localStorage.getItem("patient_id_temp");
 
         const doctorUser = JSON.parse(localStorage.getItem("doctor_user") || "null");
         const adminUser = JSON.parse(localStorage.getItem("admin_user") || "null");
@@ -365,5 +367,4 @@ console.log("user in navbar:", user);
         </div>
       </div>
     </div>
-  );
-}
+  )};

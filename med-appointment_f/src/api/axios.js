@@ -8,9 +8,10 @@ import axios from "axios";
 
 
 
+const API_BASE_URL = "http://localhost:8000";
 
 // ✅ Tạo một instance axios riêng biệt cho API
-const API = axios.create({
+ const API = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000/api",
   timeout: 30000, // ⏱️ Giới hạn thời gian chờ (15 giây)
   headers: {
