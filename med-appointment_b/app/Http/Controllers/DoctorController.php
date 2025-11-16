@@ -364,40 +364,40 @@ public function list()
  
 
 
-    // ✅ API lấy danh sách bác sĩ (cho form chọn bác sĩ)
-    public function list()
-    {
-        $doctors = Doctor::with('user')
-            ->select('id', 'user_id')
-            ->get()
-            ->map(function ($doctor) {
-                return [
-                    'id' => $doctor->id,
-                    'name' => $doctor->user->name,
-                ];
-            });
+    // // ✅ API lấy danh sách bác sĩ (cho form chọn bác sĩ)
+    // public function list()
+    // {
+    //     $doctors = Doctor::with('user')
+    //         ->select('id', 'user_id')
+    //         ->get()
+    //         ->map(function ($doctor) {
+    //             return [
+    //                 'id' => $doctor->id,
+    //                 'name' => $doctor->user->name,
+    //             ];
+    //         });
 
-        return response()->json($doctors);
-    }
+    //     return response()->json($doctors);
+    // }
 
-    // ✅ Top bác sĩ
+    // // ✅ Top bác sĩ
 
 
-    // ==========================
-    // SIMPLE LIST
-    // ==========================
-    public function list()
-    {
-        return response()->json(
-            Doctor::with('user')
-                ->select('id', 'user_id')
-                ->get()
-                ->map(fn($doctor) => [
-                    'id' => $doctor->id,
-                    'name' => $doctor->user->name,
-                ])
-        );
-    }
+    // // ==========================
+    // // SIMPLE LIST
+    // // ==========================
+    // public function list()
+    // {
+    //     return response()->json(
+    //         Doctor::with('user')
+    //             ->select('id', 'user_id')
+    //             ->get()
+    //             ->map(fn($doctor) => [
+    //                 'id' => $doctor->id,
+    //                 'name' => $doctor->user->name,
+    //             ])
+    //     );
+    // }
 
     // ==========================
     // TOP DOCTORS
@@ -450,3 +450,4 @@ public function list()
 
 
 
+}

@@ -114,101 +114,101 @@ class UserController extends Controller
 
 
 
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'role' => 'patient',
-            ]);
+    //         $user = User::create([
+    //             'name' => $request->name,
+    //             'email' => $request->email,
+    //             'password' => Hash::make($request->password),
+    //             'role' => 'patient',
+    //         ]);
 
-            // ✅ Tạo luôn record patient liên kết với user
-            \App\Models\Patient::create([
-                'user_id' => $user->id,
-                'date_of_birth' => null,
-                'gender' => null,
-                'address' => null,
-                'health_insurance' => null,
-            ]);
+    //         // ✅ Tạo luôn record patient liên kết với user
+    //         \App\Models\Patient::create([
+    //             'user_id' => $user->id,
+    //             'date_of_birth' => null,
+    //             'gender' => null,
+    //             'address' => null,
+    //             'health_insurance' => null,
+    //         ]);
 
 
-            $token = $user->createToken('auth_token')->plainTextToken;
+    //         $token = $user->createToken('auth_token')->plainTextToken;
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Đăng ký thành công!',
-                'user' => $user,
-                'token' => $token,
-            ], 201);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Đăng ký thất bại!',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
-    }
+    //         return response()->json([
+    //             'success' => true,
+    //             'message' => 'Đăng ký thành công!',
+    //             'user' => $user,
+    //             'token' => $token,
+    //         ], 201);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Đăng ký thất bại!',
+    //             'error' => $e->getMessage(),
+    //         ], 500);
+    //     }
+    // }
 
     // API Đăng nhập
 
-    public function login(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|string|min:6',
-        ]);
+    // public function login(Request $request)
+    // {
+    //     $request->validate([
+    //         'email' => 'required|email',
+    //         'password' => 'required|string|min:6',
+    //     ]);
 
-        $user = User::where('email', $request->email)->first();
+    //     $user = User::where('email', $request->email)->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Email hoặc mật khẩu không chính xác!',
-            ], 401);
-        }
+    //     if (!$user || !Hash::check($request->password, $user->password)) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Email hoặc mật khẩu không chính xác!',
+    //         ], 401);
+    //     }
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+    //     $token = $user->createToken('auth_token')->plainTextToken;
 
-  public function login(Request $request)
-{
-    $request->validate([
-        'email' => 'required|email',
-        'password' => 'required|string|min:6',
-    ]);
+//   public function login(Request $request)
+// {
+//     $request->validate([
+//         'email' => 'required|email',
+//         'password' => 'required|string|min:6',
+//     ]);
 
-    $user = User::where('email', $request->email)
-                ->with('doctor') // load luôn quan hệ doctor
-                ->first();
+//     $user = User::where('email', $request->email)
+//                 ->with('doctor') // load luôn quan hệ doctor
+//                 ->first();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Đăng nhập thành công!',
-            'user' => $user,
-            'token' => $token,
-            'role' => $user->role, // ✅ thêm để frontend biết role
-        ]);
-    }
+//         return response()->json([
+//             'success' => true,
+//             'message' => 'Đăng nhập thành công!',
+//             'user' => $user,
+//             'token' => $token,
+//             'role' => $user->role, // ✅ thêm để frontend biết role
+//         ]);
+//     }
 
-    $token = $user->createToken('auth_token')->plainTextToken;
+//     $token = $user->createToken('auth_token')->plainTextToken;
 
-    $response = [
-        'success' => true,
-        'message' => 'Đăng nhập thành công!',
-        'user' => $user,
-        'token' => $token,
-        'role' => $user->role,
-    ];
+//     $response = [
+//         'success' => true,
+//         'message' => 'Đăng nhập thành công!',
+//         'user' => $user,
+//         'token' => $token,
+//         'role' => $user->role,
+//     ];
 
-    // Nếu là doctor, trả thêm doctor_id
-    if ($user->role === 'doctor' && $user->doctor) {
-        $response['doctor_id'] = $user->doctor->id;
-    }
+//     // Nếu là doctor, trả thêm doctor_id
+//     if ($user->role === 'doctor' && $user->doctor) {
+//         $response['doctor_id'] = $user->doctor->id;
+//     }
 
-    return response()->json($response);
-}
+//     return response()->json($response);
+// }
 
 
     // API Đăng xuất
-    public function logout(Request $request)
+    public function logout(Request $request){}
 
     // ======================================================
     // LOGIN (WEB)
@@ -315,25 +315,26 @@ class UserController extends Controller
     // OTP / RESET PASSWORD
     // ======================================================
 
-        if ($this->isFullUrl($path)) {
-            return $path;
-        }
+       
 
-        if (str_starts_with($path, 'avatars/')) {
-            return asset('storage/' . $path);
-        }
+    // private function isFullUrl($path)
+    // {
+    //      if ($this->isFullUrl($path)) {
+    //         return $path;
+    //     }
 
-        if (str_starts_with($path, 'images/')) {
-            return asset($path);
-        }
+    //     if (str_starts_with($path, 'avatars/')) {
+    //         return asset('storage/' . $path);
+    //     }
 
-        return asset('storage/' . ltrim($path, '/'));
-    }
+    //     if (str_starts_with($path, 'images/')) {
+    //         return asset($path);
+    //     }
 
-    private function isFullUrl($path)
-    {
-        return filter_var($path, FILTER_VALIDATE_URL) !== false;
-    }
+    //     return asset('storage/' . ltrim($path, '/'));
+    
+    //     return filter_var($path, FILTER_VALIDATE_URL) !== false;
+    // }
 
 
     public function forgotPassword(Request $request)

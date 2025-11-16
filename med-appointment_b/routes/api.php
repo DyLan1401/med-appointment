@@ -742,4 +742,3 @@ Route::put('/doctor-free-times/{id}', [DoctorFreeTimeController::class, 'update'
 // Route::delete('/schedules/{schedule}', [ScheduleController::class, 'destroy']);
 // Route::get('/schedules/getbyid/{doctor_id}', [ScheduleController::class, 'getScheduleById']);
 
->>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
