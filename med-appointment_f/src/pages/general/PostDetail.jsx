@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import Navbar from "../../components/common/Navbar";
 import API from "../../api/axios";
 import avatar from "../../assets/avatar.jpg";
@@ -21,9 +22,9 @@ const handleUpdateFeedback = async (id, newContent) => {
     setFeedbacks((prev) =>
       prev.map((f) => (f.id === id ? { ...f, content: newContent, isEditing: false } : f))
     );
+    toast.success("Cập nhật feedback thành công!");
   } catch (err) {
-    console.error("Lỗi khi cập nhật feedback:", err);
-    alert("Không thể cập nhật feedback.");
+    toast.error("Không thể cập nhật feedback.");
   }
 };
 
@@ -33,9 +34,9 @@ const handleDeleteFeedback = async (id) => {
   try {
     await API.delete(`/feedbacks/${id}`);
     setFeedbacks((prev) => prev.filter((f) => f.id !== id));
+    toast.success("Đã xóa feedback thành công!");
   } catch (err) {
-    console.error("Lỗi khi xóa feedback:", err);
-    alert("Không thể xóa feedback.");
+    toast.error("Không thể xóa feedback.");
   }
 };
     // 🧭 Gọi API khi load trang hoặc F5
@@ -58,7 +59,7 @@ const handleDeleteFeedback = async (id) => {
             setPost(res.data);
             loadRelated(res.data.category_id);
         } catch (error) {
-            console.error("Lỗi khi tải bài viết:", error);
+            toast.error("Không thể tải bài viết. Vui lòng thử lại!");
         } finally {
             setLoading(false);
         }
@@ -71,7 +72,7 @@ const handleDeleteFeedback = async (id) => {
             const res = await API.get(`/posts?category_id=${categoryId}`);
             setRelatedPosts(res.data.data.filter((p) => p.id !== Number(id)).slice(0, 3));
         } catch (error) {
-            console.error("Lỗi khi tải bài viết liên quan:", error);
+            // Silent error - không cần thông báo
         }
     };
 
@@ -92,7 +93,7 @@ const handleDeleteFeedback = async (id) => {
             const res = await API.get(`/posts/${postId}/feedbacks`);
             setFeedbacks(res.data);
         } catch (err) {
-            console.error("Lỗi khi tải feedback:", err);
+            // Silent error - không cần thông báo
         }
     };
 
@@ -106,9 +107,9 @@ const handleDeleteFeedback = async (id) => {
             });
             setNewFeedback("");
             loadFeedbacks(post.id);
+            toast.success("Gửi feedback thành công!");
         } catch (err) {
-            console.error("Lỗi khi gửi feedback:", err);
-            alert("Không thể gửi feedback, vui lòng thử lại!");
+            toast.error("Không thể gửi feedback, vui lòng thử lại!");
         } finally {
             setSubmitting(false);
         }

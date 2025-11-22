@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { toast } from "react-toastify";
 import { FileDown, FileSpreadsheet } from "lucide-react";
 
 export default function PatientReport() {
@@ -12,11 +13,11 @@ export default function PatientReport() {
     ];
 
     const handleExportExcel = () => {
-        alert("Đã xuất báo cáo Excel!");
+        toast.success("Đã xuất báo cáo Excel!");
     };
 
     const handleExportPDF = () => {
-        alert("Đã xuất báo cáo PDF!");
+        toast.success("Đã xuất báo cáo PDF!");
     };
 
     return (

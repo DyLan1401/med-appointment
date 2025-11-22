@@ -13,7 +13,7 @@ class AppointmentSeeder extends Seeder
     {
         $records = [];
         $patients = Patient::all();
-        for ($i = 1; $i <= 20; $i++) { 
+        for ($i = 1; $i <= 50; $i++) { 
                 $patient = $patients->random(); // chọn ngẫu nhiên 1 patient
 
             $records[] = [

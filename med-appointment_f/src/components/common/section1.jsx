@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, AlertTriangle, Stethoscope } from "lucide-react";
+import { toast } from "react-toastify";
 import heart from "../../assets/heart.png";
 import avatarDefault from "../../assets/avatar.jpg";
 import API from "../../api/axios";
@@ -43,7 +44,7 @@ export default function Section1() {
       setDoctors(list);
       setNotFound(list.length === 0);
     } catch (err) {
-      console.error("❌ Lỗi lấy danh sách bác sĩ:", err);
+      toast.error("Không thể tải danh sách bác sĩ. Vui lòng thử lại!");
       setNotFound(true);
     } finally {
       setLoading(false);
@@ -55,7 +56,7 @@ export default function Section1() {
       const res = await API.get("/departments");
       setSpecializations(res.data.data || res.data || []);
     } catch (err) {
-      console.error("❌ Lỗi lấy chuyên khoa:", err);
+      // Silent error - không cần thông báo
     }
   };
 
@@ -71,7 +72,7 @@ export default function Section1() {
         if (section) section.scrollIntoView({ behavior: "smooth" });
       }, 300);
     } catch (err) {
-      console.error("❌ Lỗi tìm kiếm:", err);
+      toast.error("Không thể tìm kiếm. Vui lòng thử lại!");
       setDoctors([]);
       setNotFound(true);
     } finally {
@@ -95,7 +96,10 @@ export default function Section1() {
   };
 
   const handleFavorite = async (doctor) => {
-    if (!doctor?.id) return alert("⚠️ Thiếu thông tin bác sĩ!");
+    if (!doctor?.id) {
+      toast.warning("⚠️ Thiếu thông tin bác sĩ!");
+      return;
+    }
     setLiked(doctor.id);
     setTimeout(() => setLiked(null), 800);
 
@@ -108,14 +112,14 @@ export default function Section1() {
         );
 
         if (res.status === 401 || res.data?.message?.includes("hết hạn")) {
-          alert("🔐 Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
+          toast.warning("🔐 Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
           localStorage.removeItem("token");
           localStorage.removeItem("user");
           navigate("/login");
           return;
         }
 
-        alert(`Đã thêm bác sĩ ${doctor.user?.name} vào danh sách yêu thích!`);
+        toast.success(`Đã thêm bác sĩ ${doctor.user?.name} vào danh sách yêu thích!`);
       } else {
         const localFavs = JSON.parse(localStorage.getItem("favorites")) || [];
         const exists = localFavs.some((f) => f.doctor_id === doctor.id);
@@ -131,20 +135,19 @@ export default function Section1() {
           });
           localStorage.setItem("favorites", JSON.stringify(localFavs));
         }
-        alert(`Đã thêm bác sĩ ${doctor.user?.name} vào yêu thích tạm thời!`);
+        toast.success(`Đã thêm bác sĩ ${doctor.user?.name} vào yêu thích tạm thời!`);
       }
 
       window.dispatchEvent(new Event("favoriteUpdated"));
       navigate("/like-doctor");
     } catch (err) {
-      console.error("❌ Lỗi khi thêm yêu thích:", err);
       if (err.response?.status === 401) {
-        alert("🔐 Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
+        toast.warning("🔐 Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
         localStorage.removeItem("token");
         localStorage.removeItem("user");
         navigate("/login");
       } else {
-        alert("⚠️ Không thể thêm bác sĩ yêu thích!");
+        toast.error("⚠️ Không thể thêm bác sĩ yêu thích!");
       }
     }
   };

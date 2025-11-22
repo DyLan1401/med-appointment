@@ -4,8 +4,8 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import Navbar from "../../components/common/Navbar";
 import axios from "../../api/axios";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
+import Footer from "../../components/common/Footer"
 
 const position = [10.8514, 106.7581]; // ví dụ: HCM
 
@@ -32,7 +32,6 @@ export default function ContactPage() {
         toast.error("❌ Gửi thất bại, vui lòng thử lại!");
       }
     } catch (err) {
-      console.error("❌ Lỗi khi gửi liên hệ:", err);
       toast.error(err.response?.data?.message || "Lỗi kết nối server!");
     } finally {
       setLoading(false);
@@ -44,10 +43,7 @@ export default function ContactPage() {
       <Navbar />
       <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex flex-col items-center py-16 px-4">
         <h1 className="text-4xl font-bold text-blue-700 mb-6">Liên hệ với chúng tôi</h1>
-        <p className="text-gray-600 text-center max-w-xl mb-12">
-          Nếu bạn có bất kỳ câu hỏi hoặc cần hỗ trợ, vui lòng gửi thông tin cho chúng tôi.
-          Đội ngũ của chúng tôi luôn sẵn sàng giúp đỡ bạn!
-        </p>
+       
 
         <div className="grid md:grid-cols-2 gap-8 max-w-5xl w-full">
           {/* 🧩 Form liên hệ */}
@@ -152,9 +148,7 @@ export default function ContactPage() {
           </div>
         </div>
       </div>
-
-      {/* Hiển thị thông báo */}
-      <ToastContainer position="top-center" />
+      <Footer />
     </div>
   );
 }

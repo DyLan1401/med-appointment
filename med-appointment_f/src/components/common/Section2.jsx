@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import API from "../../api/axios"; // axios đã config baseURL
 import avatar from "../../assets/avatar.jpg";
 
@@ -8,7 +9,6 @@ export default function Section2() {
     const [lastPage, setLastPage] = useState(1);
     const [loading, setLoading] = useState(false);
 
-    console.log(loading);
     useEffect(() => {
         loadPosts(currentPage);
     }, [currentPage]);
@@ -27,7 +27,7 @@ export default function Section2() {
             setPosts(postsData);
             setLastPage(res.data.last_page || 1);
         } catch (err) {
-            console.error("Lỗi khi tải bài viết:", err);
+            toast.error("Không thể tải bài viết. Vui lòng thử lại!");
             setPosts([]); // tránh undefined
         } finally {
             setLoading(false);

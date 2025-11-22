@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Bot, X, Send } from "lucide-react";
+import { toast } from "react-toastify";
 import API from "../../api/axios";
 
 export default function ChatBot() {
@@ -23,7 +24,7 @@ export default function ChatBot() {
       const reply = res.data.reply;
       setMessages((prev) => [...prev, { from: "bot", text: reply }]);
     } catch (err) {
-      console.error(err);
+      toast.error("Không thể gửi tin nhắn. Vui lòng thử lại!");
       setMessages((prev) => [
         ...prev,
         {

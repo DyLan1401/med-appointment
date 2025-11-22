@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import API from "../../api/axios";
+import { toast } from "react-toastify";
 import { Printer } from "lucide-react"; // 🧩 Icon in hiện đại
 
 export default function PatientNotes() {
@@ -17,7 +18,7 @@ export default function PatientNotes() {
       API.get(`/notes/${id}`)
         .then((res) => setNotes(res.data))
         .catch((err) => {
-          console.error("❌ Lỗi khi tải ghi chú:", err);
+          toast.error("Không thể tải danh sách ghi chú. Vui lòng thử lại.");
           setError("Không thể tải danh sách ghi chú. Vui lòng thử lại.");
         })
         .finally(() => setLoading(false));
@@ -34,8 +35,7 @@ export default function PatientNotes() {
         prev.map((n) => (n.id === noteId ? { ...n, is_read: true } : n))
       );
     } catch (err) {
-      console.error("❌ Lỗi đánh dấu đã đọc:", err);
-      alert("Không thể đánh dấu ghi chú này. Vui lòng thử lại.");
+      toast.error("Không thể đánh dấu ghi chú này. Vui lòng thử lại.");
     }
   };
 
@@ -43,14 +43,13 @@ export default function PatientNotes() {
   const handlePrint = async () => {
     try {
       if (!id) {
-        alert("Không xác định được ID bệnh nhân để in danh sách.");
+        toast.warning("Không xác định được ID bệnh nhân để in danh sách.");
         return;
       }
       const url = `${API.defaults.baseURL}/notes/${id}/export-pdf`;
       window.open(url, "_blank");
     } catch (err) {
-      console.error("❌ Lỗi khi xuất PDF:", err);
-      alert("Không thể in danh sách ghi chú. Vui lòng thử lại.");
+      toast.error("Không thể in danh sách ghi chú. Vui lòng thử lại.");
     }
   };
 

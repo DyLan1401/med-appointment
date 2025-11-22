@@ -30,7 +30,7 @@ function ForgetPassword() {
             <div className="w-full h-screen flex justify-center items-center bg-gray-100">
                 <div className="rounded-lg w-[400px] h-auto font-semibold shadow-2xl bg-white px-10 py-8">
                     <h1 className="text-blue-500 text-3xl font-bold text-center mb-4">
-                        🔑 Quên mật khẩu
+                        Quên mật khẩu
                     </h1>
                     <p className="text-center text-gray-600 mb-6">
                         Vui lòng nhập email của bạn để nhận mật khẩu mới.
@@ -52,8 +52,8 @@ function ForgetPassword() {
                             type="submit"
                             disabled={loading}
                             className={`w-full p-2 rounded-lg text-white font-medium ${loading
-                                    ? "bg-gray-400 cursor-not-allowed"
-                                    : "bg-blue-500 hover:bg-blue-600"
+                                ? "bg-gray-400 cursor-not-allowed"
+                                : "bg-blue-500 hover:bg-blue-600"
                                 }`}
                         >
                             {loading ? "Đang gửi..." : "Gửi mật khẩu mới"}
@@ -72,7 +72,7 @@ function ForgetPassword() {
 
                     <div className="text-center py-8 text-blue-700">
                         <button
-                            onClick={() => navigate("/")}
+                            onClick={() => navigate("/login")}
                             className="hover:underline hover:text-blue-800"
                         >
                             ← Quay lại trang đăng nhập

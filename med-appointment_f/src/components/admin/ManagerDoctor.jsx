@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { toast } from "react-toastify";
 import API from "../../api/axios";
-import LoadingOverlay from "../common/LoadingOverlay";
 import ConfirmModal from "../common/ConfirmModal";
 import Pagination from "../common/Pagination";
+import { FaTrashAlt, FaPencilAlt } from "react-icons/fa";
+import { GrView } from "react-icons/gr";
 
 export default function ManagerDoctor() {
   const [specializations, setSpecializations] = useState([]);
@@ -19,7 +21,6 @@ export default function ManagerDoctor() {
     phone: "",
   });
   const [isEditing, setIsEditing] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [detailDoctor, setDetailDoctor] = useState(null);
 
@@ -37,49 +38,40 @@ export default function ManagerDoctor() {
       const res = await API.get("/departments");
       setSpecializations(res.data.data || res.data);
     } catch (err) {
-      console.error(err);
-      alert("Không thể tải danh sách chuyên khoa!");
+      toast.error("Không thể tải danh sách chuyên khoa!");
     }
   };
 
   const fetchDoctors = async () => {
-    setLoading(true);
     try {
       const params = {};
       if (search.name) params.name = search.name;
       if (search.specialization) params.specialization = search.specialization;
       const res = await API.get("/doctors", { params });
-      setDoctors(res.data.data ||res.data);
+      setDoctors(res.data.data || res.data);
     } catch (err) {
-      console.error(err);
-      alert("Không thể tải danh sách bác sĩ!");
-    } finally {
-      setLoading(false);
+      toast.error("Không thể tải danh sách bác sĩ!");
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     try {
       let res;
       if (isEditing) {
         res = await API.put(`/doctors/${form.id}`, form);
         setDoctors(doctors.map((d) => (d.id === form.id ? res.data.doctor : d)));
-        alert("✅ Cập nhật thành công!");
+        toast.success("✅ Cập nhật thành công!");
       } else {
         res = await API.post("/doctors", form);
         setDoctors([res.data.doctor, ...doctors]);
-        alert("✅ Thêm bác sĩ thành công!");
+        toast.success("✅ Thêm bác sĩ thành công!");
         // ✅ Sau khi thêm bác sĩ → mở hồ sơ chi tiết để cập nhật
         setDetailDoctor(res.data.doctor);
       }
       resetForm();
     } catch (err) {
-      console.error(err);
-      alert("❌ Lỗi khi lưu bác sĩ!");
-    } finally {
-      setLoading(false);
+      toast.error(err.response?.data?.message || "❌ Lỗi khi lưu bác sĩ!");
     }
   };
 
@@ -109,16 +101,13 @@ export default function ManagerDoctor() {
   };
 
   const handleDelete = async () => {
-    setLoading(true);
     try {
       await API.delete(`/doctors/${deleteId}`);
       setDoctors(doctors.filter((d) => d.id !== deleteId));
-      alert("🗑️ Đã xóa bác sĩ thành công!");
+      toast.success("🗑️ Đã xóa bác sĩ thành công!");
     } catch (err) {
-      console.error(err);
-      alert("❌ Lỗi khi xóa bác sĩ!");
+      toast.error(err.response?.data?.message || "❌ Lỗi khi xóa bác sĩ!");
     } finally {
-      setLoading(false);
       setDeleteId(null);
     }
   };
@@ -135,10 +124,9 @@ export default function ManagerDoctor() {
 
   return (
     <div className="p-6">
-      <LoadingOverlay show={loading} message="Đang xử lý..." />
-
-      <h1 className="text-blue-500 text-xl font-semibold mb-4">
-        🩺 Quản lý Bác sĩ
+      {/* Header */}
+      <h1 className="text-2xl font-bold text-blue-700 mb-2">
+        Quản lý Bác sĩ
       </h1>
 
       {/* Form Thêm/Sửa */}
@@ -233,9 +221,8 @@ export default function ManagerDoctor() {
         <div className="col-span-2 text-right">
           <button
             type="submit"
-            className={`${
-              isEditing ? "bg-green-500" : "bg-blue-500"
-            } text-white px-4 py-2 rounded`}
+            className={`${isEditing ? "bg-green-500" : "bg-blue-500"
+              } text-white px-4 py-2 rounded`}
           >
             {isEditing ? "Cập nhật bác sĩ" : "Thêm bác sĩ mới"}
           </button>
@@ -278,41 +265,41 @@ export default function ManagerDoctor() {
       </div>
 
       {/* Danh sách */}
-      <table className="w-full border rounded-lg shadow">
-        <thead className="bg-blue-500 text-white">
+      <table className="w-full text-sm text-center text-gray-500">
+        <thead className="uppercase  text-white bg-blue-500">
           <tr>
-            <th className="p-2">Tên</th>
-            <th>Email</th>
-            <th>Chuyên khoa</th>
-            <th>Trạng thái</th>
-            <th>Hành động</th>
+            <th className="px-6 py-3">Tên</th>
+            <th className="px-6 py-3">Email</th>
+            <th className="px-6 py-3">Chuyên khoa</th>
+            <th className="px-6 py-3">Trạng thái</th>
+            <th className="px-6 py-3">Hành động</th>
           </tr>
         </thead>
         <tbody>
           {visibleDoctors.map((d) => (
-            <tr key={d.id} className="border text-center">
-              <td>{d.user?.name}</td>
-              <td>{d.user?.email}</td>
-              <td>{d.specialization?.name || "—"}</td>
-              <td>{d.status || "offline"}</td>
+            <tr key={d.id} className="odd:bg-white even:bg-gray-50 border-b">
+              <td className="px-6 py-4 font-medium text-gray-900">{d.user?.name}</td>
+              <td className="px-6 py-4">{d.user?.email}</td>
+              <td className="px-6 py-4">{d.specialization?.name || "—"}</td>
+              <td className="px-6 py-4">{d.status || "offline"}</td>
               <td className="space-x-2">
                 <button
                   onClick={() => openDetail(d)}
                   className="text-blue-600 hover:underline"
                 >
-                  Xem
+                  <GrView />
                 </button>
                 <button
                   onClick={() => handleEdit(d)}
                   className="text-green-600 hover:underline"
                 >
-                  Sửa
+                  <FaPencilAlt />
                 </button>
                 <button
                   onClick={() => setDeleteId(d.id)}
                   className="text-red-600 hover:underline"
                 >
-                  Xóa
+                  <FaTrashAlt />
                 </button>
               </td>
             </tr>

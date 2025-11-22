@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { toast } from "react-toastify";
 import { Upload, Trash2 } from "lucide-react";
 
 export default function PatientProfile() {
@@ -18,8 +19,7 @@ export default function PatientProfile() {
     };
 
     const handleSave = () => {
-        alert("Đã lưu thay đổi hồ sơ bệnh nhân!");
-        console.log(patient);
+        toast.success("Đã lưu thay đổi hồ sơ bệnh nhân!");
     };
 
     const handleUpload = (e) => {

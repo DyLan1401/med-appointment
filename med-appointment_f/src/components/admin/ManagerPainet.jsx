@@ -13,9 +13,10 @@ import {
   Info,
   Clock,
 } from "lucide-react";
+import { LuNotebookPen } from "react-icons/lu";
+import { FaTrashAlt, FaPencilAlt } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 
 export default function ManagerPatient() {
   const [patients, setPatients] = useState([]);
@@ -55,7 +56,6 @@ export default function ManagerPatient() {
       setLastPage(res.data.last_page);
       setNotFound(res.data.data.length === 0);
     } catch (error) {
-      console.error("Error fetching patients:", error);
       setNotFound(true);
       toast.error("❌ Lỗi khi tải danh sách bệnh nhân!");
     }
@@ -102,40 +102,37 @@ export default function ManagerPatient() {
       setShowForm(false);
       fetchPatients(page, search);
     } catch (error) {
-      console.error("Error saving patient:", error);
-      toast.error("❌ Có lỗi xảy ra khi lưu dữ liệu!");
+      toast.error(error.response?.data?.message || "❌ Có lỗi xảy ra khi lưu dữ liệu!");
     }
   };
 
   /* ----------------- 🧩 Xóa bệnh nhân ----------------- */
-const confirmDeleteAction = async () => {
-  if (!confirmDelete) return;
+  const confirmDeleteAction = async () => {
+    if (!confirmDelete) return;
 
-  try {
-    // Gửi yêu cầu xóa
-    const res = await axios.delete(`${API_URL}/${confirmDelete.id}`);
+    try {
+      // Gửi yêu cầu xóa
+      const res = await axios.delete(`${API_URL}/${confirmDelete.id}`);
 
-    // ✅ Nếu backend trả message => hiển thị
-    toast.success(res.data.message || "🗑️ Xóa bệnh nhân thành công!", {
-      position: "top-right",
-      autoClose: 2000,
-    });
+      // ✅ Nếu backend trả message => hiển thị
+      toast.success(res.data.message || "🗑️ Xóa bệnh nhân thành công!", {
+        position: "top-right",
+        autoClose: 2000,
+      });
 
-    // 🧹 Cập nhật danh sách mà không cần reload trang
-    setPatients((prev) => prev.filter((p) => p.id !== confirmDelete.id));
+      // 🧹 Cập nhật danh sách mà không cần reload trang
+      setPatients((prev) => prev.filter((p) => p.id !== confirmDelete.id));
 
-  } catch (error) {
-    console.error("Error deleting patient:", error);
+    } catch (error) {
+      const msg =
+        error.response?.data?.message ||
+        "❌ Không thể xóa bệnh nhân! Vui lòng thử lại.";
+      toast.error(msg, { position: "top-right", autoClose: 2500 });
+    }
 
-    const msg =
-      error.response?.data?.message ||
-      "❌ Không thể xóa bệnh nhân! Vui lòng thử lại.";
-    toast.error(msg, { position: "top-right", autoClose: 2500 });
-  }
-
-  // 🔒 Đóng popup
-  setConfirmDelete(null);
-};
+    // 🔒 Đóng popup
+    setConfirmDelete(null);
+  };
 
   /* ----------------- 🧩 Sửa bệnh nhân ----------------- */
   const handleEdit = (p) => {
@@ -185,8 +182,7 @@ const confirmDeleteAction = async () => {
       setNoteTitle("");
       setNoteContent("");
     } catch (error) {
-      console.error(error);
-      toast.error("❌ Gửi ghi chú thất bại!");
+      toast.error(error.response?.data?.message || "❌ Gửi ghi chú thất bại!");
     }
   };
 
@@ -198,7 +194,6 @@ const confirmDeleteAction = async () => {
         notes: res.data,
       }));
     } catch (err) {
-      console.error("Lỗi khi tải ghi chú:", err);
       toast.error("⚠️ Lỗi khi tải ghi chú!");
     }
   };
@@ -210,7 +205,6 @@ const confirmDeleteAction = async () => {
       toast.success("🗑️ Đã xóa ghi chú!");
       fetchNotes(selectedPatient.id);
     } catch (err) {
-      console.error(err);
       toast.error("❌ Lỗi khi xóa ghi chú!");
     }
   };
@@ -222,14 +216,29 @@ const confirmDeleteAction = async () => {
 
   /* =============================================================== */
   return (
-    <div className="w-full min-h-screen bg-gray-50 p-6">
-      <ToastContainer position="top-right" autoClose={2500} theme="colored" />
-
+    <div className=" p-6">
       {/* 🟦 Tiêu đề */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-blue-600 text-3xl font-bold flex items-center gap-2">
-          <Info size={30} /> Quản lý bệnh nhân
-        </h1>
+      <h1 className="text-2xl font-bold text-blue-700 mb-2">
+        Quản lý bệnh nhân
+      </h1>
+      {/* 🔍 Thanh tìm kiếm */}
+      <div className="flex justify-between items-center py-2">
+        <div className="flex justify-center items-center gap-2">
+          <input
+            type="search"
+            placeholder="Nhập tên bệnh nhân..."
+            className="border p-2 rounded-lg w-full bg-white shadow-sm"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+
+          <button
+            onClick={handleSearch}
+            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition shadow-md"
+          >
+            <Search size={24} />
+          </button>
+        </div>
         <button
           onClick={() => {
             setEditingId(null);
@@ -246,89 +255,70 @@ const confirmDeleteAction = async () => {
             });
             setShowForm(true);
           }}
-          className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-xl hover:bg-green-700 transition shadow-md"
+          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition shadow-md"
         >
-          <UserPlus size={18} /> Thêm bệnh nhân
-        </button>
-      </div>
-
-      {/* 🔍 Thanh tìm kiếm */}
-      <div className="flex items-center gap-2 mb-4">
-        <input
-          type="search"
-          placeholder="Nhập tên bệnh nhân..."
-          className="border p-2 rounded-lg w-1/3 bg-white shadow-sm"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <button
-          onClick={handleSearch}
-          className="flex items-center gap-1 bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 transition"
-        >
-          <Search size={18} /> Tìm kiếm
+          Thêm bệnh nhân
         </button>
       </div>
 
       {/* 📋 Bảng danh sách bệnh nhân */}
-      <div className="overflow-x-auto shadow-md rounded-lg bg-white">
-        <table className="w-full text-sm text-gray-700">
-          <thead className="uppercase text-white bg-blue-600">
+      <table className="w-full text-sm text-center text-gray-700">
+        <thead className="uppercase text-white bg-blue-600">
+          <tr>
+            <th className="px-4 py-3">ID</th>
+            <th className="px-4 py-3">Tên</th>
+            <th className="px-4 py-3">Email</th>
+            <th className="px-4 py-3">SĐT</th>
+            <th className="px-4 py-3">Giới tính</th>
+            <th className="px-4 py-3">Ngày sinh</th>
+            <th className="px-4 py-3">Địa chỉ</th>
+            <th className="px-4 py-3">Bảo hiểm</th>
+            <th className="px-4 py-3">Thao tác</th>
+          </tr>
+        </thead>
+        <tbody>
+          {notFound ? (
             <tr>
-              <th className="px-4 py-3">ID</th>
-              <th className="px-4 py-3">Tên</th>
-              <th className="px-4 py-3">Email</th>
-              <th className="px-4 py-3">SĐT</th>
-              <th className="px-4 py-3">Giới tính</th>
-              <th className="px-4 py-3">Ngày sinh</th>
-              <th className="px-4 py-3">Địa chỉ</th>
-              <th className="px-4 py-3">Bảo hiểm</th>
-              <th className="px-4 py-3">Thao tác</th>
+              <td colSpan="9" className="text-center py-6 text-gray-500">
+                Không tìm thấy
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {notFound ? (
-              <tr>
-                <td colSpan="9" className="text-center py-6 text-gray-500">
-                  Không tìm thấy
+          ) : (
+            patients.map((p) => (
+              <tr key={p.id} className="border-b hover:bg-gray-100 transition">
+                <td className="px-4 py-3">{p.id}</td>
+                <td className="px-4 py-3">{p.user.name}</td>
+                <td className="px-4 py-3">{p.user.email}</td>
+                <td className="px-4 py-3">{p.user.phone}</td>
+                <td className="px-4 py-3 capitalize">{p.gender || "-"}</td>
+                <td className="px-4 py-3">{p.date_of_birth || "-"}</td>
+                <td className="px-4 py-3">{p.address || "-"}</td>
+                <td className="px-4 py-3">{p.health_insurance || "-"}</td>
+                <td className="space-x-2">
+                  <button
+                    onClick={() => handleEdit(p)}
+                    className="text-green-600 hover:underline "
+                  >
+                    <FaPencilAlt />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(p)}
+                    className="text-red-600 hover:underline "
+                  >
+                    <FaTrashAlt />
+                  </button>
+                  <button
+                    onClick={() => handleSendNote(p)}
+                    className="text-yellow-600 hover:underline "
+                  >
+                    <LuNotebookPen />
+                  </button>
                 </td>
               </tr>
-            ) : (
-              patients.map((p) => (
-                <tr key={p.id} className="border-b hover:bg-gray-100 transition">
-                  <td className="px-4 py-3">{p.id}</td>
-                  <td className="px-4 py-3">{p.user.name}</td>
-                  <td className="px-4 py-3">{p.user.email}</td>
-                  <td className="px-4 py-3">{p.user.phone}</td>
-                  <td className="px-4 py-3 capitalize">{p.gender || "-"}</td>
-                  <td className="px-4 py-3">{p.date_of_birth || "-"}</td>
-                  <td className="px-4 py-3">{p.address || "-"}</td>
-                  <td className="px-4 py-3">{p.health_insurance || "-"}</td>
-                  <td className="px-4 py-3 space-x-3">
-                    <button
-                      onClick={() => handleEdit(p)}
-                      className="text-blue-600 hover:underline flex items-center gap-1"
-                    >
-                      <Edit size={16} /> Sửa
-                    </button>
-                    <button
-                      onClick={() => handleDelete(p)}
-                      className="text-red-600 hover:underline flex items-center gap-1"
-                    >
-                      <Trash2 size={16} /> Xóa
-                    </button>
-                    <button
-                      onClick={() => handleSendNote(p)}
-                      className="text-yellow-600 hover:underline flex items-center gap-1"
-                    >
-                      📋 Ghi chú
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+            ))
+          )}
+        </tbody>
+      </table>
 
       {/* 🧭 Phân trang */}
       <div className="flex justify-center mt-4 gap-4">
@@ -449,8 +439,8 @@ const confirmDeleteAction = async () => {
                 <button
                   type="submit"
                   className={`col-span-2 ${editingId
-                    ? "bg-blue-600 hover:bg-blue-700"
-                    : "bg-green-600 hover:bg-green-700"
+                    ? "bg-green-600 hover:bg-green-700"
+                    : "bg-blue-600 hover:bg-blue-700"
                     } text-white py-2 rounded-lg transition`}
                 >
                   {editingId ? "Lưu thay đổi" : "Thêm mới"}
@@ -581,7 +571,7 @@ const confirmDeleteAction = async () => {
                             onClick={() => handleDeleteNote(note.id)}
                             className="text-red-600 hover:underline flex items-center gap-1"
                           >
-                            <Trash2 size={16} /> Xóa
+                            <FaTrashAlt />
                           </button>
                         </div>
                       </li>

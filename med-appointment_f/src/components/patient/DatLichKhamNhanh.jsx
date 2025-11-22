@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import API from "../../api/axios";
+import { toast } from "react-toastify";
 import dt2 from "../../assets/dt2.jpg";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -17,7 +18,7 @@ export default function DatLichKhamNhanh() {
         e.preventDefault();
 
         if (!date || !time) {
-            alert("⚠️ Vui lòng chọn đầy đủ ngày và giờ tái khám!");
+            toast.warning("⚠️ Vui lòng chọn đầy đủ ngày và giờ tái khám!");
             return;
         }
 
@@ -38,21 +39,22 @@ export default function DatLichKhamNhanh() {
             );
 
             const appointmentId = res.data.appointment.id;
-            navigate(`/payment/options/${appointmentId}`);
-            // ✅ Hiển thị thông báo kết quả
-            alert(res.data.message);
-
+            toast.success(res.data.message || "Đặt lịch thành công!");
+            
             // Xoá dữ liệu form sau khi gửi
             setDate("");
             setTime("");
             setNote("");
 
+            setTimeout(() => {
+              navigate(`/payment/options/${appointmentId}`);
+            }, 1000);
+
         } catch (error) {
-            console.error("❌ Lỗi đặt lịch:", error);
             if (error.response?.data?.message) {
-                alert(error.response.data.message);
+                toast.error(error.response.data.message);
             } else {
-                alert("Đặt lịch thất bại, vui lòng thử lại!");
+                toast.error("Đặt lịch thất bại, vui lòng thử lại!");
             }
         }
     };

@@ -10,7 +10,6 @@ export default function Header1() {
     const loadBanners = async () => {
         try {
             const res = await API.get("/banners");
-            console.log("📦 Dữ liệu banner API:", res.data);
 
             // Nếu API trả về mảng hoặc phân trang thì đều xử lý được
             const data = Array.isArray(res.data)
@@ -23,7 +22,7 @@ export default function Header1() {
             setBanners(activeBanners);
             setLoading(false);
         } catch (err) {
-            console.error("❌ Lỗi khi tải banner:", err);
+            // Silent error - không cần thông báo
             setLoading(false);
         }
     };

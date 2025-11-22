@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-
+import { toast } from "react-toastify";
+import Navbar from "../../components/common/Navbar";
+import Footer from "../../components/common/Footer"
 export default function FormService() {
     const navigate = useNavigate();
     const [services, setServices] = useState([]);
@@ -18,7 +20,7 @@ export default function FormService() {
                     setServices(res.data.data);
                 }
             } catch (err) {
-                console.error("Lỗi khi lấy danh sách dịch vụ:", err);
+                toast.error("Không thể tải danh sách dịch vụ. Vui lòng thử lại sau!");
                 setError("Không thể tải danh sách dịch vụ. Vui lòng thử lại sau!");
             } finally {
                 setLoading(false);
@@ -30,7 +32,7 @@ export default function FormService() {
     // ✅ Khi nhấn nút "Tiếp tục"
     const handleContinue = () => {
         if (!selectedService) {
-            alert("⚠️ Vui lòng chọn 1 dịch vụ để đặt lịch khám!");
+            toast.warning("⚠️ Vui lòng chọn 1 dịch vụ để đặt lịch khám!");
             return;
         }
 
@@ -40,7 +42,10 @@ export default function FormService() {
     };
 
     return (
+
         <div className="w-full min-h-screen bg-gray-50">
+            <Navbar />
+
             <div className="w-full h-full flex justify-center items-center py-10">
                 <div className="w-[800px] h-auto flex flex-col shadow-2xl bg-white rounded-2xl overflow-hidden">
                     <div className="p-5 text-blue-500 w-full text-center text-3xl font-semibold">
@@ -62,11 +67,10 @@ export default function FormService() {
                                     <div
                                         key={service.id}
                                         onClick={() => setSelectedService(service)}
-                                        className={`cursor-pointer border rounded-lg p-4 transition-all duration-200 ${
-                                            selectedService?.id === service.id
-                                                ? "border-blue-500 bg-blue-50 shadow-md"
-                                                : "border-gray-300 hover:border-blue-400"
-                                        }`}
+                                        className={`cursor-pointer border rounded-lg p-4 transition-all duration-200 ${selectedService?.id === service.id
+                                            ? "border-blue-500 bg-blue-50 shadow-md"
+                                            : "border-gray-300 hover:border-blue-400"
+                                            }`}
                                     >
                                         <div className="flex justify-between items-center">
                                             <div>
@@ -97,6 +101,9 @@ export default function FormService() {
                     </div>
                 </div>
             </div>
+            <Footer />
+
         </div>
+
     );
 }

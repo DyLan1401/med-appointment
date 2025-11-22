@@ -49,9 +49,9 @@ export default function FormDashboard() {
     ];
 
     return (
-        <div className="p-6 bg-gray-50 min-h-screen">
+        <div className="p-6">
+            {/* --- Tiêu đề --- */}
             <h2 className="text-2xl font-bold text-blue-700 mb-2">Bảng Điều Khiển Tổng Quan</h2>
-            <p className="text-gray-600 mb-6">Dữ liệu được cập nhật từ hệ thống thực tế.</p>
 
             {/* --- Tổng quan --- */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">

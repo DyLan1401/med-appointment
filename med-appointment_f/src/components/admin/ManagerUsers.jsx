@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import axios from "axios";
 import {
   Search,
@@ -10,6 +11,7 @@ import {
   X,
   Image as ImageIcon,
 } from "lucide-react";
+import { FaTrashAlt, FaPencilAlt } from "react-icons/fa";
 
 export default function ManagerUsers() {
   const API_URL = "http://127.0.0.1:8000/api/users";
@@ -43,7 +45,7 @@ export default function ManagerUsers() {
       setLastPage(res.data.last_page);
       setNotFound(res.data.data.length === 0);
     } catch (error) {
-      console.error("Error fetching users:", error);
+      toast.error("Không thể tải danh sách người dùng. Vui lòng thử lại!");
       setNotFound(true);
     }
   };
@@ -91,7 +93,7 @@ export default function ManagerUsers() {
       resetForm();
       fetchUsers(page, search);
     } catch (error) {
-      console.error("Error saving user:", error);
+      toast.error(error.response?.data?.message || "Có lỗi xảy ra khi lưu người dùng! Vui lòng kiểm tra lại.");
       setMessage({
         type: "error",
         text:
@@ -171,125 +173,122 @@ export default function ManagerUsers() {
   return (
     <div className="w-full min-h-screen bg-gray-50 p-6">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-blue-600 text-3xl font-bold">Quản lý người dùng</h1>
-        <button
-          onClick={() => {
-            setEditingId(null);
-            resetForm();
-            setShowForm(true);
-          }}
-          className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-xl hover:bg-green-700 transition"
-        >
-          <UserPlus size={18} /> Thêm người dùng
-        </button>
-      </div>
+      <h1 className="text-2xl font-bold text-blue-700 mb-2">Quản lý người dùng</h1>
 
       {/* Thông báo */}
       {message && (
         <div
-          className={`mb-4 px-4 py-3 rounded-lg ${
-            message.type === "success"
-              ? "bg-green-100 text-green-700"
-              : "bg-red-100 text-red-700"
-          }`}
+          className={`mb-4 px-4 py-3 rounded-lg ${message.type === "success"
+            ? "bg-green-100 text-green-700"
+            : "bg-red-100 text-red-700"
+            }`}
         >
           {message.text}
         </div>
       )}
 
       {/* Tìm kiếm */}
-      <div className="flex items-center gap-2 mb-4">
-        <input
-          type="search"
-          placeholder="Nhập tên hoặc email người dùng..."
-          className="border p-2 rounded-lg w-1/3 bg-white shadow-sm"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+      <div className="flex justify-between items-center py-2">
+        <div className="flex justify-center items-center gap-2">
+          <input
+            type="search"
+            placeholder="Nhập tên hoặc email người dùng..."
+            className="border p-2 rounded-lg w-full bg-white shadow-sm"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <button
+            onClick={handleSearch}
+            className="flex items-center gap-1 bg-blue-600 text-white px-3 py-2 rounded hover:bg-blue-700 transition"
+          >
+            <Search size={24} />
+          </button>
+        </div>
         <button
-          onClick={handleSearch}
-          className="flex items-center gap-1 bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 transition"
+          onClick={() => {
+            setEditingId(null);
+            resetForm();
+            setShowForm(true);
+          }}
+          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
         >
-          <Search size={18} /> Tìm kiếm
+          Thêm người dùng
         </button>
       </div>
 
       {/* ✅ Bảng danh sách người dùng */}
-      <div className="overflow-x-auto shadow-md rounded-lg bg-white">
-        <table className="w-full text-sm text-gray-700">
-          <thead className="uppercase text-white bg-blue-600">
+      <table className="w-full text-sm text-center text-gray-700">
+        <thead className="uppercase text-white bg-blue-600">
+          <tr>
+            <th className="px-4 py-3">STT</th>
+            <th className="px-4 py-3">Ảnh</th>
+            <th className="px-4 py-3">Tên</th>
+            <th className="px-4 py-3">Email</th>
+            <th className="px-4 py-3">Vai trò</th>
+            <th className="px-4 py-3">SĐT</th>
+            <th className="px-4 py-3">BHYT</th>
+            <th className="px-4 py-3">Tạo</th>
+            <th className="px-4 py-3">Cập nhật</th>
+            <th className="px-4 py-3">Thao tác</th>
+          </tr>
+        </thead>
+        <tbody>
+          {notFound ? (
             <tr>
-              <th className="px-4 py-3">STT</th>
-              <th className="px-4 py-3">Ảnh</th>
-              <th className="px-4 py-3">Tên</th>
-              <th className="px-4 py-3">Email</th>
-              <th className="px-4 py-3">Vai trò</th>
-              <th className="px-4 py-3">SĐT</th>
-              <th className="px-4 py-3">BHYT</th>
-              <th className="px-4 py-3">Tạo</th>
-              <th className="px-4 py-3">Cập nhật</th>
-              <th className="px-4 py-3">Thao tác</th>
+              <td colSpan="10" className="text-center py-6 text-gray-500">
+                Không tìm thấy người dùng
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {notFound ? (
-              <tr>
-                <td colSpan="10" className="text-center py-6 text-gray-500">
-                  Không tìm thấy người dùng
+          ) : (
+            users.map((u, index) => (
+              <tr key={u.id} className="border-b hover:bg-gray-100">
+                <td className="text-center px-3 py-2 font-medium">
+                  {(page - 1) * 5 + index + 1}
                 </td>
-              </tr>
-            ) : (
-              users.map((u, index) => (
-                <tr key={u.id} className="border-b hover:bg-gray-100">
-                  <td className="text-center px-3 py-2 font-medium">
-                    {(page - 1) * 5 + index + 1}
-                  </td>
-                  <td className="px-3 py-2 text-center">
-                    <img
-                      src={u.avatar_url}
-                      alt={u.name}
-                      className="w-10 h-10 rounded-full mx-auto object-cover"
-                      onError={(e) => (e.target.src = "/images/default-avatar.png")}
-                    />
-                  </td>
-                  <td className="px-3 py-2">{u.name}</td>
-                  <td className="px-3 py-2">{u.email}</td>
-                  <td className="px-3 py-2 capitalize">
-                    {u.role === "admin"
-                      ? "Quản trị viên"
-                      : u.role === "doctor"
+                <td className="px-3 py-2 text-center">
+                  <img
+                    src={u.avatar_url}
+                    alt={u.name}
+                    className="w-10 h-10 rounded-full mx-auto object-cover"
+                    onError={(e) => (e.target.src = "/images/default-avatar.png")}
+                  />
+                </td>
+                <td className="px-3 py-2">{u.name}</td>
+                <td className="px-3 py-2">{u.email}</td>
+                <td className="px-3 py-2 capitalize">
+                  {u.role === "admin"
+                    ? "Quản trị viên"
+                    : u.role === "doctor"
                       ? "Bác sĩ"
                       : "Bệnh nhân"}
-                  </td>
-                  <td className="px-3 py-2">{u.phone || "-"}</td>
-                  <td className="px-3 py-2">{u.insurance_info || "-"}</td>
-                  <td className="px-3 py-2">
-                    {new Date(u.created_at).toLocaleDateString()}
-                  </td>
-                  <td className="px-3 py-2">
-                    {new Date(u.updated_at).toLocaleDateString()}
-                  </td>
-                  <td className="px-3 py-2 space-x-3">
-                    <button
-                      onClick={() => handleEdit(u)}
-                      className="text-blue-600 hover:underline flex items-center gap-1"
-                    >
-                      <Edit size={16} /> Sửa
-                    </button>
-                    <button
-                      onClick={() => handleDelete(u)}
-                      className="text-red-600 hover:underline flex items-center gap-1"
-                    >
-                      <Trash2 size={16} /> Xóa
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+                </td>
+                <td className="px-3 py-2">{u.phone || "-"}</td>
+                <td className="px-3 py-2">{u.insurance_info || "-"}</td>
+                <td className="px-3 py-2">
+                  {new Date(u.created_at).toLocaleDateString()}
+                </td>
+                <td className="px-3 py-2">
+                  {new Date(u.updated_at).toLocaleDateString()}
+                </td>
+                <td className=" space-x-3">
+                  <button
+                    onClick={() => handleEdit(u)}
+                    className="text-green-600 hover:underline "
+                  >
+                    <FaPencilAlt />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(u)}
+                    className="text-red-600 hover:underline "
+                  >
+                    <FaTrashAlt />
+                  </button>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
 
       {/* ✅ Phân trang */}
       <div className="flex justify-center mt-4 gap-4">
@@ -405,11 +404,10 @@ export default function ManagerUsers() {
 
               <button
                 type="submit"
-                className={`col-span-2 ${
-                  editingId
-                    ? "bg-blue-600 hover:bg-blue-700"
-                    : "bg-green-600 hover:bg-green-700"
-                } text-white py-2 rounded-lg transition`}
+                className={`col-span-2 ${editingId
+                  ? "bg-blue-600 hover:bg-blue-700"
+                  : "bg-green-600 hover:bg-green-700"
+                  } text-white py-2 rounded-lg transition`}
               >
                 {editingId ? "Lưu thay đổi" : "Thêm mới"}
               </button>

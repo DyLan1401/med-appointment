@@ -25,7 +25,7 @@ class UserSeeder extends Seeder
         ]);
 
         // 5 bác sĩ
-        for ($i = 1; $i <= 5; $i++) {
+        for ($i = 1; $i <= 50; $i++) {
             User::create([
                 'name' => fake()->name(),
                 'email' => fake()->unique()->safeEmail(),
@@ -39,7 +39,7 @@ class UserSeeder extends Seeder
 
 
         // 10 bệnh nhân (role = user)
-        for ($i = 1; $i <= 10; $i++) {
+        for ($i = 1; $i <= 50; $i++) {
             User::create([
                 'name' => fake()->name(),
                 'email' => fake()->unique()->safeEmail(),

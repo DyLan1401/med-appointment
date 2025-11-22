@@ -18,8 +18,7 @@
 
 
 import axios from "axios";
-
-
+import { toast } from "react-toastify";
 
 // ✅ Tạo một instance axios riêng biệt cho API
 const API = axios.create({
@@ -32,6 +31,7 @@ const API = axios.create({
   withCredentials: true, // ⚠️ Quan trọng nếu dùng Laravel Sanctum
 });
 
+
 // ✅ REQUEST INTERCEPTOR
 // (Tự động thêm token vào header Authorization trước khi gửi request)
 API.interceptors.request.use(
@@ -43,7 +43,6 @@ API.interceptors.request.use(
     return config;
   },
   (error) => {
-    console.error("🚫 Lỗi cấu hình request:", error);
     return Promise.reject(error);
   }
 );
@@ -54,7 +53,7 @@ API.interceptors.response.use(
   (response) => response, // ✅ Nếu thành công thì trả về luôn dữ liệu
   (error) => {
     if (!error.response) {
-      alert("⚠️ Không thể kết nối tới máy chủ. Vui lòng kiểm tra lại API URL!");
+      toast.error("⚠️ Không thể kết nối tới máy chủ. Vui lòng kiểm tra lại API URL!");
       return Promise.reject(error);
     }
 
@@ -63,38 +62,41 @@ API.interceptors.response.use(
     // ✅ Xử lý lỗi theo mã trạng thái HTTP
     switch (status) {
       case 400:
-        console.warn("⚠️ Dữ liệu gửi lên không hợp lệ:", data.message || "");
+        toast.warning(data.message || "⚠️ Dữ liệu gửi lên không hợp lệ!");
         break;
 
       case 401:
-        alert("🔐 Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
+        toast.warning("🔐 Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
         localStorage.removeItem("token");
         localStorage.removeItem("user");
-        window.location.href = "/login";
+        setTimeout(() => {
+          window.location.href = "/login";
+        }, 1500);
         break;
 
       case 403:
-        alert("🚫 Bạn không có quyền truy cập chức năng này!");
+        toast.error("🚫 Bạn không có quyền truy cập chức năng này!");
         break;
 
       case 404:
-        console.warn("❓ Không tìm thấy tài nguyên yêu cầu:", data.message || "");
+        toast.warning(data.message || "❓ Không tìm thấy tài nguyên yêu cầu!");
         break;
 
       case 419:
-        alert("⏳ Token CSRF đã hết hạn. Vui lòng tải lại trang!");
+        toast.warning("⏳ Token CSRF đã hết hạn. Vui lòng tải lại trang!");
         break;
 
       case 422:
-        console.warn("🧾 Lỗi xác thực dữ liệu:", data.errors || data.message);
+        const errorMsg = data.errors ? Object.values(data.errors)[0]?.[0] : data.message;
+        toast.error(errorMsg || "🧾 Lỗi xác thực dữ liệu!");
         break;
 
       case 500:
-        alert("💥 Lỗi máy chủ! Vui lòng thử lại sau.");
+        toast.error("💥 Lỗi máy chủ! Vui lòng thử lại sau.");
         break;
 
       default:
-        console.error("❗ Lỗi không xác định:", status, data);
+        toast.error(data.message || `❗ Lỗi không xác định (${status})`);
     }
 
     return Promise.reject(error);

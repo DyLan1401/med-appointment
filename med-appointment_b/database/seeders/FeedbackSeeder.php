@@ -34,7 +34,7 @@ class FeedbackSeeder extends Seeder
         ];
 
         foreach ($doctors as $doctor) {
-            for ($i = 0; $i < 5; $i++) {
+            for ($i = 0; $i < 50; $i++) {
                 $user = $users->random();
                 Feedback::create([
                     'doctor_id' => $doctor->id,

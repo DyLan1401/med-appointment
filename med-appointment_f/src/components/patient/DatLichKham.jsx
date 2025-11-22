@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 export default function DatLichKham() {
   const [doctorList, setDoctorList] = useState([]);
@@ -18,7 +19,9 @@ export default function DatLichKham() {
     axios
       .get("http://localhost:8000/api/doctors/list")
       .then((res) => setDoctorList(res.data))
-      .catch((err) => console.error("Lỗi khi tải bác sĩ:", err));
+      .catch((err) => {
+        toast.error("Không thể tải danh sách bác sĩ. Vui lòng thử lại!");
+      });
   }, []);
 
   // ✅ Lấy gói dịch vụ từ localStorage
@@ -27,7 +30,7 @@ export default function DatLichKham() {
     if (serviceData) {
       setSelectedService(JSON.parse(serviceData));
     } else {
-      alert("⚠️ Vui lòng chọn 1 gói dịch vụ trước khi đặt lịch!");
+      toast.warning("⚠️ Vui lòng chọn 1 gói dịch vụ trước khi đặt lịch!");
       navigate("/formservice");
     }
   }, [navigate]);
@@ -37,7 +40,7 @@ export default function DatLichKham() {
     e.preventDefault();
 
     if (!doctor || !date || !time) {
-      alert("Vui lòng nhập đủ thông tin!");
+      toast.warning("Vui lòng nhập đủ thông tin!");
       return;
     }
 
@@ -54,8 +57,6 @@ export default function DatLichKham() {
       total: selectedService?.price || 0,
       deposit: Math.round((selectedService?.price || 0) * 0.1),
     };
-    console.log("✅ appointment: ", newAppointment);
-    console.log("User ID từ localStorage:", user_id);
 
     try {
       const res = await axios.post("http://localhost:8000/api/appointments", {
@@ -67,15 +68,15 @@ export default function DatLichKham() {
         notes: note,
       });
 
-      console.log("📦 Response: ", res.data);
-
       const appointmentId = res.data.id;
+      toast.success("Đặt lịch thành công! Đang chuyển đến trang thanh toán...");
 
       // ✅ Chuyển đến trang chọn hình thức thanh toán
-      navigate(`/payment/options/${appointmentId}`);
+      setTimeout(() => {
+        navigate(`/payment/options/${appointmentId}`);
+      }, 1000);
     } catch (error) {
-      console.error("❌ Lỗi khi đặt lịch:", error);
-      alert("Có lỗi xảy ra khi đặt lịch, vui lòng thử lại!");
+      toast.error(error.response?.data?.message || "Có lỗi xảy ra khi đặt lịch, vui lòng thử lại!");
     }
   };
 

@@ -71,9 +71,23 @@ import PaymentSuccess from "./components/payment/paysuccess";
 import PaymentFailedV2 from "./components/payment/paycancel";
 import DepositPage from "./components/payment/DepositPage";
 import PayfullPage from "./components/payment/PayfullPage";
+import { ToastContainer } from "react-toastify";
+
 export default function App() {
   return (
     <>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
       <Routes>
         {/* 🌐 Trang chủ */}
         <Route

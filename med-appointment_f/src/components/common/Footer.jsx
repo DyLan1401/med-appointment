@@ -4,7 +4,7 @@ export default function Footer() {
 
 
     return (
-        <div className="w-full h-full">
+        <div className="w-full  h-full">
             <div className="w-full h-full p-5 flex justify-evenly  text-sm bg-green-950 text-white">
                 <div>
                     <div className="text-lg font-semibold py-2">Về chúng tôi

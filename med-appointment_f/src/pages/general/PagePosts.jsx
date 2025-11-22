@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/common/Navbar";
 import API from "../../api/axios";
 import avatar from "../../assets/avatar.jpg";
+import Footer from "../../components/common/Footer"
 
 export default function PostsPage() {
     const navigate = useNavigate();
@@ -190,6 +191,7 @@ export default function PostsPage() {
                     )}
                 </main>
             </div>
+            <Footer />
         </div>
     );
 }

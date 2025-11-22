@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import API from "../../api/axios";
+import { FaTrashAlt, FaPencilAlt } from "react-icons/fa";
 
 export default function ManagerBanners() {
     const [banners, setBanners] = useState([]);
@@ -64,6 +65,7 @@ export default function ManagerBanners() {
         }
     };
 
+    // ------------------- edit -------------------
     const handleEdit = (banner) => {
         setEditingId(banner.id);
         setForm({
@@ -75,6 +77,7 @@ export default function ManagerBanners() {
         });
     };
 
+    // ------------------- delete -------------------
     const handleDelete = async (id) => {
         if (window.confirm("Bạn có chắc muốn xóa banner này?")) {
             await deleteBanner(id);
@@ -88,37 +91,10 @@ export default function ManagerBanners() {
     );
 
     return (
-        <div className="p-6 bg-gray-50 min-h-screen">
-            {/* Header */}
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-blue-700">🖼️ Quản lý Banner</h2>
-                <button
-                    onClick={() => {
-                        setEditingId(null);
-                        setForm({ title: "", link: "", image: "", is_active: true });
-                    }}
-                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium"
-                >
-                    ➕ Thêm banner
-                </button>
-            </div>
+        <div className="p-6 ">
 
-            {/* Search bar */}
-            <div className="flex gap-3 mb-6">
-                <input
-                    type="text"
-                    placeholder="Nhập tiêu đề banner..."
-                    className="border border-gray-300 rounded-md px-3 py-2 w-1/3 focus:ring focus:ring-blue-200"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                />
-                <button
-                    onClick={loadBanners}
-                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md"
-                >
-                    🔍 Tìm kiếm
-                </button>
-            </div>
+            {/* Tiêu đề */}
+            <h2 className="text-2xl font-bold text-blue-700 mb-2"> Quản lý Banner</h2>
 
             {/* Form thêm / sửa banner */}
             <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-lg p-5 mb-6">
@@ -196,79 +172,94 @@ export default function ManagerBanners() {
                 </div>
             </form>
 
+
+            {/* Search bar */}
+            <div className="flex gap-3 mb-6">
+                <input
+                    type="text"
+                    placeholder="Nhập tiêu đề banner..."
+                    className="border border-gray-300 rounded-md px-3 py-2 w-1/3 focus:ring focus:ring-blue-200"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                />
+                <button
+                    onClick={loadBanners}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
+                >
+                    Tìm kiếm
+                </button>
+            </div>
             {/* Bảng danh sách banner */}
-            <div className="bg-white shadow-md rounded-lg overflow-hidden">
-                <table className="min-w-full text-sm text-gray-700">
-                    <thead>
-                        <tr className="bg-blue-600 text-white text-left">
-                            <th className="py-3 px-4 font-semibold">ID</th>
-                            <th className="py-3 px-4 font-semibold">Tiêu đề</th>
-                            <th className="py-3 px-4 font-semibold">Ảnh</th>
-                            <th className="py-3 px-4 font-semibold">Liên kết</th>
-                            <th className="py-3 px-4 font-semibold">Trạng thái</th>
-                            <th className="py-3 px-4 font-semibold text-center">Thao tác</th>
+            <table className="min-w-full text-sm text-center text-gray-700">
+                <thead>
+                    <tr className="bg-blue-600 text-white text-left">
+                        <th className="py-3 px-4 font-semibold">ID</th>
+                        <th className="py-3 px-4 font-semibold">Tiêu đề</th>
+                        <th className="py-3 px-4 font-semibold">Ảnh</th>
+                        <th className="py-3 px-4 font-semibold">Liên kết</th>
+                        <th className="py-3 px-4 font-semibold">Trạng thái</th>
+                        <th className="py-3 px-4 font-semibold text-center">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {filteredBanners.length === 0 ? (
+                        <tr>
+                            <td
+                                colSpan="6"
+                                className="text-center text-gray-500 py-5 italic"
+                            >
+                                Chưa có banner nào
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        {filteredBanners.length === 0 ? (
-                            <tr>
-                                <td
-                                    colSpan="6"
-                                    className="text-center text-gray-500 py-5 italic"
-                                >
-                                    Chưa có banner nào
+                    ) : (
+                        filteredBanners.map((b, index) => (
+                            <tr
+                                key={b.id}
+                                className={`border-b hover:bg-gray-50 ${index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                                    }`}
+                            >
+                                <td className="py-3 px-4">{b.id}</td>
+                                <td className="py-3 px-4 font-medium text-gray-800">
+                                    {b.title || "Không có tiêu đề"}
+                                </td>
+                                <td className="py-3 px-4">
+                                    {b.image ? (
+                                        <img
+                                            src={b.image}
+                                            alt={b.title}
+                                            className="w-16 h-16 object-cover rounded-md border"
+                                        />
+                                    ) : (
+                                        <span className="text-gray-400 italic">Không có ảnh</span>
+                                    )}
+                                </td>
+                                <td className="py-3 px-4 truncate max-w-xs">{b.link || "—"}</td>
+                                <td className="py-3 px-4">
+                                    {b.is_active ? (
+                                        <span className="text-green-600 font-medium">Hiển thị</span>
+                                    ) : (
+                                        <span className="text-gray-400 font-medium">Ẩn</span>
+                                    )}
+                                </td>
+                                <td className="py-3 px-4 text-center space-x-2">
+                                    <button
+                                        onClick={() => handleEdit(b)}
+                                        className="text-green-600 hover:underline"
+                                    >
+                                        <FaPencilAlt />
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(b.id)}
+                                        className="text-red-600 hover:underline"
+                                    >
+                                        <FaTrashAlt />
+                                    </button>
                                 </td>
                             </tr>
-                        ) : (
-                            filteredBanners.map((b, index) => (
-                                <tr
-                                    key={b.id}
-                                    className={`border-b hover:bg-gray-50 ${index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                                        }`}
-                                >
-                                    <td className="py-3 px-4">{b.id}</td>
-                                    <td className="py-3 px-4 font-medium text-gray-800">
-                                        {b.title || "Không có tiêu đề"}
-                                    </td>
-                                    <td className="py-3 px-4">
-                                        {b.image ? (
-                                            <img
-                                                src={b.image}
-                                                alt={b.title}
-                                                className="w-16 h-16 object-cover rounded-md border"
-                                            />
-                                        ) : (
-                                            <span className="text-gray-400 italic">Không có ảnh</span>
-                                        )}
-                                    </td>
-                                    <td className="py-3 px-4 truncate max-w-xs">{b.link || "—"}</td>
-                                    <td className="py-3 px-4">
-                                        {b.is_active ? (
-                                            <span className="text-green-600 font-medium">Hiển thị</span>
-                                        ) : (
-                                            <span className="text-gray-400 font-medium">Ẩn</span>
-                                        )}
-                                    </td>
-                                    <td className="py-3 px-4 text-center space-x-2">
-                                        <button
-                                            onClick={() => handleEdit(b)}
-                                            className="bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1 rounded-md text-sm"
-                                        >
-                                            Sửa
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(b.id)}
-                                            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm"
-                                        >
-                                            Xóa
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                        ))
+                    )}
+                </tbody>
+            </table>
 
             {/* Phân trang */}
             <div className="flex justify-center items-center gap-2 mt-6">
@@ -277,7 +268,7 @@ export default function ManagerBanners() {
                     disabled={pagination.current_page === 1}
                     className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded-md disabled:opacity-50"
                 >
-                    ◀ Trước
+                    Trước
                 </button>
 
                 <span className="text-gray-700 font-medium">
@@ -289,7 +280,7 @@ export default function ManagerBanners() {
                     disabled={pagination.current_page === pagination.last_page}
                     className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded-md disabled:opacity-50"
                 >
-                    Sau ▶
+                    Sau
                 </button>
             </div>
         </div>

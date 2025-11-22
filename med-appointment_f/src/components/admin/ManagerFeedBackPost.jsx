@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Star, Trash2, Edit3, Save, X } from "lucide-react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { FaTrashAlt, FaPencilAlt } from "react-icons/fa";
 
 export default function ManagerFeedBackPost() {
     const [feedbacks, setFeedbacks] = useState([]);
@@ -15,16 +16,23 @@ export default function ManagerFeedBackPost() {
             const res = await axios.get("http://127.0.0.1:8000/api/feedbacks", {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            setFeedbacks(res.data);
+
+            // Tự điều chỉnh tùy API
+            if (Array.isArray(res.data)) {
+                setFeedbacks(res.data);
+            } else if (Array.isArray(res.data.data)) {
+                setFeedbacks(res.data.data);
+            } else if (Array.isArray(res.data.feedbacks)) {
+                setFeedbacks(res.data.feedbacks);
+            } else {
+                setFeedbacks([]);
+            }
+
         } catch (err) {
-            console.error("Lỗi khi tải feedback:", err);
             toast.error("Không thể tải danh sách feedback!");
         }
     };
 
-    useEffect(() => {
-        fetchFeedbacks();
-    }, []);
 
     // ✏️ Bắt đầu sửa feedback
     const handleEdit = (fb) => {
@@ -45,7 +53,6 @@ export default function ManagerFeedBackPost() {
             setEditingContent("");
             fetchFeedbacks();
         } catch (err) {
-            console.error("Lỗi khi cập nhật feedback:", err);
             toast.error("Không thể cập nhật feedback!");
         }
     };
@@ -60,20 +67,18 @@ export default function ManagerFeedBackPost() {
             toast.success("Đã xóa feedback!");
             fetchFeedbacks();
         } catch (err) {
-            console.error("Lỗi khi xóa feedback:", err);
             toast.error("Không thể xóa feedback!");
         }
     };
 
     return (
-        <div className="max-w-3xl mx-auto bg-white shadow-md rounded-2xl p-6">
-            <h2 className="text-xl font-semibold text-blue-600 mb-2">
+        <div className=" p-6">
+            {/* Header */}
+            <h2 className="text-2xl font-bold text-blue-700 mb-2">
                 Quản lý Feedback Bài viết
             </h2>
-            <p className="text-gray-500 text-sm mb-6">
-                Xem, chỉnh sửa hoặc xóa phản hồi của bệnh nhân và bác sĩ.
-            </p>
 
+            {/* Feedback */}
             <div className="space-y-4">
                 {feedbacks.length === 0 ? (
                     <p className="text-gray-400 italic">Chưa có feedback nào.</p>
@@ -130,8 +135,8 @@ export default function ManagerFeedBackPost() {
                                     <span className="text-xs text-gray-400">
                                         {fb.created_at
                                             ? new Date(
-                                                  fb.created_at
-                                              ).toLocaleDateString("vi-VN")
+                                                fb.created_at
+                                            ).toLocaleDateString("vi-VN")
                                             : "Chưa rõ"}
                                     </span>
                                 </div>
@@ -144,13 +149,13 @@ export default function ManagerFeedBackPost() {
                                             onClick={() => handleEdit(fb)}
                                             className="text-blue-500 hover:underline text-sm flex items-center gap-1"
                                         >
-                                            <Edit3 className="w-4 h-4" /> Sửa
+                                            <FaPencilAlt />
                                         </button>
                                         <button
                                             onClick={() => handleDelete(fb.id)}
                                             className="text-red-500 hover:underline text-sm flex items-center gap-1"
                                         >
-                                            <Trash2 className="w-4 h-4" /> Xóa
+                                            <FaTrashAlt />
                                         </button>
                                     </>
                                 )}

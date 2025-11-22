@@ -9,7 +9,7 @@ class DepartmentSeeder extends Seeder
 {
     public function run(): void
     {
-      for ($i = 1; $i <= 20; $i++) {
+      for ($i = 1; $i <= 50; $i++) {
     Department::create([
         'name' => "Phòng Demo {$i}",
         'description' => "Mô tả phòng demo {$i}",

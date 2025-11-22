@@ -3,6 +3,7 @@
 // ===============================
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
 import { Loader2, Wallet, User, Stethoscope, Activity } from "lucide-react";
 import { useParams } from "react-router-dom";
 
@@ -22,7 +23,7 @@ export default function DepositPage() {
         const deposit = res.data.data.service.price * 0.2;
         setDepositAmount(deposit);
       } catch (error) {
-        console.error("Lỗi khi tải dữ liệu:", error);
+        toast.error("Không thể tải dữ liệu. Vui lòng thử lại!");
       }
     };
     fetchAppointment();
@@ -43,7 +44,7 @@ export default function DepositPage() {
       const resInvoice = await axios.post("http://localhost:8000/api/invoices", payload);
 
       if (!resInvoice.data?.data?.invoice?.id) {
-        alert("❌ Không lấy được ID hóa đơn!");
+        toast.error("❌ Không lấy được ID hóa đơn!");
         return;
       }
 
@@ -55,14 +56,16 @@ export default function DepositPage() {
       });
 
       if (resPayment.data?.success && resPayment.data?.checkoutUrl) {
+        toast.success("Đang chuyển đến trang thanh toán...");
         // 3️⃣ Chuyển hướng người dùng đến trang thanh toán
-        window.location.href = resPayment.data.checkoutUrl;
+        setTimeout(() => {
+          window.location.href = resPayment.data.checkoutUrl;
+        }, 1000);
       } else {
-        alert("❌ Không tạo được link thanh toán!");
+        toast.error("❌ Không tạo được link thanh toán!");
       }
     } catch (error) {
-      console.error(error);
-      alert("❌ Lỗi khi tạo hóa đơn hoặc thanh toán!");
+      toast.error(error.response?.data?.message || "❌ Lỗi khi tạo hóa đơn hoặc thanh toán!");
     } finally {
       setLoading(false);
     }

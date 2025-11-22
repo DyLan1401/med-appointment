@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, Bell, X } from "lucide-react";
 import axios from "axios";
+import { toast } from "react-toastify";
 import logo from "../../assets/logo.jpg";
 
 export default function Navbar() {
@@ -36,7 +37,7 @@ export default function Navbar() {
             if (doctor) setDoctorId(doctor.id);
           }
         } catch (error) {
-          console.error("Lỗi khi tải doctor_id:", error);
+          // Silent error - không cần thông báo
         }
       }
     };
@@ -46,9 +47,9 @@ export default function Navbar() {
   // Lấy thông tin user
   useEffect(() => {
     const loadUser = () => {
-    
+
       const storedUser = localStorage.getItem("user");
-   
+
       if (storedUser) setUser(JSON.parse(storedUser));
       else setUser(null);
     };
@@ -81,7 +82,7 @@ export default function Navbar() {
 
         setNotifications(mapped);
       } catch (err) {
-        console.error("Lỗi khi tải thông báo:", err);
+        // Silent error - không cần thông báo
       }
     };
 
@@ -107,9 +108,8 @@ export default function Navbar() {
     navigate(`/doctor?search=${encodeURIComponent(searchTerm.trim())}`);
     setSearchTerm("");
   };
-console.log("user in navbar:", user);
   return (
-    <div className="w-full bg-white shadow-md fixed top-0 left-0 z-50 animate-fadeIn">
+    <div className="w-full bg-white shadow-md top-0  sticky z-50 animate-fadeIn ">
       <div className="max-w-7xl mx-auto flex justify-between items-center px-6 py-3 font-semibold">
         {/* Logo */}
         <div
@@ -207,9 +207,8 @@ console.log("user in navbar:", user);
             >
               <span>{language}</span>
               <svg
-                className={`w-4 h-4 transition-transform duration-200 ${
-                  openLang ? "rotate-180" : ""
-                }`}
+                className={`w-4 h-4 transition-transform duration-200 ${openLang ? "rotate-180" : ""
+                  }`}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -280,11 +279,10 @@ console.log("user in navbar:", user);
                           setShowNotifications(false);
                           const user = JSON.parse(localStorage.getItem("user"));
                           if (user?.id) navigate(`/notifications/${user.id}`);
-                          else alert("Không tìm thấy thông tin bệnh nhân!");
+                          else toast.warning("Không tìm thấy thông tin bệnh nhân!");
                         }}
-                        className={`px-4 py-3 hover:bg-gray-50 border-b border-gray-100 cursor-pointer ${
-                          n.is_read ? "bg-gray-50" : "bg-blue-50"
-                        }`}
+                        className={`px-4 py-3 hover:bg-gray-50 border-b border-gray-100 cursor-pointer ${n.is_read ? "bg-gray-50" : "bg-blue-50"
+                          }`}
                       >
                         <p className="text-gray-800 font-medium">{n.title}</p>
                         <p className="text-gray-500 text-xs">{n.time}</p>
@@ -299,7 +297,7 @@ console.log("user in navbar:", user);
                       setShowNotifications(false);
                       const user = JSON.parse(localStorage.getItem("user"));
                       if (user?.id) navigate(`/notifications/${user.id}`);
-                      else alert("Không tìm thấy thông tin bệnh nhân!");
+                      else toast.warning("Không tìm thấy thông tin bệnh nhân!");
                     }}
                     className="text-blue-600 hover:underline text-sm"
                   >
@@ -334,7 +332,7 @@ console.log("user in navbar:", user);
                       setOpenUser(false);
                       const u = JSON.parse(localStorage.getItem("user"));
                       if (u?.id) navigate(`/notifications/${u.id}`);
-                      else alert("Không tìm thấy thông tin bệnh nhân!");
+                      else toast.warning("Không tìm thấy thông tin bệnh nhân!");
                     }}
                     className="block w-full px-4 py-2 hover:bg-gray-100 text-left text-blue-600"
                   >
@@ -406,6 +404,9 @@ console.log("user in navbar:", user);
           )}
         </div>
       </div>
+      <marquee behavior="scroll" direction="left" scrollamount="4" className="bg-amber-200 font-bold text-lg">
+        🌹Tận tâm chăm sóc, nhiệt tình lắng nghe🌹 - 🌹Chăm sóc tận tình, hết mình vì sức khỏe🌹 - 🌹Hãy từ bỏ thuốc lá trước khi quá muộn🌹
+      </marquee>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import API from "../../api/axios";
+import { FaTrashAlt, FaPencilAlt } from "react-icons/fa";
 
 export default function Posts() {
     const [posts, setPosts] = useState([]);
@@ -96,33 +97,9 @@ export default function Posts() {
     );
 
     return (
-        <div className="p-6 bg-gray-50 min-h-screen">
+        <div className="p-6 ">
             {/* Header */}
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-blue-700">📰 Quản lý bài viết</h2>
-                <button
-                    onClick={() => setEditingId(null)}
-                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium"
-                >
-                    ➕ Thêm bài viết
-                </button>
-            </div>
-
-            {/* Search bar */}
-            <div className="flex gap-3 mb-6">
-                <input
-                    type="text"
-                    placeholder="Nhập tiêu đề bài viết..."
-                    className="border border-gray-300 rounded-md px-3 py-2 w-1/3 focus:ring focus:ring-blue-200"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                />
-                <button
-                    onClick={loadPosts}
-                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md">
-                    🔍 Tìm kiếm
-                </button>
-            </div>
+            <h2 className="text-2xl font-bold text-blue-700 mb-2"> Quản lý bài viết</h2>
 
             {/* Form thêm / sửa bài viết */}
             <form
@@ -199,7 +176,7 @@ export default function Posts() {
                     <button
                         type="submit"
                         className={`px-6 py-2 rounded-md text-white font-medium ${editingId
-                            ? "bg-yellow-500 hover:bg-yellow-600"
+                            ? "bg-green-500 hover:bg-green-600"
                             : "bg-blue-600 hover:bg-blue-700"
                             }`}
                     >
@@ -208,77 +185,91 @@ export default function Posts() {
                 </div>
             </form>
 
+            {/* Search bar */}
+            <div className="flex gap-3 mb-6">
+                <input
+                    type="text"
+                    placeholder="Nhập tiêu đề bài viết..."
+                    className="border border-gray-300 rounded-md px-3 py-2 w-1/3 focus:ring focus:ring-blue-200"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                />
+                <button
+                    onClick={loadPosts}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+                    🔍 Tìm kiếm
+                </button>
+            </div>
+
             {/* Bảng danh sách bài viết */}
-            <div className="bg-white shadow-md rounded-lg overflow-hidden">
-                <table className="min-w-full text-sm text-gray-700">
-                    <thead>
-                        <tr className="bg-blue-600 text-white text-left">
-                            <th className="py-3 px-4 font-semibold">ID</th>
-                            <th className="py-3 px-4 font-semibold">Tiêu đề</th>
-                            <th className="py-3 px-4 font-semibold">Danh mục</th>
-                            <th className="py-3 px-4 font-semibold">Hình ảnh</th>
-                            <th className="py-3 px-4 font-semibold">Nội dung</th>
-                            <th className="py-3 px-4 font-semibold text-center">Thao tác</th>
+            <table className="min-w-full text-center text-sm text-gray-700">
+                <thead>
+                    <tr className="bg-blue-600 text-white ">
+                        <th className="py-3 px-4 font-semibold">ID</th>
+                        <th className="py-3 px-4 font-semibold">Tiêu đề</th>
+                        <th className="py-3 px-4 font-semibold">Danh mục</th>
+                        <th className="py-3 px-4 font-semibold">Hình ảnh</th>
+                        <th className="py-3 px-4 font-semibold">Nội dung</th>
+                        <th className="py-3 px-4 font-semibold text-center">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {filteredPosts.length === 0 ? (
+                        <tr>
+                            <td colSpan="6" className="text-center text-gray-500 py-5 italic">
+                                Chưa có bài viết nào
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        {filteredPosts.length === 0 ? (
-                            <tr>
-                                <td colSpan="6" className="text-center text-gray-500 py-5 italic">
-                                    Chưa có bài viết nào
+                    ) : (
+                        filteredPosts.map((p, index) => (
+                            <tr
+                                key={p.id}
+                                className={`border-b hover:bg-gray-50 ${index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                                    }`}
+                            >
+                                <td className="py-3 px-4">{p.id}</td>
+                                <td className="py-3 px-4 font-medium text-gray-800">
+                                    {p.title}
+                                </td>
+                                <td className="py-3 px-4">{p.category?.name || "Không có"}</td>
+                                <td className="py-3 px-4">
+                                    {p.image ? (
+                                        <img
+                                            src={p.image}
+                                            alt={p.title}
+                                            className="w-16 h-16 object-cover rounded-md border"
+                                        />
+                                    ) : (
+                                        <span className="text-gray-400 italic">Không có ảnh</span>
+                                    )}
+                                </td>
+                                <td className="py-3 px-4 max-w-xs truncate">{p.content}</td>
+                                <td className="py-3 px-4 text-center space-x-2">
+                                    <button
+                                        onClick={() => handleEdit(p)}
+                                        className=" text-green-500 hover:underline "
+                                    >
+                                        <FaPencilAlt />
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(p.id)}
+                                        className=" text-red-600 hover:underline "
+                                    >
+                                        <FaTrashAlt />
+                                    </button>
                                 </td>
                             </tr>
-                        ) : (
-                            filteredPosts.map((p, index) => (
-                                <tr
-                                    key={p.id}
-                                    className={`border-b hover:bg-gray-50 ${index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                                        }`}
-                                >
-                                    <td className="py-3 px-4">{p.id}</td>
-                                    <td className="py-3 px-4 font-medium text-gray-800">
-                                        {p.title}
-                                    </td>
-                                    <td className="py-3 px-4">{p.category?.name || "Không có"}</td>
-                                    <td className="py-3 px-4">
-                                        {p.image ? (
-                                            <img
-                                                src={p.image}
-                                                alt={p.title}
-                                                className="w-16 h-16 object-cover rounded-md border"
-                                            />
-                                        ) : (
-                                            <span className="text-gray-400 italic">Không có ảnh</span>
-                                        )}
-                                    </td>
-                                    <td className="py-3 px-4 max-w-xs truncate">{p.content}</td>
-                                    <td className="py-3 px-4 text-center space-x-2">
-                                        <button
-                                            onClick={() => handleEdit(p)}
-                                            className="bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1 rounded-md text-sm"
-                                        >
-                                            Sửa
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(p.id)}
-                                            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm"
-                                        >
-                                            Xóa
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                        ))
+                    )}
+                </tbody>
+            </table>
             <div className="flex justify-center items-center gap-2 mt-6">
                 <button
                     onClick={() => loadCategories(pagination.current_page - 1)}
                     disabled={pagination.current_page === 1}
                     className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded-md disabled:opacity-50"
                 >
-                    ◀ Trước
+                    Trước
                 </button>
 
                 <span className="text-gray-700 font-medium">
@@ -290,9 +281,9 @@ export default function Posts() {
                     disabled={pagination.current_page === pagination.last_page}
                     className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded-md disabled:opacity-50"
                 >
-                    Sau ▶
+                    Sau
                 </button>
             </div>
-        </div>
+        </div >
     );
 }

@@ -18,7 +18,7 @@ class PostSeeder extends Seeder
         $categoryIds = CategoryPost::pluck('id')->toArray();
 
         // Sinh 1000 bài viết mẫu
-        for ($i = 1; $i <= 10; $i++) {
+        for ($i = 1; $i <= 50; $i++) {
             $imageUrl = "https://picsum.photos/seed/post{$i}/600/400";
 
             Post::create([

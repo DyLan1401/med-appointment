@@ -2,9 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../../api/axios";
 
-// ✅ Thêm import react-toastify
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 
 function FormLogin() {
   const navigate = useNavigate();
@@ -30,7 +28,7 @@ function FormLogin() {
 
           navigate("/");
         } catch (err) {
-          console.error("Lỗi khi lấy thông tin user:", err);
+          toast.error("Lỗi khi lấy thông tin user. Vui lòng thử lại!");
         }
       })();
     }
@@ -63,8 +61,7 @@ function FormLogin() {
       localStorage.setItem("user_id", user?.id || "");
       localStorage.setItem("user_name", user?.name || "Người dùng ẩn danh");
 
-      alert("Đăng nhập thành công!");
-      navigate("/"); // chuyển trang chính      // ✅ Hiển thị thông báo thành công
+      // ✅ Hiển thị thông báo thành công
       toast.success("🎉 Đăng nhập thành công!", {
         position: "top-center",
         autoClose: 1500,
@@ -82,8 +79,6 @@ function FormLogin() {
       }, 1500);
 
     } catch (error) {
-      console.error("❌ Lỗi đăng nhập:", error);
-
       // ✅ Hiển thị thông báo lỗi
       toast.error(
         error.response?.data?.message ||
@@ -108,7 +103,7 @@ function FormLogin() {
   return (
     <div className="w-full h-screen flex justify-center items-center">
       <div className="rounded-lg w-[400px] h-[550px] font-semibold shadow-2xl bg-white px-10 flex flex-col justify-center space-y-5">
-        <h1 className="text-blue-300 text-3xl font-bold text-center py-2">
+        <h1 className="text-blue-500 text-3xl font-bold text-center py-2">
           Đăng nhập
         </h1>
 
@@ -186,9 +181,6 @@ function FormLogin() {
           <button onClick={() => navigate("/register")}>Đăng ký ngay</button>
         </div>
       </div>
-
-      {/* ✅ Thêm container hiển thị toast */}
-      <ToastContainer />
     </div>
   );
 }

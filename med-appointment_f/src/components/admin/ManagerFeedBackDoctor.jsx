@@ -53,36 +53,33 @@ export default function ManagerFeedBackDoctor() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto bg-white shadow-md rounded-2xl p-6">
-      <div className="flex justify-between items-center mb-4">
-        <div>
-          <h2 className="text-xl font-semibold text-blue-600">
-            Quản lý Feedback bác sĩ
-          </h2>
-          <p className="text-gray-500 text-sm">
-            Tổng quan về phản hồi từ bệnh nhân dành cho các bác sĩ.
-          </p>
-        </div>
+    <div className=" p-6">
+      {/* Header */}
 
-        {/* Bộ lọc rating */}
-        <div className="flex items-center gap-2">
-          <label htmlFor="rating" className="text-sm text-gray-600">
-            Lọc theo rating:
-          </label>
-          <select
-            id="rating"
-            value={ratingFilter}
-            onChange={handleRatingChange}
-            className="border rounded-md px-2 py-1 text-sm"
-          >
-            <option value="">Tất cả</option>
-            <option value="5">5 sao</option>
-            <option value="4">4 sao</option>
-            <option value="3">3 sao</option>
-            <option value="2">2 sao</option>
-            <option value="1">1 sao</option>
-          </select>
-        </div>
+      <h2 className="text-2xl font-bold text-blue-700 mb-2">
+        Quản lý Feedback bác sĩ
+      </h2>
+
+
+
+      {/* Bộ lọc rating */}
+      <div className="flex items-center gap-2">
+        <label htmlFor="rating" className="text-sm text-gray-600">
+          Lọc theo rating:
+        </label>
+        <select
+          id="rating"
+          value={ratingFilter}
+          onChange={handleRatingChange}
+          className="border rounded-md px-2 py-1 text-sm"
+        >
+          <option value="">Tất cả</option>
+          <option value="5">5 sao</option>
+          <option value="4">4 sao</option>
+          <option value="3">3 sao</option>
+          <option value="2">2 sao</option>
+          <option value="1">1 sao</option>
+        </select>
       </div>
 
       {feedbacks.length === 0 ? (
@@ -118,11 +115,10 @@ export default function ManagerFeedBackDoctor() {
                     {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
-                        className={`w-4 h-4 ${
-                          i < fb.rating
-                            ? "text-yellow-400 fill-yellow-400"
-                            : "text-gray-300"
-                        }`}
+                        className={`w-4 h-4 ${i < fb.rating
+                          ? "text-yellow-400 fill-yellow-400"
+                          : "text-gray-300"
+                          }`}
                       />
                     ))}
                   </div>
@@ -145,11 +141,10 @@ export default function ManagerFeedBackDoctor() {
             <button
               key={page}
               onClick={() => handlePageChange(page)}
-              className={`px-3 py-1 text-sm rounded-md border ${
-                pagination.current_page === page
-                  ? "bg-blue-600 text-white"
-                  : "bg-white text-blue-600 border-blue-300 hover:bg-blue-50"
-              }`}
+              className={`px-3 py-1 text-sm rounded-md border ${pagination.current_page === page
+                ? "bg-blue-600 text-white"
+                : "bg-white text-blue-600 border-blue-300 hover:bg-blue-50"
+                }`}
             >
               {page}
             </button>

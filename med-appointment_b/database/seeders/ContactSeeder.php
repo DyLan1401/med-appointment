@@ -12,7 +12,7 @@ class ContactSeeder extends Seeder
     {
         $faker = Faker::create('vi_VN'); 
 
-        for ($i = 1; $i <= 10; $i++) {
+        for ($i = 1; $i <= 50; $i++) {
             DB::table('contacts')->insert([
                 'name'       => $faker->name(),
                 'email'      => $faker->unique()->safeEmail(),

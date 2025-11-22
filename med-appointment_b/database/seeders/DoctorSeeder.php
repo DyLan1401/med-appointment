@@ -13,7 +13,7 @@ class DoctorSeeder extends Seeder
     {
         $faker = Faker::create();
 
-        for ($i = 1; $i <= 30; $i++) {
+        for ($i = 1; $i <= 50; $i++) {
 
             // Tạo user
             $userId = DB::table('users')->insertGetId([
@@ -33,7 +33,7 @@ class DoctorSeeder extends Seeder
                 'user_id' => $userId,
                 'specialization_id' => $faker->randomElement([1, 2, 3, 4, 5]),
                 'status' => 'active',
-                'bio' => $faker->sentence(8),
+                'bio' => $faker->sentence(10),
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);

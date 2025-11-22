@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { toast } from "react-toastify";
 import { Mail, FileText, CheckCircle, XCircle } from "lucide-react";
 
 export default function SendInvoice() {
@@ -11,7 +12,7 @@ export default function SendInvoice() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        alert("✅ Gửi email hóa đơn thành công!");
+        toast.success("✅ Gửi email hóa đơn thành công!");
     };
 
     return (

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
 import { Bell, CheckCircle, Clock } from "lucide-react";
 import { motion } from "framer-motion";
 import { useParams } from "react-router-dom"; // 🧩 Thêm dòng này
@@ -30,7 +31,7 @@ export default function PagePatientNotifications() {
         setLoading(false);
       })
       .catch((err) => {
-        console.error("Lỗi khi tải thông báo:", err);
+        toast.error("Không thể tải thông báo. Vui lòng thử lại!");
         setLoading(false);
       });
   }, [patientId]);
@@ -42,8 +43,9 @@ export default function PagePatientNotifications() {
       setNotes((prev) =>
         prev.map((n) => (n.id === noteId ? { ...n, is_read: true } : n))
       );
+      toast.success("Đã đánh dấu đã đọc!");
     } catch (err) {
-      console.error("Lỗi đánh dấu đã đọc:", err);
+      toast.error("Không thể đánh dấu đã đọc. Vui lòng thử lại!");
     }
   };
 

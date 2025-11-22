@@ -96,6 +96,7 @@
 //     );
 // }
 import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import axios from "../../api/axios";
 
 export default function InvoicePayment() {
@@ -125,7 +126,7 @@ export default function InvoicePayment() {
     };
     const handleDownload = async (invoiceId, status) => {
         if (status !== "paid") {
-            alert("❌ Chỉ có thể tải hóa đơn đã thanh toán!");
+            toast.warning("❌ Chỉ có thể tải hóa đơn đã thanh toán!");
             return;
         }
 
@@ -149,14 +150,14 @@ export default function InvoicePayment() {
 
             // Dọn dẹp URL
             window.URL.revokeObjectURL(url);
+            toast.success("Đã tải hóa đơn thành công!");
         } catch (error) {
-            console.error("❌ Lỗi tải hóa đơn:", error);
             if (error.response?.status === 403) {
-                alert("⚠️ Hóa đơn chưa thanh toán, không thể tải!");
+                toast.warning("⚠️ Hóa đơn chưa thanh toán, không thể tải!");
             } else if (error.response?.status === 404) {
-                alert("⚠️ Không tìm thấy hóa đơn!");
+                toast.error("⚠️ Không tìm thấy hóa đơn!");
             } else {
-                alert("Đã xảy ra lỗi khi tải hóa đơn!");
+                toast.error("Đã xảy ra lỗi khi tải hóa đơn!");
             }
         }
     };
@@ -170,121 +171,111 @@ export default function InvoicePayment() {
     if (error) return <p className="text-center text-red-600 mt-10">Lỗi: {error}</p>;
 
     return (
-        <>
-            <div className="min-h-screen bg-gray-50 p-4">
 
-                <div className="w-full h-full  flex flex-col p-3">
-                    <h1 className="text-blue-500 text-xl font-semibold py-5">Quản lí Hóa đơn</h1>
-                    <div className="py-5">Đây là danh sách hóa đơn của bạn. Vui lòng xem và có thể tải xuống khi cần.</div>
-                    <div className="flex justify-between items-center py-2">
-                        <form class="max-w-md ">
-                            <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                                    <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
-                                    </svg>
-                                </div>
-                                <input type="search" id="default-search" class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-200" placeholder="Tìm kiếm Hóa đơn" />
-                            </div>
-                        </form>
+        <div className=" p-6">
+            {/* Header */}
 
-                    </div>
+            <h1 className="text-2xl font-bold text-blue-700 mb-2">Quản lí Hóa đơn</h1>
 
-
-                    <div className="bg-white rounded-2xl shadow-md w-full max-w-4xl mx-auto p-6">
-                        <h2 className="text-2xl font-bold text-blue-600 mb-4">Danh sách hóa đơn</h2>
-
-                        {/* Bảng giữ nguyên giao diện cũ */}
-                        <table className="w-full border-collapse border border-gray-200 text-sm">
-                            <thead className="bg-gray-100">
-                                <tr>
-                                    <th className="border p-2">#</th>
-                                    <th className="border p-2">Bệnh nhân</th>
-                                    <th className="border p-2">Bác sĩ</th>
-                                    <th className="border p-2">Số tiền</th>
-                                    <th className="border p-2">Loại</th>
-                                    <th className="border p-2">Trạng thái</th>
-                                    <th className="border p-2">Ngày tạo</th>
-                                    <th className="border p-2">Tải hóa đơn</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {invoices.map((invoice, index) => (
-                                    <tr key={invoice.id} className="text-center hover:bg-gray-50">
-                                        <td className="border p-2">{index + 1}</td>
-                                        <td className="border p-2">{invoice.patient_name}</td>
-                                        <td className="border p-2">{invoice.doctor_name}</td>
-                                        <td className="border p-2 text-right pr-4">
-                                            {parseFloat(invoice.amount).toLocaleString()}đ
-                                        </td>
-                                        <td className="border p-2">{invoice.type}</td>
-                                        <td
-                                            className={`border p-2 font-semibold ${invoice.status === "paid"
-                                                ? "text-green-600"
-                                                : "text-red-600"
-                                                }`}
-                                        >
-                                            {invoice.status}
-                                        </td>
-                                        <td className="border p-2">
-                                            {new Date(invoice.created_at).toLocaleDateString()}
-                                        </td>
-                                        <td className="border p-2">
-                                            <button
-                                                onClick={() => handleDownload(invoice.id, invoice.status)}
-                                                disabled={invoice.status !== "paid"}
-                                                className={`px-3 py-1 rounded text-white font-medium transition ${invoice.status === "paid"
-                                                    ? "bg-blue-600 hover:bg-blue-700"
-                                                    : "bg-gray-400 cursor-not-allowed"
-                                                    }`}
-                                            >
-                                                ⬇ Tải Hóa Đơn
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-
-                        {/* Phân trang (thêm vào, không đổi style cũ) */}
-                        <div className="flex justify-center gap-3 mt-4">
-                            <button
-                                onClick={() =>
-                                    setPagination((p) => ({
-                                        ...p,
-                                        current_page: p.current_page - 1,
-                                    }))
-                                }
-                                disabled={pagination.current_page <= 1}
-                                className="bg-gray-300 px-3 py-1 rounded disabled:opacity-50"
-                            >
-                                ◀ Trước
-                            </button>
-                            <span>
-                                Trang {pagination.current_page} / {pagination.last_page}
-                            </span>
-                            <button
-                                onClick={() =>
-                                    setPagination((p) => ({
-                                        ...p,
-                                        current_page: p.current_page + 1,
-                                    }))
-                                }
-                                disabled={pagination.current_page >= pagination.last_page}
-                                className="bg-gray-300 px-3 py-1 rounded disabled:opacity-50"
-                            >
-                                Sau ▶
-                            </button>
+            {/* Thanh tìm kiếm */}
+            <div className="flex justify-between items-center py-2">
+                <form class="max-w-md ">
+                    <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                            <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                            </svg>
                         </div>
+                        <input type="search" id="default-search" class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-200" placeholder="Tìm kiếm Hóa đơn" />
                     </div>
-                </div>
+                </form>
 
             </div>
 
+            {/* Bảng giữ nguyên giao diện cũ */}
+            <table className="w-full text-sm text-center text-gray-700">
+                <thead className="bg-gray-100">
+                    <tr>
+                        <th className="border p-2">#</th>
+                        <th className="border p-2">Bệnh nhân</th>
+                        <th className="border p-2">Bác sĩ</th>
+                        <th className="border p-2">Số tiền</th>
+                        <th className="border p-2">Loại</th>
+                        <th className="border p-2">Trạng thái</th>
+                        <th className="border p-2">Ngày tạo</th>
+                        <th className="border p-2">Tải hóa đơn</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {invoices.map((invoice, index) => (
+                        <tr key={invoice.id} className=" hover:bg-gray-50">
+                            <td className="border p-2">{index + 1}</td>
+                            <td className="border p-2">{invoice.patient_name}</td>
+                            <td className="border p-2">{invoice.doctor_name}</td>
+                            <td className="border p-2 text-right pr-4">
+                                {parseFloat(invoice.amount).toLocaleString()}đ
+                            </td>
+                            <td className="border p-2">{invoice.type}</td>
+                            <td
+                                className={`border p-2 font-semibold ${invoice.status === "paid"
+                                    ? "text-green-600"
+                                    : "text-red-600"
+                                    }`}
+                            >
+                                {invoice.status}
+                            </td>
+                            <td className="border p-2">
+                                {new Date(invoice.created_at).toLocaleDateString()}
+                            </td>
+                            <td className="border p-2">
+                                <button
+                                    onClick={() => handleDownload(invoice.id, invoice.status)}
+                                    disabled={invoice.status !== "paid"}
+                                    className={`px-3 py-1 rounded text-white font-medium transition ${invoice.status === "paid"
+                                        ? "bg-blue-600 hover:bg-blue-700"
+                                        : "bg-gray-400 cursor-not-allowed"
+                                        }`}
+                                >
+                                    ⬇ Tải Hóa Đơn
+                                </button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
 
-
-        </>
+            {/* Phân trang (thêm vào, không đổi style cũ) */}
+            <div className="flex justify-center gap-3 mt-4">
+                <button
+                    onClick={() =>
+                        setPagination((p) => ({
+                            ...p,
+                            current_page: p.current_page - 1,
+                        }))
+                    }
+                    disabled={pagination.current_page <= 1}
+                    className="bg-gray-300 px-3 py-1 rounded disabled:opacity-50"
+                >
+                    Trước
+                </button>
+                <span>
+                    Trang {pagination.current_page} / {pagination.last_page}
+                </span>
+                <button
+                    onClick={() =>
+                        setPagination((p) => ({
+                            ...p,
+                            current_page: p.current_page + 1,
+                        }))
+                    }
+                    disabled={pagination.current_page >= pagination.last_page}
+                    className="bg-gray-300 px-3 py-1 rounded disabled:opacity-50"
+                >
+                    Sau
+                </button>
+            </div>
+        </div>
 
     );
 }

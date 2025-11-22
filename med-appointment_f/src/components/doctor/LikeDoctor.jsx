@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import API from "../../api/axios";
 import avatarDefault from "../../assets/avatar.jpg";
 
@@ -35,42 +36,34 @@ export default function LikeDoctor() {
   const fetchFavorites = async () => {
     setLoading(true);
     try {
-      console.log("🔄 Gửi request lấy danh sách yêu thích...");
-
       if (userId && token) {
         const res = await API.get(`/favorites/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        console.log("✅ Phản hồi từ server:", res.data);
         const serverFavs = res.data?.data || res.data || [];
 
         if (serverFavs.length > 0) {
           setFavorites(serverFavs);
         } else {
           const localFavs = JSON.parse(localStorage.getItem("favorites")) || [];
-          console.warn("⚠️ Server không có data, dùng localStorage:", localFavs);
           setFavorites(localFavs);
         }
       } else {
         // 🧩 fallback khi chưa đăng nhập
         const localFavs = JSON.parse(localStorage.getItem("favorites")) || [];
-        console.warn("⚠️ Không có token hoặc userId, dùng localStorage:", localFavs);
         setFavorites(localFavs);
       }
     } catch (err) {
-      console.error("❌ Lỗi khi tải danh sách yêu thích:", err);
-      console.error("🧩 Chi tiết lỗi:", err.response?.data || err.message);
-
       if (err.response?.status === 401) {
-        alert("🔐 Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
+        toast.warning("🔐 Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
         localStorage.removeItem("token");
         localStorage.removeItem("user");
         window.location.href = "/login";
         return;
       }
 
-      alert("⚠️ Không thể tải danh sách bác sĩ yêu thích!");
+      toast.error("⚠️ Không thể tải danh sách bác sĩ yêu thích!");
     } finally {
       setLoading(false);
     }
@@ -84,14 +77,10 @@ export default function LikeDoctor() {
       return;
 
     try {
-      console.log("🗑️ Gửi request xóa bác sĩ yêu thích:", doctorId);
-
       if (userId && token) {
         const res = await API.delete(`/favorites/${doctorId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-
-        console.log("✅ Phản hồi khi xóa:", res.data);
 
         // ✅ Cập nhật lại danh sách local sau khi xóa
         setFavorites((prev) =>
@@ -107,15 +96,12 @@ export default function LikeDoctor() {
         setFavorites(updated);
       }
 
-      alert("❌ Đã xóa khỏi danh sách yêu thích!");
+      toast.success("❌ Đã xóa khỏi danh sách yêu thích!");
       // 🔔 Cập nhật đồng bộ với các component khác
       window.dispatchEvent(new Event("favoriteUpdated"));
     } catch (err) {
-      console.error("❌ Lỗi khi xóa bác sĩ:", err);
-      console.error("🧩 Chi tiết lỗi:", err.response?.data || err.message);
-
       if (err.response?.status === 401) {
-        alert("🔐 Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
+        toast.warning("🔐 Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
         localStorage.removeItem("token");
         localStorage.removeItem("user");
         window.location.href = "/login";
@@ -123,14 +109,14 @@ export default function LikeDoctor() {
       }
 
       if (err.response?.status === 404) {
-        alert("⚠️ Bác sĩ này không có trong danh sách yêu thích!");
+        toast.warning("⚠️ Bác sĩ này không có trong danh sách yêu thích!");
         setFavorites((prev) =>
           prev.filter((f) => f.doctor_id !== doctorId && f.id !== doctorId)
         );
         return;
       }
 
-      alert("⚠️ Không thể xóa bác sĩ yêu thích!");
+      toast.error("⚠️ Không thể xóa bác sĩ yêu thích!");
     }
   };
 
@@ -158,7 +144,6 @@ export default function LikeDoctor() {
           : `${baseURL}/storage/${fav.avatar}`;
       return avatarDefault;
     } catch (error) {
-      console.warn("⚠️ Lỗi xử lý avatar:", error);
       return avatarDefault;
     }
   };
@@ -222,7 +207,7 @@ export default function LikeDoctor() {
                 <div className="flex w-full gap-3 mt-2">
                   <button
                     onClick={() =>
-                      alert(`👨‍⚕️ Hồ sơ chi tiết của ${name} sẽ được bổ sung sau`)
+                      toast.info(`👨‍⚕️ Hồ sơ chi tiết của ${name} sẽ được bổ sung sau`)
                     }
                     className="flex-1 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-xl shadow transition-all duration-300 hover:scale-105 active:scale-95"
                   >
