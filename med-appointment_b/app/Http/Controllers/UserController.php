@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 use App\Mail\SendOtpMail;
+use App\Models\Patient;
 use App\Models\UserOtp;
 use Carbon\Carbon;
 use App\Models\PendingUser;
