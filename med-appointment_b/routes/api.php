@@ -183,6 +183,7 @@ Route::middleware('auth:sanctum')->group(function () {
 // Lấy thông tin user theo ID hoặc chính mình
 Route::get('/user', [UserController::class, 'me']);
 Route::get('/user/{id}', [UserController::class, 'getUserById']);
+Route::get('/Edit/{id}', [AppointmentController::class, 'SendMailWhenConfirmedSchedule']);
 
 
 // Chatbot hỗ trợ bệnh nhân đặt lịch tự động    
