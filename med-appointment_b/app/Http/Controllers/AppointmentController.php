@@ -115,9 +115,11 @@ class AppointmentController extends Controller
     // 🔹 Nếu status là confirmed hoặc rejected => gửi email
     if (in_array($appointment->status, ['confirmed', 'rejected'])) {
         $patient = \App\Models\Patient::find($appointment->patient_id);
-        if ($patient && $patient->email) {
-            Mail::to($patient->email)->send(new AppointmentStatusMail($appointment, $appointment->status));
-        }
+        if ($patient && $patient->user && $patient->user->email) {
+    Mail::to($patient->user->email)
+        ->send(new AppointmentStatusMail($appointment, $appointment->status));
+}
+
     }
 
     return response()->json(['message' => 'Cập nhật thành công và đã gửi mail thông báo'], 200);
