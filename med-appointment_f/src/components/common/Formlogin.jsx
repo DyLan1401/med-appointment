@@ -53,7 +53,6 @@ function FormLogin() {
     localStorage.setItem("user", JSON.stringify(user));
     localStorage.setItem("token", token);
 
-<<<<<<< HEAD
       // ✅ Gắn token vào header mặc định của axios
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
@@ -88,11 +87,9 @@ function FormLogin() {
           autoClose: 3000,
         }
       );
-=======
     // ✅ Lưu riêng doctor_id nếu role là doctor
     if (role === "doctor" && doctor_id) {
       localStorage.setItem("doctor_id", doctor_id);
->>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
     }
 
     // Gắn token mặc định cho axios
