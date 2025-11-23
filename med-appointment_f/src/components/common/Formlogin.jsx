@@ -103,11 +103,6 @@ function FormLogin() {
       else if (role === "doctor") navigate("/doctor/dashboard");
       else navigate("/");
     }, 1500);
-  } catch (error) {
-    toast.error(error.response?.data?.message || "❌ Đăng nhập thất bại", {
-      position: "top-center",
-      autoClose: 3000,
-    });
   }
 };
 
