@@ -439,45 +439,9 @@ Route::middleware('auth:sanctum')->group(function () {
 // ================================
 Route::get('/user', [UserController::class, 'me']);
 Route::get('/user/{id}', [UserController::class, 'getUserById']);
-});
 
 
-
-
-Route::get('/doctors/list', [DoctorController::class, 'list']);
-
-
-// DOCTORS (CRUD + PROFILE + Ảnh + Chứng chỉ)
-// Route::prefix('doctors')->group(function () {
-//     Route::get('/', [DoctorController::class, 'index']);
-//     Route::post('/', [DoctorController::class, 'store']);
-//     Route::put('/{id}', [DoctorController::class, 'update']);
-//     Route::delete('/{id}', [DoctorController::class, 'destroy']);
-    Route::post('/favorites', [FavoriteController::class, 'store']);
-    Route::delete('/favorites/{doctor_id}', [FavoriteController::class, 'destroy']);
-    Route::post('/favorites/remove', [FavoriteController::class, 'destroy']);
-
-
-//     // Hồ sơ bác sĩ
-    Route::get('/{doctor_id}/profile', [DoctorController::class, 'showProfile']);
-    Route::post('/{doctor_id}/profile', [DoctorController::class, 'updateProfile']);
-
-//     // Ảnh đại diện
-    Route::post('/{doctor_id}/avatar', [DoctorController::class, 'uploadAvatar']);
-
-//     // Chứng chỉ
-    Route::get('/{doctor_id}/certificates', [DoctorController::class, 'getCertificates']);
-    Route::post('/{doctor_id}/certificates', [DoctorController::class, 'uploadCertificate']);
-    Route::delete('/certificates/{id}', [DoctorController::class, 'deleteCertificate']);
-
-
-//     // Tìm kiếm bác sĩ
-    Route::get('/search', [DoctorController::class, 'search']);
-
-Route::get('/doctors/list', [DoctorController::class, 'list']);
-// ===============================
-// 🤖 CHATBOT hỗ trợ bệnh nhân
-// ===============================
+// Chatbot hỗ trợ bệnh nhân đặt lịch tự động    
 Route::post('/chatbot', [ChatbotController::class, 'getReply']);
 
 
