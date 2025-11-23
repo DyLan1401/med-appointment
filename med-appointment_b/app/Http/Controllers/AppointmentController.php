@@ -240,7 +240,7 @@ class AppointmentController extends Controller
     }
 
       public function rebook(Request $request, $appointmentId)
-{\Log::info('Auth user:', [Auth::user()]);
+{
 
     $patient = Auth::user()->patient ?? null;
     if (!$patient) {

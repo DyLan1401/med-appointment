@@ -143,12 +143,12 @@ Route::middleware('auth:sanctum')->group(function () {
     // Lịch sử bệnh nhân
     Route::get('/patient/history', [PatientHistoryController::class, 'index']);
 
-    // Feedback bài viết
-    Route::prefix('feedbacks')->group(function () {
-        Route::get('/', [PostFeedbackController::class, 'index']);
-        Route::put('/{id}', [PostFeedbackController::class, 'update']);
-        Route::delete('/{id}', [PostFeedbackController::class, 'destroy']);
-    });
+ Route::prefix('post-feedbacks')->group(function () {
+    Route::get('/', [PostFeedbackController::class, 'index']);
+    Route::put('/{id}', [PostFeedbackController::class, 'update']);
+    Route::delete('/{id}', [PostFeedbackController::class, 'destroy']);
+});
+Route::get('/posts/{postId}/feedbacks', [PostFeedbackController::class, 'listByPost']);
 
     Route::post('/posts/{id}/feedbacks', [PostFeedbackController::class, 'store']);
 });
@@ -187,3 +187,7 @@ Route::get('/invoices/{id}/download', [InvoiceController::class, 'download']);
 // 🤖 CHATBOT
 // ======================================================
 Route::post('/chatbot', [ChatbotController::class, 'getReply']);
+
+
+Route::apiResource('departments', DepartmentController::class);
+Route::get('/departments/search', [DepartmentController::class, 'search']);
