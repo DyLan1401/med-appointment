@@ -166,7 +166,6 @@ class UserController extends Controller
     }
 
     // API Đăng nhập
-<<<<<<< HEAD
     public function login(Request $request)
     {
         $request->validate([
@@ -184,18 +183,6 @@ class UserController extends Controller
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;
-=======
-  public function login(Request $request)
-{
-    $request->validate([
-        'email' => 'required|email',
-        'password' => 'required|string|min:6',
-    ]);
-
-    $user = User::where('email', $request->email)
-                ->with('doctor') // load luôn quan hệ doctor
-                ->first();
->>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
 
         return response()->json([
             'success' => true,
@@ -206,27 +193,6 @@ class UserController extends Controller
         ]);
     }
 
-<<<<<<< HEAD
-=======
-    $token = $user->createToken('auth_token')->plainTextToken;
-
-    $response = [
-        'success' => true,
-        'message' => 'Đăng nhập thành công!',
-        'user' => $user,
-        'token' => $token,
-        'role' => $user->role,
-    ];
-
-    // Nếu là doctor, trả thêm doctor_id
-    if ($user->role === 'doctor' && $user->doctor) {
-        $response['doctor_id'] = $user->doctor->id;
-    }
-
-    return response()->json($response);
-}
-
->>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
 
     // API Đăng xuất
     public function logout(Request $request)
