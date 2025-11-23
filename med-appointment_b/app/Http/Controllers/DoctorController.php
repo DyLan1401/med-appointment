@@ -25,12 +25,8 @@ class DoctorController extends Controller
             $query->where('specialization_id', $request->specialization_id);
         }
 
-<<<<<<< HEAD
                return response()->json($query->orderBy('id', 'asc')->get());
         // return response()->json($query->paginate(50));
-=======
-        return response()->json($query->paginate(8));
->>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
     }
 
     public function store(Request $request)
@@ -271,31 +267,6 @@ class DoctorController extends Controller
 
         return response()->json($doctors);
     }
-<<<<<<< HEAD
-    /**
-     * Remove the specified resource from storage.
-     */
-    // public function list()
-
-
-    // ✅ API lấy danh sách bác sĩ cho đặt lịch
-public function list()
-{
-    $doctors = Doctor::with('user')
-        ->select('id', 'user_id')
-        ->get()
-        ->map(function ($doctor) {
-            return [
-                'id' => $doctor->id,
-                'name' => $doctor->user->name,
-            ];
-        });
-
-    return response()->json($doctors);
-}
-
- 
-=======
 
     // ✅ API lấy danh sách bác sĩ (cho form chọn bác sĩ)
     public function list()
@@ -314,7 +285,6 @@ public function list()
     }
 
     // ✅ Top bác sĩ
->>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
     public function topDoctors(Request $request)
     {
         $limit = $request->get('limit', 10);
@@ -337,7 +307,6 @@ public function list()
 
         return response()->json($top);
     }
-<<<<<<< HEAD
 
     // public function topDoctors()
     // {
@@ -361,6 +330,4 @@ public function list()
 
 
 
-=======
->>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
 }
