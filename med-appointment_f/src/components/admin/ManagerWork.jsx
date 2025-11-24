@@ -1,11 +1,6 @@
-<<<<<<< HEAD
-import React, { useState } from "react";
-import { FaTrashAlt, FaPencilAlt } from "react-icons/fa";
-=======
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Pencil, Trash2 } from "lucide-react";
->>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
 
 export default function ManagerSchedule() {
   const [schedules, setSchedules] = useState([]);
@@ -16,70 +11,6 @@ export default function ManagerSchedule() {
   const [endTime, setEndTime] = useState("");
   const [editingId, setEditingId] = useState(null);
 
-<<<<<<< HEAD
-
-    console.log(setFreeTimes)
-    return (
-        <div className="p-6">
-            {/* Header */}
-            <h2 className="text-2xl font-bold text-blue-700 mb-2">
-                Quản lý Lịch làm việc
-            </h2>
-
-
-            <div>
-                <div className="space-y-3">
-                    <input
-                        type="date"
-                        className="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
-                    />
-                    <input
-                        type="time"
-                        placeholder="Giờ bắt đầu"
-                        className="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
-                    />
-                    <input
-                        type="time"
-                        placeholder="Giờ kết thúc"
-                        className="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
-                    />
-                    <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm">
-                        Thêm lịch rảnh
-                    </button>
-                </div>
-
-                <div className="mt-5">
-                    <p className="font-medium text-gray-700 mb-2">Lịch rảnh đã thêm</p>
-                    {freeTimes.map((item) => (
-                        <div
-                            key={item.id}
-                            className="flex justify-between items-center border p-2 rounded-lg mb-2 text-sm"
-                        >
-                            <span>
-                                {item.date} - {item.time}
-                            </span>
-                            <div className="flex gap-2">
-                                <button
-                                    className="text-green-600 hover:underline"
-                                >
-                                    <FaPencilAlt />
-
-                                </button>
-                                <button
-                                    className="text-red-600 hover:underline"
-                                >
-                                    <FaTrashAlt />
-                                </button>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-
-        </div>
-    );
-=======
   const DOCTOR_API = "http://localhost:8000/api/doctors";
   const SCHEDULE_API = "http://localhost:8000/api/schedules";
 
@@ -291,5 +222,4 @@ const getDoctorName = (id) => {
       </div>
     </div>
   );
->>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
 }
