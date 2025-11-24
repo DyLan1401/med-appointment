@@ -94,34 +94,36 @@ class AppointmentController extends Controller
             default => response()->json(['message' => 'Cập nhật thành công'], 200),
         };
     }
-    //     public function update(Request $request, $id)
-    // {
-    //     $validator = Validator::make($request->all(), [
-    //         'status' => 'sometimes|in:pending,confirmed,rejected,cancelled,completed',
-    //         'updated_at' => 'required|date',
-    //     ]);
+    public function SendMailWhenConfirmedSchedule(Request $request, $id)
+{
+    $validator = Validator::make($request->all(), [
+        'status' => 'sometimes|in:pending,confirmed,rejected,cancelled,completed',
+        'updated_at' => 'required|date',
+    ]);
 
-    //     if ($validator->fails()) {
-    //         return response()->json(['errors' => $validator->errors()], 422);
-    //     }
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 422);
+    }
 
-    //     $appointment = Appointment::find($id);
-    //     if (!$appointment) {
-    //         return response()->json(['message' => 'Không tìm thấy cuộc hẹn'], 404);
-    //     }
+    $appointment = Appointment::find($id);
+    if (!$appointment) {
+        return response()->json(['message' => 'Không tìm thấy cuộc hẹn'], 404);
+    }
 
-    //     $appointment->update($request->all());
+    $appointment->update($request->all());
 
-    //     // 🔹 Nếu status là confirmed hoặc rejected => gửi email
-    //     if (in_array($appointment->status, ['confirmed', 'rejected'])) {
-    //         $patient = \App\Models\Patient::find($appointment->patient_id);
-    //         if ($patient && $patient->email) {
-    //             Mail::to($patient->email)->send(new AppointmentStatusMail($appointment, $appointment->status));
-    //         }
-    //     }
+    // 🔹 Nếu status là confirmed hoặc rejected => gửi email
+    if (in_array($appointment->status, ['confirmed', 'rejected'])) {
+        $patient = \App\Models\Patient::find($appointment->patient_id);
+        if ($patient && $patient->user && $patient->user->email) {
+    Mail::to($patient->user->email)
+        ->send(new AppointmentStatusMail($appointment, $appointment->status));
+}
 
-    //     return response()->json(['message' => 'Cập nhật thành công và đã gửi mail thông báo'], 200);
-    // }
+    }
+
+    return response()->json(['message' => 'Cập nhật thành công và đã gửi mail thông báo'], 200);
+}
 
     public function destroy($id)
     {
@@ -238,7 +240,7 @@ class AppointmentController extends Controller
     }
 
       public function rebook(Request $request, $appointmentId)
-{\Log::info('Auth user:', [Auth::user()]);
+{
 
     $patient = Auth::user()->patient ?? null;
     if (!$patient) {

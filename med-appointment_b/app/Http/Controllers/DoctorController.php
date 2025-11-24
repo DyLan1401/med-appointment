@@ -24,10 +24,9 @@ class DoctorController extends Controller
         if ($request->filled('specialization_id')) {
             $query->where('specialization_id', $request->specialization_id);
         }
+
                return response()->json($query->orderBy('id', 'asc')->get());
         // return response()->json($query->paginate(50));
-        return response()->json($query->paginate(8));
-
     }
 
     public function store(Request $request)
@@ -320,27 +319,3 @@ public function list()
         return response()->json($top);
     }
 
-
-    // public function topDoctors()
-    // {
-    //     $top = Doctor::join('users', 'users.id', '=', 'doctors.user_id')
-    //         ->join('appointments', 'appointments.doctor_id', '=', 'doctors.id')
-    //         ->select(
-    //             'doctors.id as doctor_id',
-    //             'users.name as doctor_name',
-    //             'users.email',
-    //             'users.avatar',
-    //             DB::raw('COUNT(appointments.id) as total_appointments')
-    //         )
-    //         ->groupBy('doctors.id', 'users.name', 'users.email', 'users.avatar')
-    //         ->orderByDesc('total_appointments')
-    //         ->take(10)
-    //         ->get();
-
-    //     return response()->json($top);
-    // }
-
-
-
-
-}

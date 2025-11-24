@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Star, Trash2, Edit3, Save, X } from "lucide-react";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -13,26 +13,20 @@ export default function ManagerFeedBackPost() {
     // 🟢 Lấy tất cả feedback từ API
     const fetchFeedbacks = async () => {
         try {
-            const res = await axios.get("http://127.0.0.1:8000/api/feedbacks", {
+            const res = await axios.get("http://127.0.0.1:8000/api/post-feedbacks", {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
-            // Tự điều chỉnh tùy API
-            if (Array.isArray(res.data)) {
-                setFeedbacks(res.data);
-            } else if (Array.isArray(res.data.data)) {
-                setFeedbacks(res.data.data);
-            } else if (Array.isArray(res.data.feedbacks)) {
-                setFeedbacks(res.data.feedbacks);
-            } else {
-                setFeedbacks([]);
-            }
+            setFeedbacks(res.data.data || []);
+
 
         } catch (err) {
             toast.error("Không thể tải danh sách feedback!");
         }
     };
-
+    useEffect(() => {
+        fetchFeedbacks();
+    }, []);
 
     // ✏️ Bắt đầu sửa feedback
     const handleEdit = (fb) => {

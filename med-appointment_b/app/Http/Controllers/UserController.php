@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 use App\Mail\SendOtpMail;
+use App\Models\Patient;
 use App\Models\UserOtp;
 use Carbon\Carbon;
 use App\Models\PendingUser;
@@ -164,20 +165,24 @@ class UserController extends Controller
         }
     }
 
-    // API Đăng nhập
 
-    
-  public function login(Request $request)
-{
-    $request->validate([
-        'email' => 'required|email',
-        'password' => 'required|string|min:6',
-    ]);
+    public function login(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string|min:6',
+        ]);
 
-    $user = User::where('email', $request->email)
-                ->with('doctor') // load luôn quan hệ doctor
-                ->first();
+        $user = User::where('email', $request->email)->first();
 
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Email hoặc mật khẩu không chính xác!',
+            ], 401);
+        }
+
+        $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'success' => true,
