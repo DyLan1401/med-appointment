@@ -132,7 +132,8 @@ Route::post('/register/verify-otp', [UserController::class, 'verifyOtp']);
 Route::middleware('auth:sanctum')->group(function () {
 
     // User
-    Route::get('/me', [UserController::class, 'me']);
+    Route::get('/user', [UserController::class, 'me']);
+    Route::get('/user/{id}', [UserController::class, 'getUserById']);
     Route::get('/profile', [UserController::class, 'profile']);
     Route::post('/logout', [UserController::class, 'logout']);
     Route::post('/change-password', [UserController::class, 'changePassword']);
