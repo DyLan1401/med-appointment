@@ -319,3 +319,4 @@ public function list()
         return response()->json($top);
     }
 
+}
