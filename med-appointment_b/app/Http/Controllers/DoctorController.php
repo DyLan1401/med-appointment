@@ -268,21 +268,8 @@ class DoctorController extends Controller
         return response()->json($doctors);
     }
 
-    // ✅ API lấy danh sách bác sĩ (cho form chọn bác sĩ)
-    public function list()
-    {
-        $doctors = Doctor::with('user')
-            ->select('id', 'user_id')
-            ->get()
-            ->map(function ($doctor) {
-                return [
-                    'id' => $doctor->id,
-                    'name' => $doctor->user->name,
-                ];
-            });
 
-        return response()->json($doctors);
-    }
+    
 
     // ✅ Top bác sĩ
     public function topDoctors(Request $request)
@@ -307,27 +294,5 @@ class DoctorController extends Controller
 
         return response()->json($top);
     }
-
-    // public function topDoctors()
-    // {
-    //     $top = Doctor::join('users', 'users.id', '=', 'doctors.user_id')
-    //         ->join('appointments', 'appointments.doctor_id', '=', 'doctors.id')
-    //         ->select(
-    //             'doctors.id as doctor_id',
-    //             'users.name as doctor_name',
-    //             'users.email',
-    //             'users.avatar',
-    //             DB::raw('COUNT(appointments.id) as total_appointments')
-    //         )
-    //         ->groupBy('doctors.id', 'users.name', 'users.email', 'users.avatar')
-    //         ->orderByDesc('total_appointments')
-    //         ->take(10)
-    //         ->get();
-
-    //     return response()->json($top);
-    // }
-
-
-
 
 }

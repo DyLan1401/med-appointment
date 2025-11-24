@@ -114,10 +114,10 @@ export default function ManagerSchedule() {
     setEditingId(item.id);
   };
 
-const getDoctorName = (id) => {
-  const doctor = doctors.find((d) => d.id === Number(id));
-  return doctor ? doctor.name : "Không rõ bác sĩ";
-};
+  const getDoctorName = (id) => {
+    const doctor = doctors.find((d) => d.id === Number(id));
+    return doctor ? doctor.name : "Không rõ bác sĩ";
+  };
 
 
   const resetForm = () => {
@@ -192,9 +192,8 @@ const getDoctorName = (id) => {
                 {getDoctorName(item.doctor_id)} — {item.date} — {item.start_time} - {item.end_time}
                 {item.status && (
                   <span
-                    className={`ml-2 px-2 py-0.5 text-white text-xs rounded ${
-                      item.status === "available" ? "bg-green-500" : "bg-red-500"
-                    }`}
+                    className={`ml-2 px-2 py-0.5 text-white text-xs rounded ${item.status === "available" ? "bg-green-500" : "bg-red-500"
+                      }`}
                   >
                     {item.status}
                   </span>

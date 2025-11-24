@@ -8,21 +8,16 @@ use Illuminate\Http\Request;
 class PostFeedbackController extends Controller
 {
     // ✅ Nếu có postId → lấy feedback của bài viết đó, nếu không → lấy tất cả
-    public function index($postId = null)
-    {
-        if ($postId) {
-            $feedbacks = PostFeedback::with('user')
-                ->where('post_id', $postId)
-                ->latest()
-                ->get();
-        } else {
-            $feedbacks = PostFeedback::with(['user', 'post'])
-                ->latest()
-                ->get();
-        }
+    public function index()
+{
+    $feedbacks = PostFeedback::with(['user', 'post'])
+        ->orderBy('id', 'DESC')
+        ->get(); // <-- QUAN TRỌNG
 
-        return response()->json($feedbacks);
-    }
+    return response()->json([
+        "data" => $feedbacks
+    ], 200);
+}
 
     public function store(Request $request, $postId)
     {
@@ -76,4 +71,14 @@ class PostFeedbackController extends Controller
 
         return response()->json(['message' => 'Đã xóa feedback thành công!']);
     }
+    public function listByPost($postId)
+{
+    $feedbacks = PostFeedback::with('user')
+        ->where('post_id', $postId)
+        ->latest()
+        ->get();
+
+    return response()->json($feedbacks);
+}
+
 }

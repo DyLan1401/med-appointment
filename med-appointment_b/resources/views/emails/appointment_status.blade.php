@@ -11,7 +11,6 @@
 
     @if($type === 'confirmed')
         <p>Bác sĩ {{ $appointment->doctor_name ?? '' }} đã xác nhận lịch hẹn của bạn.</p>
-        <p><strong>Thời gian:</strong> {{ $appointment->appointment_date }}</p>
         <p><strong>Dịch vụ:</strong> {{ $appointment->service_name }}</p>
     @else
         <p>Rất tiếc, lịch hẹn của bạn đã bị từ chối. Vui lòng thử đặt lại vào thời gian khác.</p>

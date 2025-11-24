@@ -165,7 +165,7 @@ class UserController extends Controller
         }
     }
 
-    // API Đăng nhập
+
     public function login(Request $request)
     {
         $request->validate([
