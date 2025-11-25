@@ -24,7 +24,6 @@ class UserSeeder extends Seeder
             'avatar_url' => 'https://i.pravatar.cc/150?img=1',
         ]);
 
-<<<<<<< HEAD
         // 5 bác sĩ
         for ($i = 1; $i <= 50; $i++) {
             User::create([
@@ -37,9 +36,7 @@ class UserSeeder extends Seeder
                 'avatar_url' => "https://i.pravatar.cc/150?img=" . rand(2, 50),
             ]);
         }
-=======
       
->>>>>>> DinhThanhToan/6-QuanLyLichRanhDoctor
 
 
         // 10 bệnh nhân (role = user)
