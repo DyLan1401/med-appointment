@@ -60,8 +60,6 @@ export default function ManagerFeedBackDoctor() {
         Quản lý Feedback bác sĩ
       </h2>
 
-
-
       {/* Bộ lọc rating */}
       <div className="flex items-center gap-2">
         <label htmlFor="rating" className="text-sm text-gray-600">
@@ -115,10 +113,11 @@ export default function ManagerFeedBackDoctor() {
                     {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
-                        className={`w-4 h-4 ${i < fb.rating
-                          ? "text-yellow-400 fill-yellow-400"
-                          : "text-gray-300"
-                          }`}
+                        className={`w-4 h-4 ${
+                          i < fb.rating
+                            ? "text-yellow-400 fill-yellow-400"
+                            : "text-gray-300"
+                        }`}
                       />
                     ))}
                   </div>
@@ -134,22 +133,48 @@ export default function ManagerFeedBackDoctor() {
         </div>
       )}
 
-      {/* ✅ Phân trang */}
+      {/* 📌 Phân trang gọn */}
       <div className="flex justify-center mt-6 gap-2">
-        {Array.from({ length: pagination.last_page }, (_, i) => i + 1).map(
-          (page) => (
-            <button
-              key={page}
-              onClick={() => handlePageChange(page)}
-              className={`px-3 py-1 text-sm rounded-md border ${pagination.current_page === page
-                ? "bg-blue-600 text-white"
-                : "bg-white text-blue-600 border-blue-300 hover:bg-blue-50"
+        {(() => {
+          const pages = [];
+          const total = pagination.last_page;
+          const current = pagination.current_page;
+
+          const addPage = (p) => {
+            pages.push(
+              <button
+                key={p}
+                onClick={() => handlePageChange(p)}
+                className={`px-3 py-1 text-sm rounded-md border ${
+                  current === p
+                    ? "bg-blue-600 text-white"
+                    : "bg-white text-blue-600 border-blue-300 hover:bg-blue-50"
                 }`}
-            >
-              {page}
-            </button>
-          )
-        )}
+              >
+                {p}
+              </button>
+            );
+          };
+
+          // Luôn hiển thị trang đầu
+          addPage(1);
+
+          // Dấu "..." sau trang đầu nếu cần
+          if (current > 4) pages.push(<span key="s1">...</span>);
+
+          // Hiển thị các trang gần trang hiện tại (current - 2 → current + 2)
+          for (let p = current - 2; p <= current + 2; p++) {
+            if (p > 1 && p < total) addPage(p);
+          }
+
+          // Dấu "..." trước trang cuối nếu cần
+          if (current < total - 3) pages.push(<span key="s2">...</span>);
+
+          // Luôn hiển thị trang cuối
+          if (total > 1) addPage(total);
+
+          return pages;
+        })()}
       </div>
     </div>
   );

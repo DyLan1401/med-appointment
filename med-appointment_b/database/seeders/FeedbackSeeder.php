@@ -12,10 +12,10 @@ class FeedbackSeeder extends Seeder
 {
     public function run(): void
     {
-        $users = User::where('role', 'user')->get();
+        $users = User::where('role', 'patient')->get();
         $doctors = Doctor::all();
 
-        if ($users->isEmpty() || $doctors->isEmpty()) {
+        if ($doctors->isEmpty()) {
             $this->command->warn('⚠️ Chưa có user hoặc doctor để tạo feedback.');
             return;
         }
