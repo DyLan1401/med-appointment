@@ -6,6 +6,8 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { Loader2, Wallet, User, Stethoscope, Activity } from "lucide-react";
 import { useParams } from "react-router-dom";
+import Navbar from "../common/Navbar";
+import Footer from "../common/Footer";
 
 export default function DepositPage() {
   const { appointmentId } = useParams();
@@ -80,50 +82,53 @@ export default function DepositPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-amber-50 flex items-center justify-center p-6">
-      <div className="bg-white shadow-2xl border border-gray-100 rounded-3xl w-full max-w-lg p-6">
-        {/* Header */}
-        <div className="text-center border-b pb-4 mb-4">
-          <h2 className="text-3xl font-bold text-gray-800">💰 Đặt cọc dịch vụ</h2>
-          <p className="text-gray-500 mt-1">Xác nhận thông tin trước khi thanh toán</p>
-        </div>
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-amber-50 flex items-center justify-center p-6">
+        <div className="bg-white shadow-2xl border border-gray-100 rounded-3xl w-full max-w-lg p-6">
+          {/* Header */}
+          <div className="text-center border-b pb-4 mb-4">
+            <h2 className="text-3xl font-bold text-gray-800">💰 Đặt cọc dịch vụ</h2>
+            <p className="text-gray-500 mt-1">Xác nhận thông tin trước khi thanh toán</p>
+          </div>
 
-        {/* Nội dung thông tin */}
-        <div className="space-y-3 text-gray-700">
-          <InfoRow icon={<User className="w-5 h-5 text-blue-500" />} label="Bệnh nhân" value={appointment.patient.name} />
-          <InfoRow icon={<Stethoscope className="w-5 h-5 text-green-500" />} label="Bác sĩ" value={appointment.doctor.name} />
-          <InfoRow icon={<Activity className="w-5 h-5 text-purple-500" />} label="Dịch vụ" value={appointment.service.name} />
-          <InfoRow icon={<Wallet className="w-5 h-5 text-amber-500" />} label="Số tiền gốc" value={`${appointment.service.price.toLocaleString()} ₫`} />
-          <InfoRow
-            icon={<span className="text-amber-600 font-semibold">💵</span>}
-            label="Cần đặt cọc"
-            value={`${depositAmount.toLocaleString()} ₫`}
-            highlight
-          />
-        </div>
+          {/* Nội dung thông tin */}
+          <div className="space-y-3 text-gray-700">
+            <InfoRow icon={<User className="w-5 h-5 text-blue-500" />} label="Bệnh nhân" value={appointment.patient.name} />
+            <InfoRow icon={<Stethoscope className="w-5 h-5 text-green-500" />} label="Bác sĩ" value={appointment.doctor.name} />
+            <InfoRow icon={<Activity className="w-5 h-5 text-purple-500" />} label="Dịch vụ" value={appointment.service.name} />
+            <InfoRow icon={<Wallet className="w-5 h-5 text-amber-500" />} label="Số tiền gốc" value={`${appointment.service.price.toLocaleString()} ₫`} />
+            <InfoRow
+              icon={<span className="text-amber-600 font-semibold">💵</span>}
+              label="Cần đặt cọc"
+              value={`${depositAmount.toLocaleString()} ₫`}
+              highlight
+            />
+          </div>
 
-        {/* Nút đặt cọc */}
-        <div className="pt-6">
-          <button
-            onClick={handleDeposit}
-            disabled={loading}
-            className={`w-full py-3 rounded-xl text-white font-semibold transition-all ${
-              loading
+          {/* Nút đặt cọc */}
+          <div className="pt-6">
+            <button
+              onClick={handleDeposit}
+              disabled={loading}
+              className={`w-full py-3 rounded-xl text-white font-semibold transition-all ${loading
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700"
-            }`}
-          >
-            {loading ? (
-              <div className="flex items-center justify-center">
-                <Loader2 className="animate-spin mr-2 w-5 h-5" /> Đang xử lý...
-              </div>
-            ) : (
-              "💳 Đặt cọc ngay"
-            )}
-          </button>
+                }`}
+            >
+              {loading ? (
+                <div className="flex items-center justify-center">
+                  <Loader2 className="animate-spin mr-2 w-5 h-5" /> Đang xử lý...
+                </div>
+              ) : (
+                "💳 Đặt cọc ngay"
+              )}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+      <Footer />
+    </>
   );
 }
 
