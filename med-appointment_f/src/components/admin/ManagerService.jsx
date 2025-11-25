@@ -62,7 +62,14 @@ export default function ManagerService() {
   // 🟢 Mở modal thêm/sửa
   const handleOpenModal = (edit = false, item = null) => {
     setIsEdit(edit);
-    if (edit && item) setFormData(item);
+    if (edit && item) setFormData({
+      id: item.id,
+      name: item.name,
+      description: item.description,
+      price: item.price,
+      updated_at: item.updated_at,
+    })
+      ;
     else setFormData({ id: null, name: "", description: "", price: "" });
     setShowModal(true);
   };
@@ -87,11 +94,17 @@ export default function ManagerService() {
       setShowModal(false);
       fetchServices(pagination.current_page);
     } catch (err) {
-      toast.error(err.response?.data?.message || "Đã xảy ra lỗi khi lưu.");
-      setMessage({
-        type: "error",
-        text: err.response?.data?.message || "Đã xảy ra lỗi khi lưu.",
-      });
+      if (err.response?.status === 409) {
+        toast.error("Dữ liệu đã bị thay đổi ở tab khác. Vui lòng tải lại!");
+        return;
+      } else {
+        toast.error(err.response?.data?.message || "Đã xảy ra lỗi khi lưu.");
+        setMessage({
+          type: "error",
+          text: err.response?.data?.message || "Đã xảy ra lỗi khi lưu.",
+        });
+      }
+
     } finally {
       setIsAdding(false);
       setIsUpdating(false);

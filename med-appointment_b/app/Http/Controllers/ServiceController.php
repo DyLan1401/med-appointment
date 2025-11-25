@@ -40,7 +40,7 @@ class ServiceController extends Controller
             if (!empty($search)) {
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', '%' . $search . '%')
-                    ->orWhere('description', 'like', '%' . $search . '%');
+                        ->orWhere('description', 'like', '%' . $search . '%');
                 });
             }
 
@@ -154,27 +154,71 @@ class ServiceController extends Controller
         }
     }
 
-    /**
-     * Update - cập nhật dịch vụ
-     * Route: PUT /api/services/{id}
-     */
     public function update(Request $request, $id)
     {
         try {
             $service = Service::find($id);
+
             if (!$service) {
-                return response()->json(['success' => false, 'message' => 'Không tìm thấy dịch vụ'], 404);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không tìm thấy dịch vụ'
+                ], 404);
             }
 
+            $dbUpdatedAt = $service->updated_at ? $service->updated_at->toISOString() : null;
+            $clientUpdatedAt = $request->updated_at;
+
+            /**
+             * CASE 1:
+             * DB null + Client null → CHO PHÉP update, nhưng trước khi update phải set updated_at = now()
+             */
+            if ($dbUpdatedAt === null && $clientUpdatedAt === null) {
+                // allow — no conflict
+            }
+            /**
+             * CASE 2:
+             * Client null nhưng DB không null → LỖI
+             */
+            else if ($dbUpdatedAt !== null && $clientUpdatedAt === null) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Dữ liệu đã bị thay đổi bởi tab khác. Vui lòng tải lại trước khi cập nhật!',
+                ], 409);
+            }
+            /**
+             * CASE 3:
+             * DB null nhưng client có timestamp → LỖI (client đang có dữ liệu cũ không hợp lệ)
+             */
+            else if ($dbUpdatedAt === null && $clientUpdatedAt !== null) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Dữ liệu đã bị thay đổi bởi tab khác. Vui lòng tải lại trước khi cập nhật!',
+                ], 409);
+            }
+            /**
+             * CASE 4:
+             * Cả hai đều có timestamp → kiểm tra như bình thường
+             */
+            else if ($clientUpdatedAt !== $dbUpdatedAt) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Dữ liệu đã bị thay đổi bởi tab khác. Vui lòng tải lại trước khi cập nhật!',
+                ], 409);
+            }
+
+            // Validate dữ liệu
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
                 'description' => 'nullable|string',
                 'price' => 'required|numeric|min:0',
             ]);
 
+            // Kiểm tra trùng tên
             $exists = Service::whereRaw('LOWER(name) = ?', [strtolower($validated['name'])])
                 ->where('id', '<>', $id)
                 ->exists();
+
             if ($exists) {
                 return response()->json([
                     'success' => false,
@@ -182,28 +226,38 @@ class ServiceController extends Controller
                 ], 409);
             }
 
+            /**
+             * CASE 1 xử lý tiếp:
+             * DB null + Client null → set updated_at = now()
+             */
+            if ($dbUpdatedAt === null && $clientUpdatedAt === null) {
+                $service->updated_at = now();
+            }
+
+            // Update các field
             $service->update($validated);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Cập nhật dịch vụ thành công',
-                'data' => $service,
+                'data' => $service
             ]);
         } catch (ValidationException $ve) {
             return response()->json([
                 'success' => false,
                 'message' => 'Dữ liệu không hợp lệ',
-                'errors' => $ve->errors(),
+                'errors' => $ve->errors()
             ], 422);
         } catch (\Throwable $e) {
             \Log::error('ServiceController@update error: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Lỗi khi cập nhật dịch vụ',
-                'error' => $e->getMessage(),
+                'error' => $e->getMessage()
             ], 500);
         }
     }
+
 
     /**
      * Destroy - xóa dịch vụ

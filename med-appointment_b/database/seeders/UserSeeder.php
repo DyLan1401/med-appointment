@@ -36,7 +36,6 @@ class UserSeeder extends Seeder
                 'avatar_url' => "https://i.pravatar.cc/150?img=" . rand(2, 50),
             ]);
         }
-      
 
 
         // 10 bệnh nhân (role = user)
