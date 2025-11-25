@@ -58,18 +58,27 @@ export default function ManagerChuyenKhoa() {
   };
 
   // 🟢 Mở modal thêm/sửa
-  const handleOpenModal = (edit = false, dep = null) => {
+const handleOpenModal = (edit = false, dep = null) => {
     setIsEdit(edit);
-    setFormData(edit && dep ? dep : { id: null, name: "", description: "" });
+    setFormData(
+      edit && dep 
+        ? { 
+            id: dep.id, 
+            name: dep.name, 
+            description: dep.description, 
+            updated_at: dep.updated_at // <--- THÊM DÒNG NÀY
+          } 
+        : { id: null, name: "", description: "" }
+    );
     setShowModal(true);
-  };
+};
   //
   const handleCloseModal = () => setShowModal(false);
 
   // 🟡 Gửi dữ liệu thêm/sửa
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (loading) return; // chặn spam
+    if (loading) return;
     setLoading(true);
     try {
       let res;
@@ -77,6 +86,7 @@ export default function ManagerChuyenKhoa() {
         res = await axios.put(`${API_URL}/${formData.id}`, {
           name: formData.name,
           description: formData.description,
+          updated_at: formData.updated_at, // <--- THÊM DÒNG NÀY: Gửi timestamp cũ lên để check
         });
       } else {
         res = await API.post(`/departments`, {
@@ -89,12 +99,22 @@ export default function ManagerChuyenKhoa() {
       await fetchDepartments(pagination.current_page, searchQuery);
       setShowModal(false);
     } catch (err) {
-      toast.error(err.response?.data?.message || "Đã xảy ra lỗi.");
-      setMessage({ type: "error", text: err.response?.data?.message || "Đã xảy ra lỗi." });
+      // --- XỬ LÝ LỖI MỚI ---
+      if (err.response && err.response.status === 409) {
+        toast.error(err.response.data.message); // Hiển thị: Dữ liệu đã thay đổi...
+        setMessage({ type: "error", text: err.response.data.message });
+        
+        // Tùy chọn: Tự động đóng modal và load lại dữ liệu mới để người dùng xem
+        // setShowModal(false);
+        // fetchDepartments(pagination.current_page, searchQuery);
+      } else {
+        toast.error(err.response?.data?.message || "Đã xảy ra lỗi.");
+        setMessage({ type: "error", text: err.response?.data?.message || "Đã xảy ra lỗi." });
+      }
     } finally {
       setLoading(false);
     }
-  };
+};
 
   // 🔴 Xóa chuyên khoa
   const handleDelete = async () => {
