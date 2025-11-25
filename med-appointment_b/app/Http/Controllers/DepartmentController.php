@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Department;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class DepartmentController extends Controller
 {
@@ -80,6 +81,19 @@ class DepartmentController extends Controller
             return response()->json(['message' => 'Department not found'], 404);
         }
 
+        // --- BẮT ĐẦU SỬA: Kiểm tra Optimistic Locking ---
+        if ($request->has('updated_at')) {
+            $clientUpdatedAt = Carbon::parse($request->updated_at)->format('Y-m-d H:i:s');
+            $dbUpdatedAt = $department->updated_at->format('Y-m-d H:i:s');
+
+            if ($clientUpdatedAt !== $dbUpdatedAt) {
+                return response()->json([
+                    'message' => 'Dữ liệu đã được thay đổi ở thiết bị khác. Vui lòng tải lại trang trước khi cập nhật.'
+                ], 409); // 409 Conflict
+            }
+        }
+        // --- KẾT THÚC SỬA ---
+
         $data = $request->all();
 
         $validated = validator($data, [
@@ -87,6 +101,8 @@ class DepartmentController extends Controller
             'description' => 'nullable|string|max:1000',
         ])->validate();
 
+        // Giả sử updateDepartment là method custom của bạn
+        // Nếu dùng chuẩn Laravel thì: $department->update($validated);
         $department->updateDepartment($validated);
 
         return response()->json([
@@ -109,4 +125,3 @@ class DepartmentController extends Controller
         return response()->json(['message' => 'Department deleted successfully']);
     }
 }
-
