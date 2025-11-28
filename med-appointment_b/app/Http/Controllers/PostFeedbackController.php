@@ -43,7 +43,7 @@ class PostFeedbackController extends Controller
     {
         $feedback = PostFeedback::findOrFail($id);
 
-        if ($feedback->user_id !== auth()->id()) {
+    if ($feedback->user_id !== $user->id && $user->role !== 'admin') {
             return response()->json(['message' => 'Bạn không có quyền sửa feedback này.'], 403);
         }
 
@@ -63,7 +63,7 @@ class PostFeedbackController extends Controller
     {
         $feedback = PostFeedback::findOrFail($id);
 
-        if ($feedback->user_id !== auth()->id()) {
+    if ($feedback->user_id !== $user->id && $user->role !== 'admin') {
             return response()->json(['message' => 'Bạn không có quyền xóa feedback này.'], 403);
         }
 

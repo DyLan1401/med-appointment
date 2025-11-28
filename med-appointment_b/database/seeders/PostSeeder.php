@@ -23,7 +23,6 @@ class PostSeeder extends Seeder
 
             Post::create([
                 'title' => $faker->sentence(6, true),
-                'slug' => $faker->slug(),
                 'content' => $faker->paragraph(10, true),
                 'category_id' => $faker->randomElement($categoryIds),
                 'image' => $imageUrl,
