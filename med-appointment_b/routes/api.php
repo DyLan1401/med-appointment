@@ -85,7 +85,7 @@ Route::get('/appointments/completed/count', [AppointmentController::class, 'coun
 Route::get('/appointments/check', [AppointmentController::class, 'checkSlot']);
 Route::get('/appointments/available/{doctor_id}', [AppointmentController::class, 'getAvailableSlots']);
 Route::get('/appointments/show/{id}', [AppointmentController::class, 'shownew']);
-Route::put('/appointments/sendmail/{id}', [AppointmentController::class, 'SendMailWhenConfirmedSchedule']);
+Route::put('/appointments/{id}', [AppointmentController::class, 'SendMailWhenConfirmedSchedule']);
 Route::post('/appointments/rebook/{id}', [AppointmentController::class, 'rebook'])
     ->middleware('auth:sanctum');
 Route::apiResource('appointments', AppointmentController::class);

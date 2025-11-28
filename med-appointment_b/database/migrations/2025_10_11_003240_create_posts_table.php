@@ -16,8 +16,7 @@ return new class extends Migration {
             // Tiêu đề bài viết
             $table->string('title', 255);
 
-            // Slug (đường dẫn SEO)
-            $table->string('slug', 255)->unique();
+
 
             // Nội dung bài viết
             $table->longText('content')->nullable();

@@ -18,7 +18,7 @@ export default function PostDetail() {
   // 🟢 Cập nhật feedback
   const handleUpdateFeedback = async (id, newContent) => {
     try {
-      await API.put(`/feedbacks/${id}`, { content: newContent });
+      await API.put(`/post-feedbacks/${id}`, { content: newContent });
       setFeedbacks((prev) =>
         prev.map((f) => (f.id === id ? { ...f, content: newContent, isEditing: false } : f))
       );
@@ -32,7 +32,7 @@ export default function PostDetail() {
   const handleDeleteFeedback = async (id) => {
     if (!window.confirm("Bạn có chắc chắn muốn xóa feedback này?")) return;
     try {
-      await API.delete(`/feedbacks/${id}`);
+      await API.delete(`/post-feedbacks/${id}`);
       setFeedbacks((prev) => prev.filter((f) => f.id !== id));
       toast.success("Đã xóa feedback thành công!");
     } catch (err) {

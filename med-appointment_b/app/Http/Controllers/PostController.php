@@ -49,7 +49,7 @@ class PostController extends Controller
 
       if ($request->hasFile('image')) {
     $path = $request->file('image')->store('posts', 'public');
-    $validated['image'] = asset('storage/' . $path); // ✅ trả link đầy đủ
+    $validated['image'] = asset('storage/' . $path); 
 
     }
 

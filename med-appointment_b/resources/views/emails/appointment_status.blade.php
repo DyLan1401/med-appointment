@@ -17,6 +17,6 @@
     @endif
 
     <hr>
-    <p>Cảm ơn bạn đã sử dụng hệ thống Medical Appointment!</p>
+    <p>Cảm ơn bạn đã sử dụng hệ thống Care Medical!</p>
 </body>
 </html>

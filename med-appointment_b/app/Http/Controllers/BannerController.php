@@ -30,24 +30,19 @@ class BannerController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'title' => 'nullable|string|max:255',
             'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'link' => 'nullable|string|max:255',
             'is_active' => 'boolean',
         ]);
 
-        $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('banners', 'public');
+    $path = $request->file('image')->store('posts', 'public');
+    $validated['image'] = asset('storage/' . $path); 
         }
 
-        $banner = Banner::create([
-            'title' => $request->title,
-            'image' => $imagePath,
-            'link' => $request->link,
-            'is_active' => $request->is_active ?? true,
-        ]);
+        $banner = Banner::create($validated);
 
         return response()->json(['message' => 'Tạo banner thành công', 'data' => $banner], 201);
     }
@@ -76,26 +71,21 @@ class BannerController extends Controller
     {
          $banner = Banner::findOrFail($id);
 
-        $request->validate([
+       $validated = $request->validate([
             'title' => 'nullable|string|max:255',
             'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'link' => 'nullable|string|max:255',
             'is_active' => 'boolean',
         ]);
 
-        if ($request->hasFile('image')) {
-            if ($banner->image && Storage::disk('public')->exists($banner->image)) {
-                Storage::disk('public')->delete($banner->image);
-            }
-            $banner->image = $request->file('image')->store('banners', 'public');
-        }
+if ($request->hasFile('image')) {
+    $path = $request->file('image')->store('posts', 'public');
+    $validated['image'] = asset('storage/' . $path); // ✅ trả link đầy đủ
+}
 
-        $banner->update([
-            'title' => $request->title ?? $banner->title,
-            'link' => $request->link ?? $banner->link,
-            'is_active' => $request->is_active ?? $banner->is_active,
-        ]);
+    $post->update($validated);
 
+    
         return response()->json(['message' => 'Cập nhật banner thành công', 'data' => $banner]);
     }
 
