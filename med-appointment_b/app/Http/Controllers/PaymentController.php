@@ -88,9 +88,14 @@ class PaymentController extends Controller
 
 
 
-        // ✅ Lấy appointment_id từ invoice (nếu có)
-        $appointmentId = $invoice->appointment_id ?? 1; // 👈 hoặc null nếu DB cho phép null
+        $appointmentId = $invoice->appointment_id;
 
+        if (is_null($appointmentId)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không có cuộc hẹn.'
+            ]);
+        }
         $payment = Payment::createPayosPayment($appointmentId, $invoice->amount);
 
         $orderCode = (int)substr(time() . rand(100, 999), -12);
