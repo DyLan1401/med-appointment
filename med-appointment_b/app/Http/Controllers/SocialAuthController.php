@@ -13,7 +13,10 @@ class SocialAuthController extends Controller
     // B1: Redirect người dùng đến Google OAuth
     public function redirectToGoogle()
     {
-        return Socialite::driver('google')->stateless()->redirect();
+        return Socialite::driver('google')
+        ->stateless()
+        ->with(['prompt' => 'select_account']) // hoặc 'consent select_account'
+        ->redirect();
     }
 
     // B2: Nhận callback từ Google
@@ -79,6 +82,7 @@ class SocialAuthController extends Controller
                     'email' => $facebookUser->getEmail(),
                     'facebook_id' => $facebookUser->getId(),
                     'password' => bcrypt(Str::random(16)), // random mật khẩu
+                    'role' => 'patient', // Gán role mặc định là 'patient'
                 ]);
             } else {
                 // Nếu có user nhưng chưa lưu facebook_id, thì cập nhật

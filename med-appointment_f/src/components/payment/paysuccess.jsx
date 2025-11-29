@@ -32,10 +32,7 @@ export default function PaymentSuccess() {
 
             {/* Action Buttons */}
             <div className="space-y-3">
-              <button className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-xl font-semibold hover:from-green-600 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center gap-2">
-                <Download className="w-5 h-5" />
-                Tải hóa đơn
-              </button>
+            
               <button
               onClick={() => navigate('/')}
               className="w-full bg-gray-100 text-gray-700 py-4 rounded-xl font-semibold hover:bg-gray-200 transition-all duration-300 flex items-center justify-center gap-2">

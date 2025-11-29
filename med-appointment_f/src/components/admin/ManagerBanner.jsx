@@ -40,30 +40,30 @@ export default function ManagerBanners() {
 
     // ------------------- CRUD HANDLERS -------------------
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        const formData = new FormData();
-        formData.append("title", form.title);
-        formData.append("link", form.link);
-        formData.append("is_active", form.is_active ? 1 : 0);
-        if (form.image) formData.append("image", form.image);
+    e.preventDefault();
 
-        try {
-            if (editingId) {
-                await API.post(`/banners/${editingId}?_method=PUT`, formData, {
-                    headers: { "Content-Type": "multipart/form-data" },
-                });
-            } else {
-                await API.post("/banners", formData, {
-                    headers: { "Content-Type": "multipart/form-data" },
-                });
-            }
-            setForm({ title: "", link: "", image: "", is_active: true });
-            setEditingId(null);
-            loadBanners();
-        } catch (err) {
-            console.error("Lỗi khi gửi dữ liệu:", err);
-        }
-    };
+    const formData = new FormData();
+    formData.append("title", form.title);
+    formData.append("link", form.link);
+    formData.append("is_active", form.is_active ? 1 : 0);
+
+    if (form.image) {
+        formData.append("image", form.image);
+    }
+
+    if (editingId) {
+        await API.post(`/banners/${editingId}?_method=PUT`, formData);
+    } else {
+        await API.post(`/banners`, formData);
+    }
+
+    setForm({ title: "", link: "", image: "", oldImage: "", is_active: true });
+    setEditingId(null);
+
+    loadBanners();
+};
+
+console.log(form);
 
     // ------------------- edit -------------------
     const handleEdit = (banner) => {

@@ -37,15 +37,17 @@ class BannerController extends Controller
             'is_active' => 'boolean',
         ]);
 
-        if ($request->hasFile('image')) {
+      if ($request->hasFile('image')) {
     $path = $request->file('image')->store('posts', 'public');
     $validated['image'] = asset('storage/' . $path); 
-        }
+}
 
-        $banner = Banner::create($validated);
+$banner = Banner::create($validated);
 
-        return response()->json(['message' => 'Tạo banner thành công', 'data' => $banner], 201);
-    }
+// Trả về URL đầy đủ
+
+return response()->json(['message' => 'Tạo banner thành công', 'data' => $banner], 201);
+ }
 
     /**
      * Display the specified resource.
@@ -67,27 +69,31 @@ class BannerController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
-    {
-         $banner = Banner::findOrFail($id);
+  public function update(Request $request, $id)
+{
+    $banner = Banner::findOrFail($id);
 
-       $validated = $request->validate([
-            'title' => 'nullable|string|max:255',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'link' => 'nullable|string|max:255',
-            'is_active' => 'boolean',
-        ]);
+    $validated = $request->validate([
+        'title' => 'nullable|string|max:255',
+        'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        'link' => 'nullable|string|max:255',
+        'is_active' => 'boolean',
+    ]);
 
-if ($request->hasFile('image')) {
-    $path = $request->file('image')->store('posts', 'public');
-    $validated['image'] = asset('storage/' . $path); // ✅ trả link đầy đủ
+  if ($request->hasFile('image')) {
+    $path = $request->file('image')->store('banners', 'public');
+    $validated['image'] = $path;  // lưu path
+} else {
+    unset($validated['image']); // tránh ghi đè null
 }
+    $banner->update($validated);
 
-    $post->update($validated);
+    return response()->json([
+        'message' => 'Cập nhật banner thành công',
+        'data' => $banner
+    ]);
+   }
 
-    
-        return response()->json(['message' => 'Cập nhật banner thành công', 'data' => $banner]);
-    }
 
     /**
      * Remove the specified resource from storage.
@@ -103,5 +109,8 @@ if ($request->hasFile('image')) {
         $banner->delete();
         return response()->json(['message' => 'Đã xóa banner thành công']);
     }
-    
+
 }
+
+    
+

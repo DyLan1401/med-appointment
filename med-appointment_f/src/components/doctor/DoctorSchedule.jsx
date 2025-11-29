@@ -18,7 +18,7 @@ export default function DoctorSchedule() {
 
   // Lấy doctor_id từ localStorage
   useEffect(() => {
-    const id = localStorage.getItem("doctor_id");
+    const id = localStorage.getItem("user_id");
     if (id) setDoctorId(id);
   }, []);
 

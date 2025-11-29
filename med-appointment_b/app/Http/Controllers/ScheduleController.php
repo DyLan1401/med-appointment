@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Doctor;
 use App\Models\Schedule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -177,26 +178,38 @@ class ScheduleController extends Controller
         }
     }
 
-    public function getScheduleById($doctor_id)
-    {
-        try {
-            $schedules = Schedule::with('doctor')
-                ->where('doctor_id', $doctor_id)
-                ->orderBy('date', 'asc')
-                ->get();
+public function getScheduleByUserId($user_id)
+{
+    try {
+        // Tìm bác sĩ bằng user_id
+        $doctor = Doctor::where('user_id', $user_id)->first();
 
-            return response()->json([
-                'status' => true,
-                'msg' => 'Lấy lịch làm việc thành công!',
-                'data' => $schedules
-            ]);
-
-        } catch (Exception $e) {
+        if (!$doctor) {
             return response()->json([
                 'status' => false,
-                'msg' => 'Đã xảy ra lỗi khi truy vấn dữ liệu!',
-                'error' => $e->getMessage()
-            ], 500);
+                'msg' => 'Không tìm thấy bác sĩ tương ứng với user_id này!',
+            ], 404);
         }
+
+        // Lấy schedule bằng doctor_id
+        $schedules = Schedule::with('doctor')
+            ->where('doctor_id', $doctor->id)
+            ->orderBy('date', 'asc')
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'msg' => 'Lấy lịch làm việc thành công!',
+            'data' => $schedules
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => false,
+            'msg' => 'Đã xảy ra lỗi khi truy vấn dữ liệu!',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
+
 }

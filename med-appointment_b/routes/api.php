@@ -24,7 +24,7 @@ Route::prefix('schedules')->group(function () {
     Route::post('/', [ScheduleController::class, 'store']);
     Route::put('/{id}', [ScheduleController::class, 'update']);
     Route::delete('/{id}', [ScheduleController::class, 'destroy']);
-    Route::get('/getbyid/{doctor_id}', [ScheduleController::class, 'getScheduleById']);
+    Route::get('/getbyid/{doctor_id}', [ScheduleController::class, 'getScheduleByUserId']);
 });
 
 // ======================================================
