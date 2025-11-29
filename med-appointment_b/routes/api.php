@@ -144,16 +144,17 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Lịch sử bệnh nhân
     Route::get('/patient/history', [PatientHistoryController::class, 'index']);
-
- Route::prefix('post-feedbacks')->group(function () {
-    Route::get('/', [PostFeedbackController::class, 'index']);
-    Route::put('/{id}', [PostFeedbackController::class, 'update']);
-    Route::delete('/{id}', [PostFeedbackController::class, 'destroy']);
 });
-Route::get('/posts/{postId}/feedbacks', [PostFeedbackController::class, 'listByPost']);
 
-    Route::post('/posts/{id}/feedbacks', [PostFeedbackController::class, 'store']);
+Route::prefix('post-feedbacks')->middleware('auth:sanctum')->group(function () {
+    Route::get('/', [PostFeedbackController::class, 'index']);      // admin
+    Route::put('/{id}', [PostFeedbackController::class, 'update']); // owner/admin
+    Route::delete('/{id}', [PostFeedbackController::class, 'destroy']); // owner/admin
 });
+
+Route::get('/posts/{postId}/feedbacks', [PostFeedbackController::class, 'listByPost']); // public
+Route::post('/posts/{postId}/feedbacks', [PostFeedbackController::class, 'store'])->middleware('auth:sanctum');
+
 
 // ======================================================
 // ⭐ FEEDBACK (bác sĩ)

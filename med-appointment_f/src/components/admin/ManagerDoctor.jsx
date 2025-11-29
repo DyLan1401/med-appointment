@@ -67,7 +67,7 @@ export default function ManagerDoctor() {
         setDoctors([res.data.doctor, ...doctors]);
         toast.success("✅ Thêm bác sĩ thành công!");
         // ✅ Sau khi thêm bác sĩ → mở hồ sơ chi tiết để cập nhật
-        setDetailDoctor(res.data.doctor);
+        // setDetailDoctor(res.data.doctor);
       }
       resetForm();
     } catch (err) {
