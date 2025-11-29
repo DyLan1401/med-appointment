@@ -76,7 +76,8 @@ export default function DatLichKham() {
         navigate(`/payment/options/${appointmentId}`);
       }, 1000);
     } catch (error) {
-      toast.error(error.response?.data?.message || "Có lỗi xảy ra khi đặt lịch, vui lòng thử lại!");
+      console.error(error);
+      toast.error(error.response?.data?.error || "Có lỗi xảy ra khi đặt lịch, vui lòng thử lại!");
     }
   };
 
