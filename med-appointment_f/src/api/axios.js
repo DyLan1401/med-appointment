@@ -80,6 +80,9 @@ API.interceptors.response.use(
 
       case 404:
         toast.warning(data.message || "❓ Không tìm thấy tài nguyên yêu cầu!");
+        setTimeout(() => {
+          window.location.href = "/404";
+        }, 800);
         break;
 
       case 419:

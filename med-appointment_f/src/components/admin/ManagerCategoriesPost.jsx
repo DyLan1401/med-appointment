@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import API from "../../api/axios";
 import { FaTrashAlt, FaPencilAlt } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 export default function Categories() {
     const [categories, setCategories] = useState([]);
@@ -28,13 +29,31 @@ export default function Categories() {
     //
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (editingId) await updateCategory(editingId, form);
-        else await createCategory(form);
 
-        setForm({ name: "", description: "" });
-        setEditingId(null);
-        loadCategories(pagination.current_page);
+        if (!form.name.trim()) {
+            toast.warning("⚠️ Tên danh mục không được để trống!");
+            return;
+        }
+
+        try {
+            if (editingId) {
+                await updateCategory(editingId, form);
+                toast.success("✅ Cập nhật danh mục thành công!");
+            } else {
+                await createCategory(form);
+                toast.success("✅ Thêm danh mục thành công!");
+            }
+
+            setForm({ name: "", description: "" });
+            setEditingId(null);
+            loadCategories(pagination.current_page);
+
+        } catch (err) {
+            console.error("❌ Lỗi khi thêm/sửa danh mục:", err);
+            toast.error("❌ Thêm / cập nhật danh mục thất bại!");
+        }
     };
+
     //
     const handleEdit = (cat) => {
         setEditingId(cat.id);
@@ -42,9 +61,18 @@ export default function Categories() {
     };
     //
     const handleDelete = async (id) => {
-        await deleteCategory(id);
-        loadCategories(pagination.current_page);
+        if (!window.confirm("Bạn có chắc muốn xóa danh mục này?")) return;
+
+        try {
+            await deleteCategory(id);
+            toast.success("🗑️ Xóa danh mục thành công!");
+            loadCategories(pagination.current_page);
+        } catch (err) {
+            console.error("❌ Lỗi khi xóa danh mục:", err);
+            toast.error("❌ Xóa danh mục thất bại!");
+        }
     };
+
 
     return (
         <div className="p-6 ">

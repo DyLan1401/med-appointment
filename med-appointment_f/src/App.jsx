@@ -62,7 +62,7 @@ import TopDoctors from "./components/doctor/TopDoctors";
 
 /* Thêm Feedback (bước 3) */
 import FeedBackDoctor from "./components/common/FeedBackDoctor";
-
+import NotFound from "./pages/general/NotFound";
 /* 💬 Chatbot nổi */
 import ChatBot from "./components/common/ChatBot";
 
@@ -253,10 +253,15 @@ export default function App() {
         <Route path="/payment/options/:id" element={<PaymentOptions />} />
         <Route path="/payment/deposit/:appointmentId" element={<DepositPage />} />
         <Route path="/payment/payfull/:appointmentId" element={<PayfullPage />} />
+
+
+        <Route path="*" element={<NotFound />} />
+
       </Routes>
 
       {/* 💬 Chatbot nổi - hiển thị toàn cục */}
       <ChatBot />
+
     </>
   );
 }

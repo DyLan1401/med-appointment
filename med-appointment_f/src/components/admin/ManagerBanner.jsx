@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import API from "../../api/axios";
 import { FaTrashAlt, FaPencilAlt } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 export default function ManagerBanners() {
     const [banners, setBanners] = useState([]);
@@ -40,30 +41,60 @@ export default function ManagerBanners() {
 
     // ------------------- CRUD HANDLERS -------------------
     const handleSubmit = async (e) => {
-    e.preventDefault();
+        e.preventDefault();
 
-    const formData = new FormData();
-    formData.append("title", form.title);
-    formData.append("link", form.link);
-    formData.append("is_active", form.is_active ? 1 : 0);
+        // ✅ KIỂM SOÁT NGAY TỪ ĐẦU
+        if (form.image && !(form.image instanceof File)) {
+            console.error("❌ image KHÔNG phải File:", form.image);
+            return;
+        }
 
-    if (form.image) {
-        formData.append("image", form.image);
-    }
+        const formData = new FormData();
+        formData.append("title", form.title);
+        formData.append("link", form.link);
+        formData.append("is_active", form.is_active ? 1 : 0);
 
-    if (editingId) {
-        await API.post(`/banners/${editingId}?_method=PUT`, formData);
-    } else {
-        await API.post(`/banners`, formData);
-    }
+        if (form.image) {
+            formData.append("image", form.image);
+        }
 
-    setForm({ title: "", link: "", image: "", oldImage: "", is_active: true });
-    setEditingId(null);
+        try {
+            if (editingId) {
+                await API.post(
+                    `/banners/${editingId}?_method=PUT`,
+                    formData,
+                    {
+                        headers: { "Content-Type": "multipart/form-data" },
+                    }
+                );
+                toast.success("✅ Cập nhật banner thành công!");
 
-    loadBanners();
-};
+            } else {
+                await API.post(
+                    `/banners`,
+                    formData,
+                    {
+                        headers: { "Content-Type": "multipart/form-data" },
+                    }
+                );
+                toast.success("✅ Thêm banner thành công!");
 
-console.log(form);
+            }
+
+            setForm({ title: "", link: "", image: "", oldImage: "", is_active: true });
+            setEditingId(null);
+            loadBanners();
+
+        } catch (err) {
+            console.error("❌ Lỗi khi thêm/sửa banner:", err);
+            toast.error("❌ Thêm/Sửa banner thất bại!");
+        }
+    };
+
+    console.log("FORM:", form);
+
+
+    console.log(form);
 
     // ------------------- edit -------------------
     const handleEdit = (banner) => {
@@ -79,9 +110,15 @@ console.log(form);
 
     // ------------------- delete -------------------
     const handleDelete = async (id) => {
-        if (window.confirm("Bạn có chắc muốn xóa banner này?")) {
+        if (!window.confirm("Bạn có chắc muốn xóa banner này?")) return;
+
+        try {
             await deleteBanner(id);
+            toast.success("🗑️ Xóa banner thành công!");
             loadBanners();
+        } catch (err) {
+            console.error("❌ Lỗi khi xóa banner:", err);
+            toast.error("❌ Xóa banner thất bại!");
         }
     };
 

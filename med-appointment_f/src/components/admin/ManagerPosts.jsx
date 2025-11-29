@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import API from "../../api/axios";
 import { FaTrashAlt, FaPencilAlt } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 export default function Posts() {
     const [posts, setPosts] = useState([]);
@@ -28,15 +29,22 @@ export default function Posts() {
     }, []);
 
     const loadPosts = async () => {
-        const res = await API.get(`/posts?search=${search}`);
-        console.log("Kết quả API posts:", res.data);
+        try {
+            const res = await API.get(`/posts?search=${search}`);
+            console.log("Kết quả API posts:", res.data);
 
-        setPosts(res.data.data || res.data);
-        setPagination({
-            current_page: res.data.current_page,
-            last_page: res.data.last_page,
-        });
+            setPosts(res.data.data || res.data);
+            setPagination({
+                current_page: res.data.current_page || 1,
+                last_page: res.data.last_page || 1,
+            });
+
+        } catch (err) {
+            console.error("❌ Lỗi khi tải bài viết:", err);
+            toast.error("❌ Không thể tải danh sách bài viết!");
+        }
     };
+
 
     const loadCategories = async () => {
         try {
@@ -50,30 +58,52 @@ export default function Posts() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        if (!form.title.trim()) {
+            toast.warning("⚠️ Tiêu đề không được để trống!");
+            return;
+        }
+
+        if (!form.category_id) {
+            toast.warning("⚠️ Vui lòng chọn danh mục!");
+            return;
+        }
+
+        if (form.image && !(form.image instanceof File)) {
+            toast.error("❌ File ảnh không hợp lệ!");
+            return;
+        }
+
         const formData = new FormData();
         formData.append("title", form.title);
         formData.append("content", form.content);
         formData.append("category_id", form.category_id);
-        if (form.image) formData.append("image", form.image); // chỉ gửi khi có ảnh mới
+        if (form.image) formData.append("image", form.image);
 
         try {
             if (editingId) {
                 await API.post(`/posts/${editingId}?_method=PUT`, formData, {
                     headers: { "Content-Type": "multipart/form-data" },
                 });
+
+                toast.success("✅ Cập nhật bài viết thành công!");
             } else {
                 await API.post("/posts", formData, {
                     headers: { "Content-Type": "multipart/form-data" },
                 });
+
+                toast.success("✅ Thêm bài viết thành công!");
             }
 
             setForm({ title: "", content: "", image: "", category_id: "", oldImage: "" });
             setEditingId(null);
             loadPosts();
+
         } catch (err) {
-            console.error("Lỗi khi gửi dữ liệu:", err);
+            console.error("❌ Lỗi khi thêm/sửa bài viết:", err);
+            toast.error("❌ Thêm / cập nhật bài viết thất bại!");
         }
     };
+
 
 
     const handleEdit = (post) => {
@@ -88,9 +118,18 @@ export default function Posts() {
     };
 
     const handleDelete = async (id) => {
-        await deletePost(id);
-        loadPosts();
+        if (!window.confirm("Bạn có chắc muốn xóa bài viết này?")) return;
+
+        try {
+            await deletePost(id);
+            toast.success("🗑️ Xóa bài viết thành công!");
+            loadPosts();
+        } catch (err) {
+            console.error("❌ Lỗi khi xóa bài viết:", err);
+            toast.error("❌ Xóa bài viết thất bại!");
+        }
     };
+
 
     const filteredPosts = posts.filter((p) =>
         p.title.toLowerCase().includes(search.toLowerCase())

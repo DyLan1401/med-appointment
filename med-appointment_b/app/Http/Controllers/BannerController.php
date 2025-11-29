@@ -37,9 +37,10 @@ class BannerController extends Controller
             'is_active' => 'boolean',
         ]);
 
-      if ($request->hasFile('image')) {
-    $path = $request->file('image')->store('posts', 'public');
-    $validated['image'] = asset('storage/' . $path); 
+     if ($request->hasFile('image')) {
+    $path = $request->file('image')->store('banners', 'public');
+    $validated['image'] = $path; // CHỈ LƯU PATH
+
 }
 
 $banner = Banner::create($validated);

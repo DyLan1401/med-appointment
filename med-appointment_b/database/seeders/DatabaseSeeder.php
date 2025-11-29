@@ -30,6 +30,7 @@ class DatabaseSeeder extends Seeder
             InvoiceSeeder::class,
             FeedbackSeeder::class,
             ChatbotMessageSeeder::class,
+            PostFeedbackSeeder::class,
         ]);
         // Tạo tài khoản admin cố định
          User::updateOrCreate(
