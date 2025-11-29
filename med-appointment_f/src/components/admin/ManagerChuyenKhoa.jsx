@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
-import axios from "axios";
 import API from "../../api/axios";
 import { FaTrashAlt, FaPencilAlt } from "react-icons/fa";
 
@@ -15,24 +14,20 @@ export default function ManagerChuyenKhoa() {
   const [loading, setLoading] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState("");
+  const searchTimer = useRef(null);
+
   const [pagination, setPagination] = useState({
     current_page: 1,
     last_page: 1,
   });
 
-  const API_URL = "http://127.0.0.1:8000/api/departments";
-  const SEARCH_URL = "http://127.0.0.1:8000/api/departments/search";
-
-  // 🔹 Lấy danh sách chuyên khoa (phân trang + tìm kiếm)
   const fetchDepartments = async (page = 1, query = "") => {
     try {
       let url = query.trim()
-        ? `${SEARCH_URL}?query=${encodeURIComponent(query)}&page=${page}`
-        : `${API_URL}?page=${page}`;
+        ? `/departments/search?query=${encodeURIComponent(query)}&page=${page}`
+        : `/departments?page=${page}`;
 
-      const res = await axios.get(url);
-
-      // Nếu backend trả về data dạng { data, pagination }
+      const res = await API.get(url);
       const { data, pagination: pg } = res.data;
 
       setDepartments(data);
@@ -40,9 +35,9 @@ export default function ManagerChuyenKhoa() {
         current_page: pg.current_page,
         last_page: pg.last_page,
       });
+
     } catch (err) {
-      toast.error("Không thể tải danh sách chuyên khoa.");
-      setMessage({ type: "error", text: "Không thể tải danh sách chuyên khoa." });
+      
     }
   };
 
@@ -50,43 +45,49 @@ export default function ManagerChuyenKhoa() {
     fetchDepartments();
   }, []);
 
-  // 🔍 Xử lý tìm kiếm
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearchQuery(value);
-    fetchDepartments(1, value);
+
+    if (searchTimer.current) clearTimeout(searchTimer.current);
+
+    searchTimer.current = setTimeout(() => {
+      fetchDepartments(1, value);
+    }, 400);
   };
 
-  // 🟢 Mở modal thêm/sửa
-const handleOpenModal = (edit = false, dep = null) => {
+  const handleOpenModal = (edit = false, dep = null) => {
     setIsEdit(edit);
-    setFormData(
-      edit && dep 
-        ? { 
-            id: dep.id, 
-            name: dep.name, 
-            description: dep.description, 
-            updated_at: dep.updated_at // <--- THÊM DÒNG NÀY
-          } 
-        : { id: null, name: "", description: "" }
-    );
+
+    if (edit && dep) {
+      setFormData({
+        id: dep.id,
+        name: dep.name,
+        description: dep.description,
+        updated_at: dep.updated_at,
+      });
+    } else {
+      setFormData({ id: null, name: "", description: "" });
+    }
+
     setShowModal(true);
-};
-  //
+  };
+
   const handleCloseModal = () => setShowModal(false);
 
-  // 🟡 Gửi dữ liệu thêm/sửa
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (loading) return;
+
     setLoading(true);
     try {
       let res;
+
       if (isEdit) {
-        res = await axios.put(`${API_URL}/${formData.id}`, {
+        res = await API.put(`/departments/${formData.id}`, {
           name: formData.name,
           description: formData.description,
-          updated_at: formData.updated_at, // <--- THÊM DÒNG NÀY: Gửi timestamp cũ lên để check
+          updated_at: formData.updated_at,
         });
       } else {
         res = await API.post(`/departments`, {
@@ -94,56 +95,49 @@ const handleOpenModal = (edit = false, dep = null) => {
           description: formData.description,
         });
       }
+
       toast.success(res.data.message || "Lưu thành công!");
       setMessage({ type: "success", text: res.data.message });
+
       await fetchDepartments(pagination.current_page, searchQuery);
       setShowModal(false);
+
     } catch (err) {
-      // --- XỬ LÝ LỖI MỚI ---
-      if (err.response && err.response.status === 409) {
-        toast.error(err.response.data.message); // Hiển thị: Dữ liệu đã thay đổi...
-        setMessage({ type: "error", text: err.response.data.message });
-        
-        // Tùy chọn: Tự động đóng modal và load lại dữ liệu mới để người dùng xem
-        // setShowModal(false);
-        // fetchDepartments(pagination.current_page, searchQuery);
-      } else {
-        toast.error(err.response?.data?.message || "Đã xảy ra lỗi.");
-        setMessage({ type: "error", text: err.response?.data?.message || "Đã xảy ra lỗi." });
-      }
+      // toast.error(err.response?.data?.message || "Đã xảy ra lỗi.");
     } finally {
       setLoading(false);
     }
-};
+  };
 
-  // 🔴 Xóa chuyên khoa
   const handleDelete = async () => {
     try {
-      const res = await axios.delete(`${API_URL}/${deleteId}`);
+      const res = await API.delete(`/departments/${deleteId}`);
+
       toast.success(res.data.message || "Xóa thành công!");
       setMessage({ type: "success", text: res.data.message });
+
       await fetchDepartments(pagination.current_page, searchQuery);
       setShowDeleteModal(false);
+
     } catch (err) {
       toast.error(err.response?.data?.message || "Không thể xóa.");
-      setMessage({ type: "error", text: err.response?.data?.message || "Không thể xóa." });
     }
   };
 
-  // 🔸 Điều hướng trang
   const handlePageChange = (page) => {
     fetchDepartments(page, searchQuery);
   };
 
   return (
     <div className=" p-6">
-      {/* Header */}
+
       <h1 className="text-2xl font-bold text-blue-700 mb-2">Quản lý Chuyên khoa</h1>
 
       {message && (
         <div
-          className={`p-3 mb-3 rounded-lg text-white transition-all ${message.type === "success" ? "bg-green-500" : "bg-red-500"
-            }`}
+          className={`p-3 mb-3 rounded-lg text-white transition-all ${
+            message.type === "success" ? "bg-green-500" : "bg-red-500"
+          }`}
         >
           {message.text}
         </div>
@@ -158,20 +152,6 @@ const handleOpenModal = (edit = false, dep = null) => {
             placeholder="Tìm kiếm Chuyên khoa"
             className="block w-full p-3 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-200"
           />
-          <svg
-            className="w-4 h-4 text-gray-500 absolute top-3 left-3"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 20 20"
-          >
-            <path
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-            />
-          </svg>
         </div>
 
         <button
@@ -182,11 +162,10 @@ const handleOpenModal = (edit = false, dep = null) => {
         </button>
       </div>
 
-      {/* Danh sách bảng */}
       <table className="w-full text-sm text-center text-gray-500">
-        <thead className="uppercase  text-white bg-blue-500">
+        <thead className="uppercase text-white bg-blue-500">
           <tr>
-            <th className=" py-3">Tên Chuyên khoa</th>
+            <th className="py-3">Tên Chuyên khoa</th>
             <th className="px-6 py-3">Mô tả</th>
             <th className="px-6 py-3">Thao tác</th>
           </tr>
@@ -194,7 +173,7 @@ const handleOpenModal = (edit = false, dep = null) => {
         <tbody>
           {departments.length > 0 ? (
             departments.map((dep) => (
-              <tr key={dep.id} className="odd:bg-white even:bg-gray-50 border-b ">
+              <tr key={dep.id} className="odd:bg-white even:bg-gray-50 border-b">
                 <td className="px-6 py-4 font-medium text-gray-900">{dep.name}</td>
                 <td className="px-6 py-4">{dep.description}</td>
                 <td className="px-6 py-4 space-x-2">
@@ -209,7 +188,7 @@ const handleOpenModal = (edit = false, dep = null) => {
                       setDeleteId(dep.id);
                       setShowDeleteModal(true);
                     }}
-                    className=" text-red-600 hover:underline"
+                    className="text-red-600 hover:underline"
                   >
                     <FaTrashAlt />
                   </button>
@@ -226,7 +205,6 @@ const handleOpenModal = (edit = false, dep = null) => {
         </tbody>
       </table>
 
-      {/* 🔹 Phân trang */}
       <div className="flex justify-center items-center mt-4 space-x-2">
         <button
           disabled={pagination.current_page === 1}
@@ -249,13 +227,13 @@ const handleOpenModal = (edit = false, dep = null) => {
         </button>
       </div>
 
-      {/* Modal thêm/sửa */}
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
           <div className="bg-white rounded-lg shadow-lg w-96 p-6">
             <h2 className="text-lg font-semibold mb-4">
               {isEdit ? "Sửa Chuyên khoa" : "Thêm Chuyên khoa"}
             </h2>
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Tên Chuyên khoa</label>
@@ -267,6 +245,7 @@ const handleOpenModal = (edit = false, dep = null) => {
                   required
                 />
               </div>
+
               <div>
                 <label className="block text-sm font-medium mb-1">Mô tả</label>
                 <textarea
@@ -276,6 +255,7 @@ const handleOpenModal = (edit = false, dep = null) => {
                   rows="3"
                 />
               </div>
+
               <div className="flex justify-end space-x-3 pt-2">
                 <button
                   type="button"
@@ -284,6 +264,7 @@ const handleOpenModal = (edit = false, dep = null) => {
                 >
                   Hủy
                 </button>
+
                 <button
                   type="submit"
                   className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
@@ -296,12 +277,12 @@ const handleOpenModal = (edit = false, dep = null) => {
         </div>
       )}
 
-      {/* Modal xác nhận xóa */}
       {showDeleteModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
           <div className="bg-white rounded-lg shadow-lg w-80 p-6">
             <h2 className="text-lg font-semibold mb-3 text-red-600">Xác nhận xóa</h2>
             <p className="mb-4 text-gray-700">Bạn có chắc muốn xóa chuyên khoa này không?</p>
+
             <div className="flex justify-end space-x-3">
               <button
                 onClick={() => setShowDeleteModal(false)}
@@ -309,6 +290,7 @@ const handleOpenModal = (edit = false, dep = null) => {
               >
                 Hủy
               </button>
+
               <button
                 onClick={handleDelete}
                 className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
@@ -319,6 +301,7 @@ const handleOpenModal = (edit = false, dep = null) => {
           </div>
         </div>
       )}
+
     </div>
   );
 }
