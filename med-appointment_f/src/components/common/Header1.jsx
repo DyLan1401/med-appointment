@@ -78,7 +78,7 @@ export default function Header1() {
                                 : "https://via.placeholder.com/1200x400?text=No+Image" // ảnh fallback
                         }
                         alt={banner.title || "Banner"}
-                        className="w-full h-full object-cover flex-shrink-0"
+                        className="w-full h-full object-fill flex-shrink-0"
                     />
                 ))}
             </div>

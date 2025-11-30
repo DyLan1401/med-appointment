@@ -30,18 +30,21 @@ class BannerController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'title' => 'nullable|string|max:255',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'link' => 'nullable|string|max:255',
-            'is_active' => 'boolean',
-        ]);
+      $validated = $request->validate([
+        'title' => 'nullable|string|max:255',
+        'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        'link' => 'nullable|string|max:255',
+        'is_active' => 'boolean',
+    ]);
 
-     if ($request->hasFile('image')) {
-    $path = $request->file('image')->store('banners', 'public');
-    $validated['image'] = $path; // CHỈ LƯU PATH
+    if ($request->hasFile('image')) {
+        // 1. Lưu ảnh và lấy đường dẫn tương đối (ví dụ: banners/abc.jpg)
+        $path = $request->file('image')->store('banners', 'public');
 
-}
+        // 2. Nối thêm domain để tạo full URL
+        // Kết quả: http://localhost:8000/storage/banners/abc.jpg
+        $validated['image'] = url('storage/' . $path); 
+    }
 
 $banner = Banner::create($validated);
 
