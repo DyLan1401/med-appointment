@@ -191,6 +191,6 @@ Route::get('/invoices/{id}/download', [InvoiceController::class, 'download']);
 // ======================================================
 Route::post('/chatbot', [ChatbotController::class, 'getReply']);
 
-
-Route::apiResource('departments', DepartmentController::class);
 Route::get('/departments/search', [DepartmentController::class, 'search']);
+Route::apiResource('departments', DepartmentController::class);
+
