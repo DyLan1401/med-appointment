@@ -52,7 +52,7 @@ class AppointmentController extends Controller
         $data['patient_id'] = $patient->id;
         unset($data['user_id']);
 
-        $id = \App\Models\Appointment::createAppointment($data);
+        $id = Appointment::createAppointment($data);
 
         return response()->json([
             'message' => 'Tạo cuộc hẹn thành công',
